@@ -1,86 +1,67 @@
 \chapter*{Introduction}
 
-Utilité de la modularité.
-Etat des lieux en OCaml. Parler qu'il y a une distinction entre le langage de
-base et le langage de modules.
+La programmation modulaire est un principe de développement visant à séparer une
+application en composants plus petits appelés \textit{modules}. Le langage de
+programmation OCaml contient un langage de modules qui permet aux développeurs
+d'utiliser la programmation modulaire. Dans ce langage de module, un module est
+un ensemble de types et de valeurs, les types des valeurs pouvant dépendre des
+types définis dans le même module.
+OCaml étant un langage fortement typé, les modules possèdent également
+un type, appelé dans ce cas \textit{signature}.
 
-%Etat des lieux en Scala.
-%Comparer un code OCaml et l'équivalent Scala.
+Bien que les modules soient bien intégrés dans OCaml, une
+distinction est faite entre le langage de base, contenant les types dits \og de
+bases \fg comme les entiers, les chaines de caractères ou les fonctions, et le
+langage de module. En particulier, le terme \textit{foncteur} est employé à la
+place de \textit{fonction} pour parler des valeurs prenant un module en
+paramètres et en retournant un autre. De plus, il n'est pas possible de définir
+des valeurs prenant un module et un type de base et retournant un module (ou un
+type de base).
 
-%\section{Pourquoi s'intéresser à l'aspect théorique ?}
-%
-%Pourquoi je me suis intéressé à l'aspect théorique, aux fondations des langages
-%de programmation ?
-%
-%J'ai toujours été attiré par les mathématiques pour le coté formel.
-%\begin{enumerate}
-%\item Prouver qu'un langage a des bases sûres et qu'on est sûr qu'il n'y a pas
-%  de problème de sémantique dans notre code.
-%\end{enumerate}
-%
-%Comprendre les fondements théoriques permet de mieux comprendre comment le
-%langage fonctionne et être meilleur dans son domaine.
-
-
-Dans un langage de programmation typé, comme OCaml, etc...
+D'un autre côté, dans les types de bases d'OCaml se trouvent les
+\textit{enregistrements}. Ces derniers sont des ensembles de couples
+\textit{(label, valeur)}, et ressemble en quelques points aux modules.
 
 Ce mémoire vise à fournir un calcul typé, construit à partir du $\lambda$-calcul
-simplement typé, dans lequel le langage de modules est
-confondu avec le langage de base grâce aux enregistrements. Une preuve de la sureté de ce calcul ainsi
+simplement typé, dans lequel le langage de modules est confondu avec le langage
+de base grâce aux enregistrements. Une preuve de la sûreté de ce calcul ainsi
 qu'un interpréteur avec un algorithme de sous-typage et d'inférence de type est
 fourni.
 
-Les chapitres sont organisés afin de comprendre la construction d'un tel calcul.
+Les chapitres sont organisés afin de comprendre la construction d'un tel calcul
+à partir du plus simples des calculs, le $\lambda$-calcul.
 
-Dans le chapitre 1, nous présentons le $\lambda$-calcul non typé, un calcul
+Dans le chapitre 1, nous présentons \textit{le $\lambda$-calcul non typé}, un calcul
 minimal qui contient des termes pour les variables, pour les abstractions (afin
 de représenter des fonctions) et des applications (afin de représenter
 l'application d'une fonction à un paramètre). Nous discuterons également de la
-sémantique que nous attribuons à ce calcul.
+sémantique que nous attribuons à ce calcul. 
 
 Dans le chapitre 2, nous introduisons la notion de type et nous l'appliquons au
-$\lambda$-calcul, ce qui nous donnera le $\lambda$-calcul simplement typé. Nous
-discuterons de la notion de \textit{sureté du typage} à travers les théorèmes
-de préservation et de progression que nous démontrons pour ce calcul typé.
+$\lambda$-calcul, ce qui nous donnera \textit{le $\lambda$-calcul simplement typé}. Nous
+discuterons de la notion de \textit{sureté du typage} à travers \textit{les théorèmes
+de préservation et de progression} que nous démontrons pour ce calcul typé.
 
 Dans le chapitre 3, nous parlerons de la notion de type récursif et nous
-étudierons le $\lambda$-calcul simplement typé avec type récursif.
+étudierons \textit{le $\lambda$-calcul simplement typé avec type récursif}.
 
 Dans les chapitres 4, 5 et 6, nous enrichissons le $\lambda$-calcul simplement
 typé avec la notion de polymorphisme qui permet d'attribuer plusieurs types à un
-terme. Le chapitre 4 se concentre sur le polymorphisme avec sous-typage,
+terme. Le chapitre 4 se concentre sur \textit{le polymorphisme avec sous-typage},
 illustré avec les enregistrements. Dans le chapitre 5, nous parlons de
-polymorphisme paramétré qui, combiné au $\lambda$-calcul simplement typé, forme
+\textit{polymorphisme paramétré} qui, combiné au $\lambda$-calcul simplement typé, forme
 le calcul appelé \textit{System F}.
 Le chapitre 6 se charge de combiner ces deux notions de polymorphismes dans un
-calcul appelé System $F_{<:}$.
+calcul appelé \textit{System $F_{<:}$}.
 
-Pour finir, dans le chapitre 7, nous enrichirons les enregistrements définis
-dans le chapitre 4 avec les types chemins dépendants qui offre la possibilité
+Pour finir, dans le chapitre 7, nous complétons les enregistrements définis
+dans le chapitre 4 avec les \textit{types chemins dépendants} qui offre la possibilité
 d'ajouter des types dans les enregistrements. Nous montrerons comment ce dernier
 calcul permet de résoudre le problème posé.
 
-\section{Références}
+Chaque calcul possède une implémentation écrite en OCaml dont les choix et les
+difficultés d'implémentation ainsi qu'un lien vers celle-ci sont donnés dans une
+section dans le chapitre correspondant au calcul.
 
-\begin{itemize}
-  \item Pierce.
-  \item Papiers officiels sur DOT et 1ML.
-  \item Liste des différents talks sur DOT.
-  \item Les conversations avec l'équipe de DOTTY sur Gitter.
-  \item Théorème de Church-Roser. https://www.irif.fr/~saurin/Enseignement/LMFI/16-17/notes-de-cours.pdf
-\end{itemize}
-
-\begin{itemize}
-  \item Pour des explications sur le contexte de jugement et une interprétation en
-  forme d'arbre des arbres de dérivations de typage.
-  https://mindsized.org/IMG/pdf/td08.pdf
-
-  \textbf{Ces règles définissent un système d’inférence
-similaire au calcul des séquents. Une inférence
-de typage est un arbre dont chaque noeud est
-une instance de règle, chaque feuille une instance
-d’axiome, de telle sorte que chaque arête mette en
-relation un même séquent à chaque extrémité.}
-
-  \item 8 décembre 2016 - Conférence From DOT to DOTTY -> https://skillsmatter.com/skillscasts/8866-from-dot-to-dotty
-\end{itemize}
+%Le sujet de ce mémoire est un sujet de recherche proposé à l'INRIA aux étudiants
+%du MPRI.
