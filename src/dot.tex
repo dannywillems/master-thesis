@@ -1,0 +1,34 @@
+\chapter{Enregistrement avec type dépendants}
+
+Faire le lien avec le sujet initial, c'est-à-dire que cela résoud le problème 
+\section{Sureté}
+
+\section{Implémentation}
+
+- Avoidance problem = le problème d'échappement. Donner les exemples qui sont
+dans dsubml/test/typing/simple_wrong.dsubml.
+
+- Utilisation de AlphaLib pour les variables libres et liées ainsi que
+l'exploration de l'AST. Décrire les avantages d'AlphaLib.
+
+- Donner un détail sur la complexité des algorithmes de sous-typages et de
+typages. Expliquer pourquoi on a supprimé la règle REFL pour la remplacer par
+REFL-TYP et donner la preuve d'équivalence (qui est directe, en quelques mots).
+
+- Gestion d'un environnement non vide, avec une librairie standard. On regarde
+alors maintenant les termes top level qui sont composés soit d'un let top level
+(sans in), soit d'un terme. Les termes top level sont là pour étendre
+l'environnement tandis que les termes usuels non. Dans l'implémentation, cela se
+traduit par un type somme Grammar.TopLevelTerm. Lorsque nous rencontrons un
+terme top level qui est un let, nous appelons la fonction read_top_level_term
+qui se charge de...
+
+- Possibilité de voir l'arbre de dérivation de typage.
+
+- Utilisation du terme Unimplemented.
+
+- Préciser que tout est écrit en OCaml, avec ocamllex et menhir comme lexeur et parseur.
+
+- Expliquer le système d'actions pour DSubML.
+
+- Parler des sucres syntaxiques.

@@ -1,0 +1,143 @@
+\documentclass[12pt,a4paper]{memoire-umons}
+
+\usepackage[latin1]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[francais]{babel}
+\usepackage{times,mathptmx}
+\usepackage{amssymb,amsmath,amsthm}
+\usepackage{hyperref}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\AtBeginDocument{%
+  \renewcommand{\labelitemi}{\raisebox{0.1ex}{\rule{0.8ex}{0.8ex}}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{Manuel de la classe « memoire-umons »}
+\author{\LaTeX}
+\date{2008--2009}
+\directeur{Christophe \textsc{Troestler}}
+% ou \directeurs ou \codirecteurs
+\service{Analyse Numérique}
+% ou \services
+\rapporteurs{Vous tous!}
+
+\begin{document}
+\begin{preface}
+  \tableofcontents
+\end{preface}
+
+\chapter{Installer la classe et les images}
+
+Pour une utilisation unique, il suffit de copier tous les documents
+dans le répertoire de votre travail.\footnote{Si vous utilisez un
+  système de contrôle de versions tel
+  \href{http://git-scm.com/}{Git}, ne mettez \emph{pas} ces
+  fichiers sous contrôle de version.}
+
+Si vous pensez avoir besoin de ces fichiers pour plusieurs documents,
+il est plus aisé de les mettre dans un réperoire différent de ceux de
+vos documents.  Pour fixer les idées, disons que nous voulons les
+stocker dans \verb|~/TeX/|.  Après avoir copié
+\verb|memoire-umons.cls| et les images dans ce répertoire, vous dites
+à \TeX\ qu'il doit aussi regarder à cet endroit en définissant la
+variable d'environnement \verb|TEXINPUTS| (typiquement dans
+\verb|~/.bashrc| sous linux) grâce à l'incantation suivante :
+\begin{verbatim}
+export TEXINPUTS=".:~/TeX//:"
+\end{verbatim}
+
+Le fichier \verb|memoire.tex| qui accompagne cette archive contient
+la structure de base qui vous permet de démarrer immédiatement
+l'écriture de votre texte.
+
+% Pour bénéficier facilement des améliorations apportées à cette classe,
+% créez le répertoire \verb|~/TeX/| ci-dessus, téléchargez
+% \verb|bzr|\footnote{Bzr est disponible pour les systèmes
+%   d'exploitation courants à \url{http://bazaar.canonical.com/en/}} et,
+% ayant fait \verb|cd ~/TeX/|, tapez
+% \begin{verbatim}
+%   bzr branch 
+% \end{verbatim}
+
+\chapter{Conseils}
+
+\section{Quelques macros à utiliser}
+
+À condition de charger le package \verb|amssymb|, vous pouvez utiliser
+les macros suivantes pour obtenir les ensembles de nombres usuels :
+\verb|\IN| pour $\IN$,
+\verb|\IZ| pour $\IZ$,
+\verb|\IQ| pour $\IQ$,
+\verb|\IR| pour $\IR$, et
+\verb|\IC| pour $\IC$.
+L'ensemble des fonctions continues de $A$ vers $B$ se note :
+\verb|\C(A; B)| (ce qui donne : $\C(A; B)$).
+
+Pour la valeur absolue d'un nombre $x$, on peut écrire \verb|\abs{x}|
+et, pour sa norme, \verb|\norm{x}|.  Les quatres intervalles standard
+ont des macros spécifiques :
+\begin{itemize}
+\item \verb|\intervalcc{a,b}| pour $\intervalcc{a,b}$,
+\item \verb|\intervalco{a,b}| pour $\intervalco{a,b}$,
+\item \verb|\intervaloc{a,b}| pour $\intervaloc{a,b}$, et
+\item \verb|\intervaloo{a,b}| pour $\intervaloo{a,b}$.
+\end{itemize}
+Ces macros assurent que les délimiteurs sont bien traités : comparer
+le rendu de
+\verb|x \in \intervaloo{a,b}| ($x \in \intervaloo{a,b}$) avec
+\verb|x \in ]a,b[| ($x \in ]a,b[$).
+
+De même qu'il est possible d'agrandir les parenthèses et autres
+délimiteurs avec \verb|\bigl(| et \verb|\bigr)| (et les variantes
+consistant à remplacer le préfixe \verb|\big| par
+\verb|\Big|, \verb|\bigg|,
+\verb|\Bigg|), on peut le faire avec les macros précédentes.  Par
+exemple \verb|\bigabs{(a+b)^3}| donne $\bigabs{(a+b)^3}$ et
+\verb|\bigintervalcc{|\linebreak\verb|\frac{1}{2}, \pi}|
+donne $\bigintervalcc{\frac{1}{2}, \pi}$.
+
+Le «~d~» devant la variable d'une intégrale devrait être droit.  Pour
+ce faire employez
+\verb|\int_\Omega f(x) \intd x|, ce qui donne
+\begin{equation*}
+  \int_\Omega f(x) \intd x.
+\end{equation*}
+
+
+D'autres macros sont disponibles pour des symboles courants :
+\begin{itemize}
+\item \verb|\wto| pour «~$\wto$~» ;
+\item \verb|\subto| pour «~$\subto$~» ;
+\item \verb|\id| pour «~$\id$~» (matrice ou fonction identité) ;
+\item \verb|\Dom| pour «~$\Dom$~» (domaine d'une fonction) ;
+\item \verb|\Ran| pour «~$\Ran$~» (Image/\textit{range} d'une fonction,
+  $\verb|\Im|$ étant pris pour la partie imaginaire : $\Im z$) ;
+\item \verb|\Ker| pour «~$\Ker$~» ;
+\item \verb|\supp| pour «~$\supp$~» (support d'une fonction) ;
+\item \verb|f\restrict_A| pour «~$f\restrict_A$~» (restriction de
+  $f$ à un ensemble~$A$) ;
+\item \verb|\limsup| pour «~$\limsup$~» ;
+\item \verb|\liminf| pour «~$\liminf$~» ;
+\item \verb|\le| (\emph{less or equal}) et \verb|\ge| (\emph{greater
+    or equal}) pour «~$\le$~» et «~$\ge$~» respectivement.
+\end{itemize}
+
+
+\section{Éditeur}
+
+Pour éditer du \LaTeX, nous vous recommendons Emacs
+\url{http://www.gnu.org/software/emacs/} avec le mode
+AUC\TeX\ \url{http://www.gnu.org/software/auctex/}.
+
+
+% \setcounter{chapter}{7}
+% \chapter{Chapter with a large roman number}
+
+\end{document}
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% TeX-PDF-mode: t
+%%% End: 

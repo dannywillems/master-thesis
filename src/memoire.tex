@@ -1,0 +1,50 @@
+\documentclass[12pt,a4paper]{memoire-umons}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[francais]{babel}
+\usepackage{amssymb,amsmath,amsthm}
+
+%Pour les règles d'inférence.
+\usepackage{mathpartir}
+
+\usepackage{hyperref}% hyperliens dans le PDF, pas pour impression
+
+\title{Vers un langage typé pour la programmation modulaire}
+\author{Danny \textsc{Willems}}
+\date{2016--2017}
+\directeur{François Pottier}
+\codirecteurs{Christophe Troestler}
+\service{Service d'Analyse Numérique}
+\rapporteurs{
+  Christophe Troestler
+}
+\discipline{Mathématiques}
+
+% Compile uniquement certains morceaux sans perdre les références
+% automatiques et la table des matières des parties déjà compilées :
+%\includeonly{introduction,chapitre1}
+
+\input{include-thm}
+\begin{document}
+\tableofcontents
+
+\input{introduction}
+\input{untyped-lambda-calculus}
+\input{simple-typed-lambda-calculus}
+\input{simple-typed-lambda-calculus-with-recursive-type}
+\input{subtyping-with-records}
+\input{system-f}
+\input{system-f-sub}
+\input{dot}
+\input{conclusion}
+
+\bibliographystyle{acm}
+\bibliography{memoire}% si le fichier BibTeX est memoire.bib
+
+\end{document}
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% TeX-PDF-mode: t
+%%% End: 

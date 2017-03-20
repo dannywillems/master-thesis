@@ -1,0 +1,11 @@
+\chapter{$\lambda$-calcul avec sous-typage et enregistrements.}
+
+Remarquons que de l'information sur le type du retour est perdue dans certains
+cas. Par exemple, prenons l'expression
+
+let f = lambda(x : Any) x in
+let g = lambda(y : Nothing) y in
+f g
+
+
+\section{Sureté}

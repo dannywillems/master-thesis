@@ -1,0 +1,70 @@
+\chapter{$\lambda$-calcul non typé}
+
+\section{Syntaxe}
+
+\begin{definition} [Syntaxe du $\lambda$-calcul]
+  Soit $V$ un ensemble infini dénombrable. On note $\Lambda$ le plus petit
+  ensemble tel que:
+  \begin{enumerate}
+    \item $V \subseteq \Lambda$
+    \item $\forall u, v \in \Lambda, uv \in \Lambda$
+    \item $\forall x \in V, \forall u \in \Lambda, \lambda x.u \in \Lambda$
+  \end{enumerate}
+
+  Un élément de $\Lambda$ est appelé un \textbf{$\lambda$-terme}.
+  Un $\lambda$-terme de la forme \verb|uv| est appelé \textbf{application} car
+  l'interprétation donnée est une fonction \verb|u| évaluée en \verb|v|.
+  Un $\lambda$-terme de la forme $\lambda$ \verb|x.u| est appelé
+\textbf{abstraction}. Il est souvent representé comme la fonction qui envoie
+\verb|x| sur \verb|u|.
+
+%Remarquons que nous venons seulement de définir une syntaxe ! Les
+%représentations suggérées pour les \lambda-termes uv et \lambda x.u viennent de la
+%sémantique le plus souvent utilisée.
+\end{definition}
+
+Des exemples de $\lambda$-termes sont
+\begin{itemize}
+  \item $\lambda x \, (\lambda y \, x y)$
+  \item $\lambda x \, (\lambda y \, x (\lambda z \, z z) y)$
+  \item $x (\lambda y \, y (\lambda z \, z z))$
+\end{itemize}
+
+Parler de la motivation du $\alpha$-renommage. Remarquer qu'il y a une notion de
+variables libres et variables liées à définir.
+
+\begin{definition} [Ensemble de variables libres et liées]
+
+\end{definition}
+
+Cela nous amène à la définition suivante:
+\begin{definition} [Relation d'$\alpha$-renommage]
+  
+\end{definition}
+
+Les éléments $\lambda x \lambda y xy$ et $\lambda y \lambda x yx$ appartiennent
+à la même classe d'équivalence, ce que nous souhaitons.
+
+On se concentre maintenant uniquement sur les classes d'équivalence.
+
+\section{Sémantique}
+
+A toute syntaxe, nous associons une \textit{sémantique}, c'est-à-dire une interprétation
+des termes.
+
+Pour le $\lambda$-calcul non typé, la sémantique que nous allons définir permet
+de réduire un $\lambda$-terme vers un autre $\lambda$-terme. Nous parlons de
+\textit{$\beta$-réduction}, ou encore de \textit{réécriture}. La
+$\beta$-réduction peut se voir comme une relation binaire sur $\Lambda$.
+
+Sémantique opérationnelle.
+
+\subsection{Différentes stratégies de réduction}
+
+Parler des différentes stratégies d'évaluations.
+
+\subsubsection*{Call by value}
+\subsubsection*{Call by name}
+
+Parler des méthodes de preuves sur le $\lambda$-calcul : preuves termes par
+termes, par la taille du terme.

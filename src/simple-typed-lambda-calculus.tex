@@ -1,0 +1,197 @@
+\chapter{$\lambda$-calcul simplement typé.}
+
+Dans le chapitre 1, nous avons défini la syntaxe et la sémantique d'un calcul
+appelé le $\lambda$-calcul non typé. Nous allons maintenant ajouter une notion de types à
+chaque terme de notre calcul.
+
+Motivation du typage.
+
+\begin{definition} [Relation de typage]
+  Soit $\tau$ un ensemble, appelé \textbf{ensemble des types}, dont les éléments
+  sont notés $T_{i}$.
+  Soit $\Lambda$ l'ensemble des $\lambda$ termes.
+
+  On définit une relation binaire $R$ entre les
+  $\lambda$ termes et les éléments de $\tau$.
+  
+  On dit que \textbf{le terme $t \in \Lambda$ a le type $T \in \tau$} si $(t, T)
+  \in R$ (noté plus souvent $t : T$).
+\end{definition}
+
+Le typage est donc un moyen de spécifier l'appartenance de certains
+$\lambda$-termes à un ensemble précis de type et ainsi réduire les opérations
+possibles sur ces $\lambda$-termes.
+
+Dans le chapitre 1 sur le $\lambda$-calcul non typé, nous avons défini une
+relation d'évaluation, noté $\rightarrow$. Nous pouvons nous demander comment la
+relation de typage est compatible avec la relation $\rightarrow$.
+
+Dans une règle de typage, il se peut que certains termes possèdent des variables
+libres (comme $\lambda x x y$). Lorsque nous $\beta$-réduisons un terme, il nous
+faut connaître chaque type de chaque variable libre (dans notre cas, $y$). Nous
+introduisons pour cela \textbf{le contexte de typage} qui fondamentalement est
+une suite finie de couple $(x_{i}, T_{i})$ où $x_{i}$ est une variable et
+$T_{i}$ est un type.
+
+\begin{definition} [Contexte de typage]
+  Un \textbf{contexte de typage}, noté $\Gamma$, est un ensemble fini de couple $(x_{i},
+  T_{i})$ où $x_{i}$ est une variable et $T_{i}$ est un type.
+  
+  L'union d'un contexte de typage $\Gamma$ avec le couple $(x, T)$ est noté
+  $\Gamma, x : T$ (à la place de $\Gamma \cup \left\{(x, T)\right\}$).
+\end{definition}
+
+\begin{definition} [Règle de typage / jugement de typage]
+  Voir la définition récursive de wikipedia :
+  \url{https://fr.wikipedia.org/wiki/Lambda-calcul#cite_ref-8}
+  Cela permet de voir un jugement de typage comme un triplet $(\Gamma, t, T)$,
+  noté $\Gamma \vdash t : T$ qu'on lit \textbf{$t$ est de type $T$ dans le
+    contexte $\Gamma$}.
+  On définit récursivement un jugement de typage
+  \begin{enumerate}
+  \item $(x : T) \in \Gamma \implies \Gamma \vdash t : T$
+  \item $\Gamma, x : T \vdash t : T_{1} \implies \Gamma, x : T \vdash \lambda (x
+    : T) t : T \rightarrow T_{1}$
+  \item $\Gamma \vdash u : T_{1} \rightarrow T_{2} \wedge \Gamma \vdash u :
+    T_{1} \implies \Gamma \vdash uv : T_{2}$
+  \end{enumerate}
+
+   Si $(t, T) \in \Gamma$, on dit alors que $t$ est bien typé dans $\Gamma$.
+\end{definition}
+
+Le contexte est utilisé pour faire des hypothèses sur chaque variable libre dans
+le $\lambda$-terme $t$. Donc, on ne peut avoir un jugement de typage de type:
+
+$\empty \vdash (\lambda (x : T_{1}) x) y$ car toutes les variables libres (en
+l'occurrence ici $y$) du $\lambda$-terme ne sont pas typées dans le contexte
+$\empty$ : nous ne connaissons pas le type de $y$.
+
+Comme pour les règles d'évaluation, on écrit la définition d'un jugement de typage comme des
+règles d'inférence. La définition d'un jugement de typage devient donc:
+
+\inferrule
+{(x : T) \in \Gamma}
+{\Gamma \vdash x : T}
+\quad (\textsc{T-VAR})
+
+\inferrule{\Gamma, x : T \vdash t : T_{1}}{\Gamma, x : T \vdash
+  \lambda (x : T) t : T_{1}}
+\quad (\textsc{T-ABS})
+
+\inferrule{\Gamma \vdash u : T_{1} \rightarrow T_{2} \\ \Gamma \vdash v : T_{2}}{\Gamma
+  \vdash uv : T_{2}}
+\quad (\textsc{T-APP})
+
+Le $\lambda$-calcul simplement typé est donc un tuple $(\Lambda, \rightarrow,
+\tau, \Gamma_{\tau})$ où
+\begin{enumerate}
+\item $\Lambda$ est l'ensemble des $\lambda$-termes.
+\item $\rightarrow$ est la relation de $\beta$-réduction.
+\item $\tau$ l'ensemble des types.
+\item $\Gamma$ est le jugement de typage (défini récursivement).
+\end{enumerate}
+
+\section{Sûreté}
+
+Expliquer la préservation et la progression.
+Regarder dans le cours de l'ENS à la place ??
+
+Avant de montrer la préservation et la progression, il est nécessaire de
+remarquer certains faits qui découlent immédiatement des règles de typages.
+
+\subsection*{Progression}
+
+\begin{lemma} [Inversion des règles de typage]
+  \begin{enumerate}
+    \item Si $\Gamma \vdash x : T$, alors $(x : T) \in \Gamma$
+    \item 
+    \item 
+    \item 
+    \item 
+    \item 
+  \end{enumerate}
+\end{lemma}
+  
+\begin{proof}
+  Evident d'après les règles de typages données.
+\end{proof}
+
+Une autre remarque importante sur le calcul $\lambda_{\rightarrow}$ est
+l'unicité de type pour les $\lambda$. Cette proposition est tellement
+fondamentale que le terme théorème est utilisé. Cependant, cette propriété n'est
+pas vraie dans tous les calculs, comme nous le montrerons quand nous
+introduirons le sous-typage.
+
+\begin{theorem}
+  Tout $\lambda$-terme bien typé possède un type unique.
+\end{theorem}
+
+\begin{proof}
+  
+\end{proof}
+
+\begin{theorem} [de progression de $\lambda_{\rightarrow}$]
+  Soit $t$ un terme bien typé sans variable libre. Alors, soit $t$ est une
+  valeur, soit il existe $t'$ tel que $t \rightarrow t'$.
+\end{theorem}
+
+\begin{proof}
+  
+\end{proof}
+
+\subsection*{Préservation}
+
+\begin{lemma} [d'affaiblissement]
+  Soit $\Gamma \vdash t : T$ et $x \notin dom(\Gamma)$.
+
+  Alors $\Gamma, x : S \vdash t : T$.
+\end{lemma}
+
+\begin{proof}
+  
+\end{proof}
+
+\begin{lemma} [de préservation du typage pour la substitution]
+  Soit $\Gamma, x : S \vdash t : T$ et $\Gamma \vdash s : S$.
+
+  Alors $\Gamma \vdash [x \rightarrow s] t : T$
+\end{lemma}
+
+\begin{proof}
+
+\end{proof}
+
+\section*{Normalisation}
+
+Peut être ne pas donner des preuves, mais en parler pour dire que c'est très important.
+
+On se pose des questions sur la finitude des évaluations.
+
+Regarder du coté du cours de l'ENS Lyon, chap 3 pour le lambda-calcul simplement typé.
+
+\begin{definition}
+  On dit qu'un $\lambda$-terme est
+  \begin{itemize}
+  \item \textbf{fortement normalisable} si
+  toute chaine de $\beta$-réduction est finie.
+  \item \textbf{faiblement normalisable} s'il existe une chaine de
+    $\beta$-réduction finie.
+  \end{itemize}
+\end{definition}
+
+\section{Enrichir le calcul avec des types de bases}
+
+Remarquer qu'on peut ajouter d'autres types comme les listes, les records,
+etc avec des règles de typages et des règles d'évaluations propres sans que
+cela ne change la propriété de soundness.
+
+Nous utiliserons dans la suite la syntaxe
+let x = t in u qui est un alias pour une forme de lambda (la donner).
+Cette syntaxe nous permet de n'étudier que les applications entre variables.
+En effet, si nous avons une expression de la forme (t u), nous pouvons réduire
+l'expression sous la forme (x y) avec
+let x = t in
+let y = u in
+x y
+
+Cependant, il faut vérifier que la sémantique reste la même. Je ne pense pas...
