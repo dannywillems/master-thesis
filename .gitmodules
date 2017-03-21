@@ -1,0 +1,3 @@
+[submodule "lib/latex-macros-math"]
+	path = lib/latex-macros-math
+	url = git@github.com:dannywillems/latex-macros-math.git
