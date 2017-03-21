@@ -3,7 +3,7 @@
 \section{Syntaxe}
 
 \begin{definition} [Syntaxe du $\lambda$-calcul]
-  Soit $V$ un ensemble infini dénombrable. On note $\Lambda$ le plus petit
+  Soit $V$ un ensemble infini dénombrable. On note $\Lambda$, appelés \textbf{l'ensemble des $\lambda$-termes}, le plus petit
   ensemble tel que:
   \begin{enumerate}
     \item $V \subseteq \Lambda$
@@ -11,30 +11,51 @@
     \item $\forall x \in V, \forall u \in \Lambda, \lambda x.u \in \Lambda$
   \end{enumerate}
 
-  Un élément de $\Lambda$ est appelé un \textbf{$\lambda$-terme}.
-  Un $\lambda$-terme de la forme \verb|uv| est appelé \textbf{application} car
-  l'interprétation donnée est une fonction \verb|u| évaluée en \verb|v|.
-  Un $\lambda$-terme de la forme $\lambda$ \verb|x.u| est appelé
-\textbf{abstraction}. Il est souvent representé comme la fonction qui envoie
-\verb|x| sur \verb|u|.
-
 %Remarquons que nous venons seulement de définir une syntaxe ! Les
 %représentations suggérées pour les \lambda-termes uv et \lambda x.u viennent de la
 %sémantique le plus souvent utilisée.
 \end{definition}
 
+Un élément de $\Lambda$ est appelé un \textbf{$\lambda$-terme}.
+Un $\lambda$-terme de la forme $uv$ est appelé \textbf{application} car
+l'interprétation donnée est une fonction $u$ évaluée en $v$.
+Un $\lambda$-terme de la forme $\lambda$ $x.u$ est appelé
+\textbf{abstraction}. Il est souvent representé comme la fonction qui envoie
+$x$ sur $u$.
+
 Des exemples de $\lambda$-termes sont
 \begin{itemize}
-  \item $\lambda x \, (\lambda y \, x y)$
-  \item $\lambda x \, (\lambda y \, x (\lambda z \, z z) y)$
-  \item $x (\lambda y \, y (\lambda z \, z z))$
+  \item la fonction identité : $\lambda x . x$
+  \item la fonction constante en $y$: $\lambda x . y$
+  \item la fonction qui renvoie la fonction constante pour n'importe quelle
+    variable: $\lambda y . (\lambda x . y)$.
+  \item l'application identitié appliquée à la fonction identité: $(\lambda x . x)
+    (\lambda y . y)$
 \end{itemize}
 
-Parler de la motivation du $\alpha$-renommage. Remarquer qu'il y a une notion de
-variables libres et variables liées à définir.
+Comme dans une expression mathématique, il est important de différentier les
+variables libres et les variables liées d'un $\lambda$-terme. Par exemple, dans
+le $\lambda$-terme $\lambda x . x$ la variable $x$ est liée par un $\lambda$
+tandis que dans l'expression $\lambda x . y$ la variable $y$ est libre.
 
-\begin{definition} [Ensemble de variables libres et liées]
+\begin{definition} [Ensemble de variables libres]
+  L'ensemble des variables \textbf{libres} d'un terme $t$, noté $FV(t)$ est défini
+  récursivement sur les générateurs de $\Lambda$ par:
+  \begin{itemize}
+  \item[$\bullet$] $FV(x) = \GSset{x}$
+  \item[$\bullet$] $FV(\lambda x . t) = FV(t) \backslash \GSset{x}$
+  \item[$\bullet$] $FV(u v) = FV(u) \union FV(v)$
+  \end{itemize}
+\end{definition}
 
+\begin{definition} [Ensemble de variables libres]
+  L'ensemble des variables \textbf{liées} d'un terme $t$, noté $BV(t)$ est défini
+  récursivement sur les générateurs de $\Lambda$ par:
+  \begin{itemize}
+  \item[$\bullet$] $BV(x) = \emptyset$
+  \item[$\bullet$] $BV(\lambda x . t) = BV(t) \union \GSset{x}$
+  \item[$\bullet$] $BV(u v) = BV(v) \backslash BV(u)$
+  \end{itemize}
 \end{definition}
 
 Cela nous amène à la définition suivante:
@@ -68,3 +89,22 @@ Parler des différentes stratégies d'évaluations.
 
 Parler des méthodes de preuves sur le $\lambda$-calcul : preuves termes par
 termes, par la taille du terme.
+
+\subsection*{Normalisation}
+
+Peut être ne pas donner des preuves, mais en parler pour dire que c'est très important.
+
+On se pose des questions sur la finitude des évaluations.
+
+Regarder du coté du cours de l'ENS Lyon, chap 3 pour le lambda-calcul simplement typé.
+
+\begin{definition}
+  On dit qu'un $\lambda$-terme est
+  \begin{itemize}
+  \item \textbf{fortement normalisable} si
+  toute chaine de $\beta$-réduction est finie.
+  \item \textbf{faiblement normalisable} s'il existe une chaine de
+    $\beta$-réduction finie.
+  \end{itemize}
+\end{definition}
+
