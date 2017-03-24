@@ -1,4 +1,4 @@
-\chapter{$\lambda$-calcul simplement typé.}
+\chapter{$\lambda$-calcul simplement typé}
 
 Dans le chapitre 1, nous avons défini la syntaxe et la sémantique d'un calcul
 appelé le $\lambda$-calcul non typé. Nous allons maintenant ajouter une notion de types à
@@ -14,7 +14,7 @@ Motivation du typage.
   On définit une relation binaire $R$ entre les
   $\lambda$ termes et les éléments de $\tau$.
   
-  On dit que \textbf{le terme $t \in \Lambda$ a le type $T \in \tau$} si $(t, T)
+  On dit que \textbf{le terme $t \in \Lambda$ est de type $T \in \tau$} si $(t, T)
   \in R$ (noté plus souvent $t : T$).
 \end{definition}
 
@@ -27,17 +27,17 @@ relation d'évaluation, noté $\rightarrow$. Nous pouvons nous demander comment 
 relation de typage est compatible avec la relation $\rightarrow$.
 
 Dans une règle de typage, il se peut que certains termes possèdent des variables
-libres (comme $\lambda x x y$). Lorsque nous $\beta$-réduisons un terme, il nous
+libres (comme $\lambda x. x y$). Lorsque nous $\beta$-réduisons un terme, il nous
 faut connaître chaque type de chaque variable libre (dans notre cas, $y$). Nous
 introduisons pour cela \textbf{le contexte de typage} qui fondamentalement est
-une suite finie de couple $(x_{i}, T_{i})$ où $x_{i}$ est une variable et
+une suite finie de couples $(x_{i}, T_{i})$ où $x_{i}$ est une variable et
 $T_{i}$ est un type.
 
 \begin{definition} [Contexte de typage]
-  Un \textbf{contexte de typage}, noté $\Gamma$, est un ensemble fini de couple $(x_{i},
+  Un \textbf{contexte de typage}, noté $\Gamma$, est un ensemble fini de couples $(x_{i},
   T_{i})$ où $x_{i}$ est une variable et $T_{i}$ est un type.
   
-  L'union d'un contexte de typage $\Gamma$ avec le couple $(x, T)$ est noté
+  L'union d'un contexte de typage $\Gamma$ avec le couple $(x, T)$ est notée
   $\Gamma, x : T$ (à la place de $\Gamma \cup \left\{(x, T)\right\}$).
 \end{definition}
 
@@ -97,7 +97,7 @@ Expliquer la préservation et la progression.
 Regarder dans le cours de l'ENS à la place ??
 
 Avant de montrer la préservation et la progression, il est nécessaire de
-remarquer certains faits qui découlent immédiatement des règles de typages.
+remarquer certains faits qui découlent immédiatement des règles de typage.
 
 \subsection*{Progression}
 
@@ -113,7 +113,7 @@ remarquer certains faits qui découlent immédiatement des règles de typages.
 \end{lemma}
   
 \begin{proof}
-  Evident d'après les règles de typages données.
+  Évident d'après les règles de typage données.
 \end{proof}
 
 Une autre remarque importante sur le calcul $\lambda_{\rightarrow}$ est
@@ -182,7 +182,7 @@ Regarder du coté du cours de l'ENS Lyon, chap 3 pour le lambda-calcul simplemen
 \section{Enrichir le calcul avec des types de bases}
 
 Remarquer qu'on peut ajouter d'autres types comme les listes, les records,
-etc avec des règles de typages et des règles d'évaluations propres sans que
+etc avec des règles de typage et des règles d'évaluations propres sans que
 cela ne change la propriété de soundness.
 
 Nous utiliserons dans la suite la syntaxe

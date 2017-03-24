@@ -20,7 +20,7 @@ Un élément de $\Lambda$ est appelé un \textbf{$\lambda$-terme}.
 Un $\lambda$-terme de la forme $uv$ est appelé \textbf{application} car
 l'interprétation donnée est une fonction $u$ évaluée en $v$.
 Un $\lambda$-terme de la forme $\lambda$ $x.u$ est appelé
-\textbf{abstraction}. Il est souvent representé comme la fonction qui envoie
+\textbf{abstraction}. Il est souvent représenté comme la fonction qui envoie
 $x$ sur $u$.
 
 Des exemples de $\lambda$-termes sont
@@ -29,7 +29,7 @@ Des exemples de $\lambda$-termes sont
   \item la fonction constante en $y$: $\lambda x . y$
   \item la fonction qui renvoie la fonction constante pour n'importe quelle
     variable: $\lambda y . (\lambda x . y)$.
-  \item l'application identitié appliquée à la fonction identité: $(\lambda x . x)
+  \item l'application identité appliquée à la fonction identité: $(\lambda x . x)
     (\lambda y . y)$
 \end{itemize}
 
@@ -70,7 +70,7 @@ On se concentre maintenant uniquement sur les classes d'équivalence.
 
 \section{Sémantique}
 
-A toute syntaxe, nous associons une \textit{sémantique}, c'est-à-dire une interprétation
+À toute syntaxe, nous associons une \textit{sémantique}, c'est-à-dire une interprétation
 des termes.
 
 Pour le $\lambda$-calcul non typé, la sémantique que nous allons définir permet
@@ -78,11 +78,12 @@ de réduire un $\lambda$-terme vers un autre $\lambda$-terme. Nous parlons de
 \textit{$\beta$-réduction}, ou encore de \textit{réécriture}. La
 $\beta$-réduction peut se voir comme une relation binaire sur $\Lambda$.
 
+%titre?
 Sémantique opérationnelle.
 
 \subsection{Différentes stratégies de réduction}
 
-Parler des différentes stratégies d'évaluations.
+Parler des différentes stratégies d'évaluation.
 
 \subsubsection*{Call by value}
 \subsubsection*{Call by name}
