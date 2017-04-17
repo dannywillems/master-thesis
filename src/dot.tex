@@ -2,19 +2,17 @@
 
 Faire le lien avec le sujet initial.
 
-\section{Sureté}
-
 \section{Implémentation}
 
-- Avoidance problem = le problème d'échappement. Donner les exemples qui sont
-dans \verb|dsubml/test/typing/simple_wrong.dsubml|.
+- Préciser que tout est écrit en OCaml, avec ocamllex et menhir comme lexeur et parseur.
+
+\subsection{Gestion des variables}
 
 - Utilisation de AlphaLib pour les variables libres et liées ainsi que
 l'exploration de l'AST. Décrire les avantages d'AlphaLib.
 
-- Donner un détail sur la complexité des algorithmes de sous-typages et de
-typages. Expliquer pourquoi on a supprimé la règle REFL pour la remplacer par
-REFL-TYP et donner la preuve d'équivalence (qui est directe, en quelques mots).
+- Avoidance problem = le problème d'échappement. Donner les exemples qui sont
+dans \verb|dsubml/test/typing/simple_wrong.dsubml|.
 
 - Gestion d'un environnement non vide, avec une librairie standard. On regarde
 alors maintenant les termes top level qui sont composés soit d'un let top level
@@ -28,8 +26,36 @@ qui se charge de...
 
 - Utilisation du terme Unimplemented.
 
-- Préciser que tout est écrit en OCaml, avec ocamllex et menhir comme lexeur et parseur.
+\subsection{Complexité des algorithmes}
+
+- Donner un détail sur la complexité des algorithmes de sous-typages et de
+typages. Expliquer pourquoi on a supprimé la règle REFL pour la remplacer par
+REFL-TYP et donner la preuve d'équivalence (qui est directe, en quelques mots).
+
+\subsection{Système d'\og actions \fg}
 
 - Expliquer le système d'actions pour DSubML.
 
-- Parler des sucres syntaxiques.
+- Problème algorithmique pour les types chemins dépendants. Quel est vraiment le
+type de \verb|x.A| ? Parler des types bien formés.
+
+- Implémentation de DSubml et de RML. Insister sur le fait que l'extension n'est
+pas si simple pour l'implémentation.
+
+- Algorithme d'inférence (partiel) de types pour les modules.
+
+\subsection{Sucres syntaxiques}
+
+- fun(x : int.T) -> fun(y : int.T) <==> fun(x : int.T, y : int.T)
+- sucres syntaxiques pour unit.
+- Ascription et check de sous-typage.
+- Choix type unimplemented.
+- Choix pour le typage d'un entier dans l'algo (bottom, pour ascription).
+- Séparation dans le parser des termes qui doivent avoir des parenthèses quand
+on les utilise comme paramètres de fonctions et ceux qui n'en ont pas besoin.
+- application de fonctions à plusieurs paramètres.
+
+\subsection{Types de bases}
+
+- Implémentation des types de bases.
+- Entiers dans le lexeur.

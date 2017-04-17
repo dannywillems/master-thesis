@@ -1,6 +1,6 @@
 \chapter{Introduction}
 
-La programmation modulaire est un principe de développement visant à séparer une
+La programmation modulaire est un principe de développement consistant à séparer une
 application en composants plus petits appelés \textit{modules}. Le langage de
 programmation OCaml contient un langage de modules qui permet aux développeurs
 d'utiliser la programmation modulaire. Dans ce langage de module, un module est
@@ -9,27 +9,34 @@ types définis dans le même module.
 OCaml étant un langage fortement typé, les modules possèdent également
 un type, appelé dans ce cas \textit{signature}.
 
+%% TODO exemple d'un module OCaml et de sa signature.
+
 Bien que les modules soient bien intégrés dans OCaml, une
 distinction est faite entre le langage de base, contenant les types dits \og de
-bases \fg comme les entiers, les chaines de caractères ou les fonctions, et le
+bases \fg comme les entiers, les chaînes de caractères ou les fonctions, et le
 langage de module. En particulier, le terme \textit{foncteur} est employé à la
-place de \textit{fonction} pour parler des valeurs prenant un module en
+place de \textit{fonction} pour parler des fonctions prenant un module en
 paramètres et en retournant un autre. De plus, il n'est pas possible de définir
-des valeurs prenant un module et un type de base et retournant un module (ou un
+des fonctions prenant un module et un type de base et retournant un module (ou un
 type de base).
 
 D'un autre côté, dans les types de bases d'OCaml se trouvent les
 \textit{enregistrements}. Ces derniers sont des ensembles de couples
-\textit{(label, valeur)}, et ressemble en quelques points aux modules.
+\textit{(label, valeur)}, et ressemblent aux modules. Cependant, la différence
+majeure entre eux se situent dans la possibilité de définir des types dans un
+module.
 
-Ce mémoire vise à fournir un calcul typé, construit à partir du $\lambda$-calcul
-simplement typé, dans lequel le langage de modules est confondu avec le langage
-de base grâce aux enregistrements. Une preuve de la sûreté de ce calcul ainsi
-qu'un interpréteur avec un algorithme de sous-typage et d'inférence de type est
-fourni.
+Ce mémoire vise à définir dans un premier temps un calcul typé dans lequel le
+langage de modules est confondu avec le langage de base grâce aux
+enregistrements et dans un second temps, de fournir une implémentation en OCaml
+des algorithmes de typage et de sous-typage.
+
+%Une preuve de la sûreté de ce calcul ainsi
+%qu'un interpréteur avec un algorithme de sous-typage et d'inférence de type est
+%fourni.
 
 Les chapitres sont organisés afin de comprendre la construction d'un tel calcul
-à partir du plus simples des calculs, le $\lambda$-calcul.
+à partir du plus simple des calculs, le $\lambda$-calcul.
 
 Dans le chapitre 1, nous présentons \textit{le $\lambda$-calcul non typé}, un calcul
 minimal qui contient des termes pour les variables, pour les abstractions (afin
@@ -42,26 +49,33 @@ $\lambda$-calcul, ce qui nous donnera \textit{le $\lambda$-calcul simplement typ
 discuterons de la notion de \textit{sureté du typage} à travers \textit{les théorèmes
 de préservation et de progression} que nous démontrons pour ce calcul typé.
 
-Dans le chapitre 3, nous parlerons de la notion de type récursif et nous
-étudierons \textit{le $\lambda$-calcul simplement typé avec type récursif}.
-
-Dans les chapitres 4, 5 et 6, nous enrichissons le $\lambda$-calcul simplement
+Dans les chapitres 3, 4 et 5, nous enrichissons le $\lambda$-calcul simplement
 typé avec la notion de polymorphisme qui permet d'attribuer plusieurs types à un
-terme. Le chapitre 4 se concentre sur \textit{le polymorphisme avec sous-typage},
-illustré avec les enregistrements. Dans le chapitre 5, nous parlons de
+terme. Le chapitre 3 se concentre sur \textit{le polymorphisme avec sous-typage},
+illustré avec les enregistrements. Nous parlerons aussi de l'implémentation de
+ce calcul et nous montrerons qu'un travail est nécessaire pour passer de la
+théorie à l'implémentation.
+Dans le chapitre 4, nous parlons de
 \textit{polymorphisme paramétré} qui, combiné au $\lambda$-calcul simplement typé, forme
 le calcul appelé \textit{System F}.
-Le chapitre 6 se charge de combiner ces deux notions de polymorphismes dans un
+Le chapitre 5 se charge de combiner ces deux notions de polymorphismes dans un
 calcul appelé \textit{System $F_{<:}$}.
+Une preuve des théorèmes de préservation et de progression seront donnés pour
+les calculs définis dans les chapitres 3 et 4.
+
+Dans le chapitre 6, nous parlerons de la notion de type récursif et nous
+étudierons \textit{le $\lambda$-calcul simplement typé avec type récursif}.
 
 Pour finir, dans le chapitre 7, nous complétons les enregistrements définis
-dans le chapitre 4 avec les \textit{types chemins dépendants} qui offre la possibilité
-d'ajouter des types dans les enregistrements. Nous montrerons comment ce dernier
-calcul permet de résoudre le problème posé.
+dans le chapitre 3 avec les \textit{types chemins dépendants} qui offre la possibilité
+d'ajouter des types dans les enregistrements. Ce dernier chapitre comportera en
+plus des types chemins dépendants, chaque notion étudiée précédemment,
+c'est-à-dire le $\lambda$-calcul simplement typé, les types récursifs, les
+enregistrements, le polymorphisme par sous-typage et le polymorphisme paramétré.
 
-Chaque calcul possède une implémentation écrite en OCaml dont les choix et les
-difficultés d'implémentation ainsi qu'un lien vers celle-ci sont donnés dans une
-section dans le chapitre correspondant au calcul.
+La principale difficulté de ce travail se trouve dans l'étude des types
+chemins dépendants, sujet de recherche récent et moins bien compris que les
+calculs comme \textit{System $F$} ou \textit{System $F_{<:}$}.
 
-%Le sujet de ce mémoire est un sujet de recherche proposé à l'INRIA aux étudiants
+% Le sujet de ce mémoire est un sujet de recherche proposé à l'INRIA aux étudiants
 %du MPRI.
