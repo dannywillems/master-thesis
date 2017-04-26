@@ -1,4 +1,4 @@
-\chapter{Introduction}
+\chapter*{Introduction}
 
 La programmation modulaire est un principe de développement consistant à séparer une
 application en composants plus petits appelés \textit{modules}. Le langage de
@@ -19,6 +19,29 @@ place de \textit{fonction} pour parler des fonctions prenant un module en
 paramètres et en retournant un autre. De plus, il n'est pas possible de définir
 des fonctions prenant un module et un type de base et retournant un module (ou un
 type de base).
+
+% Pour changer le nom du début de la légende d'un code.
+\renewcommand\listingscaption{Code OCaml}
+
+\begin{listing}
+  \inputminted{OCaml}{codes/intro_point2D.ml}
+  \caption{Exemple d'un module nommé Point2D contenant un type t pour
+    réprésenter un point par ses coordonnées cartésiennes dans un enregistrement
+    et d'une fonction add retournant un point dont les coordonnées sont
+    la somme de deux points donnés en paramètres.}
+\end{listing}
+
+\begin{listing}
+  \caption{MakePoint2D est un foncteur qui permet de rendre polymorphique notre
+    module Point2D.}
+  \inputminted{OCaml}{codes/intro_point2D_polymorphic.ml}
+\end{listing}
+
+\begin{listing}
+  \caption{Application de notre foncteur au module des entiers.}
+  \inputminted{OCaml}{codes/intro_point2D_polymorphic_app.ml}
+\end{listing}
+
 
 D'un autre côté, dans les types de bases d'OCaml se trouvent les
 \textit{enregistrements}. Ces derniers sont des ensembles de couples
