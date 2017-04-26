@@ -1,27 +1,50 @@
 \chapter{$\lambda$-calcul non typé}
 
+Dans ce chapitre, nous allons introduire les bases théoriques de la
+programmation fonctionnelle en parlant du $\lambda$-calcul non typé.
+Nous discutons de la syntaxe de ce langage (les termes) pour ensuite discuter de
+la réduction de ceux-ci à travers la $\beta$-réduction.
+
 \section{Syntaxe}
 
 \begin{definition} [Syntaxe du $\lambda$-calcul]
-  Soit $V$ un ensemble infini dénombrable. On note $\Lambda$, appelés \textbf{l'ensemble des $\lambda$-termes}, le plus petit
+  Soit $V$ un ensemble infini dénombrable. On note $\Lambda$, appelé \textbf{l'ensemble des $\lambda$-termes}, le plus petit
   ensemble tel que:
   \begin{enumerate}
     \item $V \subseteq \Lambda$
     \item $\forall u, v \in \Lambda, uv \in \Lambda$
     \item $\forall x \in V, \forall u \in \Lambda, \lambda x.u \in \Lambda$
   \end{enumerate}
-
-%Remarquons que nous venons seulement de définir une syntaxe ! Les
-%représentations suggérées pour les \lambda-termes uv et \lambda x.u viennent de la
-%sémantique le plus souvent utilisée.
 \end{definition}
 
-Un élément de $\Lambda$ est appelé un \textbf{$\lambda$-terme}.
+Un élément de $\Lambda$ est appelé un \textbf{$\lambda$-terme}, ou tout
+simplement un \textbf{terme}.
 Un $\lambda$-terme de la forme $uv$ est appelé \textbf{application} car
 l'interprétation donnée est une fonction $u$ évaluée en $v$.
 Un $\lambda$-terme de la forme $\lambda$ $x.u$ est appelé
-\textbf{abstraction}. Il est souvent representé comme la fonction qui envoie
+\textbf{abstraction}, le terme $u$ étant appelé le \textbf{corps}. Il est souvent representé comme la fonction qui envoie
 $x$ sur $u$.
+
+La plupart des ensembles que nous définirons seront définis de manière récursive
+comme ci-dessus.
+Pour des raisons de facilité d'écriture, la syntaxe
+\begin{center}
+  \begin{math}
+    \Lambda ::= V \, | \, \Lambda \Lambda \, | \, V \Lambda
+  \end{math}
+\end{center}
+
+ou encore
+\begin{align*}
+  t ::= & \, x & \text{variables}\\
+        & \, t \, t & \text{abstractions} \\
+        & \, \lambda x. \, t & \text{applications}
+\end{align*}
+
+où $x$ parcourt l'ensemble des variables $V$ et $t$ l'ensemble des termes, sont
+utilisées pour définir ces ensembles. La dernière syntaxe sera celle que nous
+utiliserons tout le long de ce document car elle permet une visualisation simple
+de la syntaxe des termes et permet de nommer chaque forme facilement.
 
 Des exemples de $\lambda$-termes sont
 \begin{itemize}
@@ -33,10 +56,18 @@ Des exemples de $\lambda$-termes sont
     (\lambda y . y)$
 \end{itemize}
 
-Comme dans une expression mathématique, il est important de différentier les
+Comme le montrent les deux derniers exemples, des parenthèses sont utilisées pour
+délimiter les termes.
+%Le terme $\lambda x . \lambda y . xy$ $\lambda x . \lambda y . (x y)$ et $(\lambda x
+%. \lambda y . x) y$ sont différents selon la positionnement des parenthèses.
+
+Comme dans une formule mathématique, il est important de différentier les
 variables libres et les variables liées d'un $\lambda$-terme. Par exemple, dans
-le $\lambda$-terme $\lambda x . x$ la variable $x$ est liée par un $\lambda$
+le $\lambda$-terme $\lambda x . x$ la variable $x$ est liée par un
+$\lambda$\footnote{on dit aussi qu'elle est \og sous \fg un $\lambda$.}
 tandis que dans l'expression $\lambda x . y$ la variable $y$ est libre.
+Nous définissons récursivement l'ensemble des variables libres et l'ensemble des
+variables liées à partir des variables, des abstractions et des applications.
 
 \begin{definition} [Ensemble de variables libres]
   L'ensemble des variables \textbf{libres} d'un terme $t$, noté $FV(t)$ est défini
@@ -48,71 +79,231 @@ tandis que dans l'expression $\lambda x . y$ la variable $y$ est libre.
   \end{itemize}
 \end{definition}
 
-\begin{definition} [Ensemble de variables libres]
+\begin{definition} [Ensemble de variables liées]
   L'ensemble des variables \textbf{liées} d'un terme $t$, noté $BV(t)$ est défini
   récursivement sur les générateurs de $\Lambda$ par:
   \begin{itemize}
   \item[$\bullet$] $BV(x) = \emptyset$
   \item[$\bullet$] $BV(\lambda x . t) = BV(t) \union \GSset{x}$
-  \item[$\bullet$] $BV(u v) = BV(v) \backslash BV(u)$
+  \item[$\bullet$] $BV(u v) = BV(u) \union BV(v)$
   \end{itemize}
 \end{definition}
 
-Cela nous amène à la définition suivante:
-\begin{definition} [Relation d'$\alpha$-renommage]
-  
+Il existe également des termes qui sont syntaxiquement différents, mais que nous
+voudrions naturellement qu'ils soient les mêmes. Par exemple, nous voudrions que
+la fonction identité $\lambda x . x$ ne dépende pas de la variable liée $x$,
+c'est-à-dire que les termes $\lambda x . x$ et $\lambda y . y$ soient un seul et
+unique terme: la fonction identité. Cette égalité se résume à une substitution
+de la variable $x$ par la variable $y$, ou plus généralement par un terme $u$.
+
+Avant de donner une définition exacte, il est important de remarquer que la
+substitution n'est pas une action triviale si nous ne voulons pas changer le
+sens des termes. Si nous effectuons une
+substitution purement syntaxique, nous pouvons alors obtenir des termes qui ne sont
+plus dans la syntaxe des éléments de $\Lambda$. Par exemple, si nous
+substituons toutes les occurences de $x$ par un terme $u$ dans la fonction constante
+$\lambda x . y$, nous aurions $\lambda u . y$, qui n'a pas de sens car $u$ n'est
+pas une variable.
+
+La définition doit aussi prendre en compte les notions de variables liées et libres. En effet, si nous
+prenons la fonction constante $\lambda x . y$ et que nous substituons $y$ par 
+$x$ uniquement dans le corps de la fonction, nous obtenons $\lambda x . x$, qui
+n'a pas le même sens que $\lambda x . y$. Cet exemple nous montre que nous
+devons faire attention lorsque la variable à substituer, dans ce cas $x$, est
+liée dans le terme où se passe la substitution (ici $\lambda x . y$).
+
+Un autre exemple où la substitution n'est pas évidente est la substition de la
+variable $z$ du terme $\lambda x . z$ (la fonction constante en $z$) par le terme
+$\lambda y . x$ (la fonction constante en $x$). Après subtitution, nous nous
+retrouvons avec le terme $\lambda x . \lambda y . x$, c'est-à-dire la fonction
+qui renvoie la fonction constante pour le paramètre donné. Ce dernier exemple
+nous montre que nous devons également faire attention aux variables libres.
+
+\begin{definition} [Substitution de variable par un terme]
+  Soit $x \in V$ et soient $u, v \in \Lambda$. On dit que la variable $x$ est
+  \textbf{substituable par $v$ dans $u$} si et seulement si $x \notin BV(u)$ et
+  $FV(v) \inter BV(u) = \emptyset$.
 \end{definition}
 
-Les éléments $\lambda x \lambda y xy$ et $\lambda y \lambda x yx$ appartiennent
-à la même classe d'équivalence, ce que nous souhaitons.
+Nous définissons alors la fonction de substitution d'une variable $x$ par un
+terme $v$ dans un terme $u$.
 
-On se concentre maintenant uniquement sur les classes d'équivalence.
+\begin{definition} [fonction de subtitution]
+  Soient $x$ une variable et $u, v \in \Lambda$ tel que $x$ est substituable par
+  $v$ dans $u$. On définit récursivement la fonction de substitution, notée $u[x := v]$, par:
+  \begin{itemize}
+  \item[$\bullet$] $x[x := v] = v$
+  \item[$\bullet$] $y[x := v] = y$ (si $y \neq x$)
+  \item[$\bullet$] $(u_{1} u_{2})[x := v] = (u_{1}[x := v])(u_{2}[x := v])$
+  \item[$\bullet$] $(\lambda y . u)[x := v] = \lambda y . (u[x := v])$
+  \end{itemize}
+  $u[x := v]$ se lit \textit{x est substitué par v dans u}.
+\end{definition}
+
+Nous définissons maintenant une relation, appelée relation d'
+\textbf{$\alpha$}-renommage, sur les abstractions qui capture
+notre volonté d'égalité à renommage de variables près.
+
+\begin{definition} [relation d'$\alpha$-renommage]
+  Soient $x, y \in V$ et $u \in \Lambda$.
+  La relation d'$\alpha$-renommage, notée $\alpha$, est définie par
+
+  \begin{math}
+    \lambda x . u \;\; \alpha \;\; \lambda y . (u[x := y])
+  \end{math}
+
+  si $x = y$ ou si $x$ est substituable par $y$ dans $u$ et $y$ n'est pas libre
+  dans $u$.
+\end{definition}
+
+Nous allons étendre cette relation à tous les termes, c'est-à-dire sur tout l'ensemble $\Lambda$.
+
+Nous notons $=_{\alpha}$ la plus petite relation comprenant $\alpha$ et tel que
+\begin{itemize}
+  \item[$\bullet$] $=_{\alpha}$ est réflexive, symétrique et transitive
+  \item[$\bullet$] $=_{\alpha}$ passe au contexte: si $u_{1} =_{\alpha} v_{1}$
+    et $u_{2} =_{\alpha} v_{2}$ alors $u_{1}u_{2} =_{\alpha} v_{1}v_{2}$ et
+    $\lambda x . u_{1} =_{\alpha} \lambda x . v_{1}$.
+\end{itemize}
+
+\begin{exemple}
+  \begin{itemize}
+    \item Il est clair que $\lambda x . x =_{\alpha} \lambda y . y$ par
+    définition de la relation $\alpha$.
+    \item De même, $\lambda x . \lambda y . x y =_{\alpha} \lambda y . \lambda x
+      . y x$. En
+      effet, on montre que $\lambda x . \lambda y . x y =_{\alpha} \lambda z .
+      \lambda w. z
+      w$ et $\lambda y . \lambda x . y x =_{\alpha} \lambda z . \lambda w . z w$ en appliquant
+      deux fois la subtitution (par $z$ et par $w$). Par symétrie
+      et transitivité de $=_{\alpha}$, on obtient l'égalité.
+  \end{itemize}
+\end{exemple}
+
+Par définition, la relation $=_{\alpha}$ est une relation d'équivalence. Nous
+construisons alors le quotient $\Lambda \backslash =_{\alpha}$. Dans ce
+quotient, les termes égaux à renommage de variable près se retrouvent dans la
+même classe d'équivalence. A partir de maintenant, nous considérons $\Lambda
+\backslash =_{\alpha}$, c'est-à-dire que nous parlons des termes à $\alpha$-renommage près.
 
 \section{Sémantique}
 
-A toute syntaxe, nous associons une \textit{sémantique}, c'est-à-dire une interprétation
-des termes.
+Maintenant que nous avons introduit la syntaxe du $\lambda$-calcul, nous allons
+discuter de la sémantique que nous lui associons, c'est-à-dire comment nous
+effectuons des calculs avec ce langage. Les calculs dans ce langage minimaliste
+se définissent par des \textit{réductions}\footnote{On parle aussi de
+\textit{réécriture}.} de termes, et en particulier des applications. Par exemple,
+nous voudrions dire que $(\lambda x . x) y$, i.e. $y$ appliqué à la fonction
+identité, se \textit{réduit} en $y$ ou encore que $(\lambda x . (\lambda y . x
+y)) z$, i.e. $z$ appliqué à la fonction qui retourne la fonction
+constante pour toute variable, se réduit en $\lambda y . z y$, i.e. la fonction
+constante en $z$. Nous parlons également \textit{d'étape de calcul}, une étape
+de calcul correspondant à une réduction effectuée.
 
-Pour le $\lambda$-calcul non typé, la sémantique que nous allons définir permet
-de réduire un $\lambda$-terme vers un autre $\lambda$-terme. Nous parlons de
-\textit{$\beta$-réduction}, ou encore de \textit{réécriture}. La
-$\beta$-réduction peut se voir comme une relation binaire sur $\Lambda$.
+La définition de réduction des termes passe par une relation entre les
+termes appelée relation de $\beta$-réduction.
+Comme pour la relation $\alpha$, nous commençons par définir une relation
+$\beta$, et nous l'étendons au contexte.
 
-Sémantique opérationnelle.
+\begin{definition} [Relation de $\beta$-réduction]
+  Soit $\beta$ la relation sur $\Lambda$ tel que $(\lambda x . u) v \; \; \beta 
+  \; \; u[x := v]$.\footnote{Ne pas oublier que nous travaillons à
+    $\alpha$-renommage près.}
+  La relation de $\beta$-réduction, noté $\rightarrow_{\beta}$, ou simplement
+  $\rightarrow$, est la plus petite relation contenant $\beta$ qui passe au
+  contexte. Nous notons $\rightarrow^{*}_{\beta}$ sa fermeture réfléxive
+  transitive et $\rightarrow^{+}_{\beta}$ sa fermeture transitive.
+\end{definition}
 
-\subsection{Encodage}
+Voici quelques exemples de réductions:
+\begin{exemple}
+  \begin{itemize}
+  \item $(\lambda x . x) y \rightarrow y$.
+  \item $(\lambda y . (\lambda x . y x)) z \rightarrow \lambda x . z x$.
+  \item $(\lambda w . (\lambda x . x) v) z \rightarrow (\lambda w. v) z$ (on
+    réduit à l'intérieur, c'est-à-dire $(\lambda x . x) v$).
+  \item $(\lambda w . (\lambda x . x) v) z \rightarrow (\lambda x. x) v$ (on
+    réduit à l'extérieur, c'est-à-dire $(\lambda w . t) z$ où $t = (\lambda x .
+    x) v$).
+  \item $(\lambda w . (\lambda x . x) v) z \rightarrow^{*}_{\beta} v$
+  \item $(\lambda x . xx) (\lambda x . xx) \rightarrow (\lambda x . xx)
+    (\lambda x . xx)$.
+  \end{itemize}
+\end{exemple}
+
+Un élément de la forme $(\lambda x . u) v$ est appelé \textit{redex}. La
+relation de $\beta$-réduction consiste donc à réécrire les redex.
+
+Nous définissons aussi les \textit{valeurs} qui sont les termes finaux
+possibles d'une $\beta$-réduction. Dans le cas du $\lambda$-calcul, les valeurs
+sont les abstractions.
+
+Un terme $t$ qui peut être réduit, c'est-à-dire qu'il existe $u$ tel que $t
+\rightarrow u$, est dit \textit{réductible}. Sinon, il est dit
+\textit{irréductible} ou on dit également que c'est une \textit{forme normale}.
+
+Les exemples permettent de classer les termes en différentes catégories.
+
+Certains termes peuvent être réduits en des formes normales comme
+dans les deux premiers exemples. Dans le premier exemple, le terme
+irréductible n'est pas une valeur tandis que dans le second, nous obtenons
+une valeur.
+
+S'il est possible de trouver une forme normale $u$ tel que $t$ se réduit en $u$,
+on dit que $t$ \textit{possède une forme normale} et que $u$ est une
+\textit{forme normale de $t$}.
+
+Lorsque toute réduction commençant par $t$ possède une forme normale, on dit que
+le terme $t$ est \textit{fortement normalisant}, ou tout simplement
+\textit{normalisant}. Lorsqu'il existe au moins une stratégie de réduction qui
+permet d'obtenir un terme irréductible, on dit que le terme est \textit{faiblement normalisant}.
+
+Le dernier exemple montre qu'il existe des termes dont aucune réduction se
+termine. Celui-ci nous montre que la $\beta$-réduction ne termine pas en
+général. Ce fait n'est pas si étrange que ça : dans tous langages de
+programmation, il est possible d'écrire des programmes qui bouclent à l'infini.
+
+La relation $\rightarrow_{\beta}$ signifie que nous faisons une étape de calcul,
+contrairement à la fermeture transitive qui en réalise plusieurs. Choisir l'une
+ou l'autre définit \textit{la stratégie d'évaluation} que nous assignons à notre
+calcul. $\rightarrow_{\beta}$ définit \textit{l'évaluation à petit pas} car
+nous obtenons chaque étape de l'évaluation. La fermeture transitive définit
+\textit{l'évaluation à grand pas} qui consiste à ne regarder que la forme
+normale obtenue, si elle existe.
+
+\subsection{Stratégies de réduction}
+
+Nous présentons les deux stratégies les plus utilisées. 
+
+\subsubsection*{Call by name}
+
+La stratégie appelée \textit{call-by-name} consiste à d'abord réduire le corps
+de la fonction et ensuite les paramètres.
+
+Cette méthode de réduction est
+
+\subsubsection*{Call by value}
+
+
+
+La sémantique et la $\beta$-réduction sera utile lorsque nous discuterons des
+théorèmes de préservation et de sureté du typage.
+
+Cependant, le sujet de ce document étant le typage, nous survolerons les notions se
+rapportant aux différentes stratégies de réductions, sans rentrer dans les détails.
+
+Plus d'informations sont disponibles dans \cite{ENS-Cachan-cours-lambda-calcul}.
+Dans ce cours sont traités les sujets de normalisation (forme normale, finitude
+de la $\beta$-réduction), de confluence (est-ce que tout terme se réduit en une
+unique forme normale) et d'une différente sémantique appelée \textit{sémantique
+dénotationnelle}.
+
+\section{Codage de termes usuels}
+
+
 
 - Booléens: \verb|true| = $\lambda x \lambda y x$, \verb|false| = $\lambda x
 \lambda y y$.
 - Conditions: $\lambda condition \lambda if\_true \lambda if\_false condition
 if\_true if\_false$
 - paires.
-
-\subsection{Différentes stratégies de réduction}
-
-Parler des différentes stratégies d'évaluations.
-
-\subsubsection*{Call by value}
-\subsubsection*{Call by name}
-
-Parler des méthodes de preuves sur le $\lambda$-calcul : preuves termes par
-termes, par la taille du terme.
-
-\subsection*{Normalisation}
-
-Peut être ne pas donner des preuves, mais en parler pour dire que c'est très important.
-
-On se pose des questions sur la finitude des évaluations.
-
-Regarder du coté du cours de l'ENS Lyon, chap 3 pour le lambda-calcul simplement typé.
-
-\begin{definition}
-  On dit qu'un $\lambda$-terme est
-  \begin{itemize}
-  \item \textbf{fortement normalisable} si
-  toute chaine de $\beta$-réduction est finie.
-  \item \textbf{faiblement normalisable} s'il existe une chaine de
-    $\beta$-réduction finie.
-  \end{itemize}
-\end{definition}
-
