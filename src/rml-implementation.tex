@@ -1,0 +1,97 @@
+\chapter{RML : implémentation}
+- Lien vers GitHub.
+
+- Préciser que tout est écrit en OCaml, avec ocamllex et menhir comme lexeur et parseur.
+- Donner les mêmes exemples qu'au début, mais cette fois-ci avec RML.
+- Montrer ce qui est possible en RML et ce qui ne l'est pas en OCaml.
+
+\section{Gestion des variables}
+
+La gestion de variables liées et des variables libres est la tâche la plus
+fastidieuse lors de l'implémentation d'un compilateur/interpréteur. Pour ne pas
+perdre de temps, utilisation d'alphaLib.
+
+- Utilisation de AlphaLib pour les variables libres et liées ainsi que
+l'exploration de l'AST. Décrire les avantages d'AlphaLib (rename variable,
+transformation raw -> nominal, fresh name facile, égalité de terme à
+$\alpha$-renommage près, etc).
+
+- Discuter de la représentation des variables en termes d'atomes. Parler de la
+différence entre un type raw et un type nominal. Le parseur crée un type raw et
+lorsque nous obtenons un type raw du parseur, nous le transformons en type nominal.
+
+\section{Autres} 
+
+- Avoidance problem = le problème d'échappement. Donner les exemples qui sont
+dans \verb|dsubml/test/typing/simple_wrong.dsubml|.
+
+- Structure de données pour le contexte : map d'atomes vers un type nominal.
+- Gestion d'un environnement non vide, avec une librairie standard. On regarde
+alors maintenant les termes top level qui sont composés soit d'un let top level
+(sans in), soit d'un terme. Les termes top level sont là pour étendre
+l'environnement tandis que les termes usuels non. Dans l'implémentation, cela se
+traduit par un type somme Grammar.TopLevelTerm. Lorsque nous rencontrons un
+terme top level qui est un let, nous appelons la fonction \verb|$read_top_level_term|
+qui se charge de...
+
+- Possibilité de voir l'arbre de dérivation de typage.
+
+- Utilisation du terme Unimplemented.
+
+\section{Complexité des algorithmes}
+
+- Donner un détail sur la complexité des algorithmes de sous-typages et de
+typages. Expliquer pourquoi on a supprimé la règle REFL pour la remplacer par
+REFL-TYP et donner la preuve d'équivalence (qui est directe, en quelques mots).
+
+\section{Algorithme de typage}
+- L'ordre dans le pattern matching n'a pas énormément d'importance.
+- Algorithme d'inférence de type pour les modules. Expliquer les points positifs
+et les points négatifs. Discuter des améliorations possibles.
+- Montrer un exemple d'arbre de dérivation.
+
+\section{Algorithme de sous-typage}
+
+- L'ordre dans le pattern matching a tout son importance. En effet, pour arriver
+à une conclusion, il est possible d'y arriver par plusieurs chemins.
+
+- Réunion de REFL en une seule.
+
+- Montrer un exemple d'arbre de dérivation.
+
+\section{Système d'\og actions \fg}
+
+- Expliquer le système d'actions pour DSubML.
+
+- Problème algorithmique pour les types chemins dépendants. Quel est vraiment le
+type de \verb|x.A| ? Parler des types bien formés.
+
+- Implémentation de DSubml et de RML. Insister sur le fait que l'extension n'est
+pas si simple pour l'implémentation.
+
+- Algorithme d'inférence (partiel) de types pour les modules.
+
+\section{Sucres syntaxiques}
+
+- fun(x : int.T) -> fun(y : int.T) <==> fun(x : int.T, y : int.T)
+- sucres syntaxiques pour unit.
+- Ascription et check de sous-typage.
+- Choix type unimplemented.
+- Choix pour le typage d'un entier dans l'algo (bottom, pour ascription).
+- Séparation dans le parser des termes qui doivent avoir des parenthèses quand
+on les utilise comme paramètres de fonctions et ceux qui n'en ont pas besoin.
+- application de fonctions à plusieurs paramètres.
+- Remarquer qu'il y a une erreur pour les bindings locaux. On ne peut binder
+localement une variable sans être sûr que l'on ait pas l'avoidance problem.
+
+\section{Types de bases}
+
+- Implémentation des types de bases.
+- Entiers dans le lexeur.
+- Enregistrement: RecursiveType mais avec un ID \verb|'self| pour éviter de
+p
+\section{Ce qui n'est pas fait}
+
+- Quand une question a déjà été posée, stack overflow.
+- Evaluation.
+- top level.

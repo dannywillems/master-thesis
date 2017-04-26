@@ -2,62 +2,16 @@
 
 Faire le lien avec le sujet initial.
 
-\section{Implémentation}
+\section{Syntaxe}
 
-- Préciser que tout est écrit en OCaml, avec ocamllex et menhir comme lexeur et parseur.
+\section{Sémantique et règle de typage}
 
-\subsection{Gestion des variables}
+Pouvoir définir des record récursifs.
 
-- Utilisation de AlphaLib pour les variables libres et liées ainsi que
-l'exploration de l'AST. Décrire les avantages d'AlphaLib.
+\section{Encodage de System $F_{<:}$}
 
-- Avoidance problem = le problème d'échappement. Donner les exemples qui sont
-dans \verb|dsubml/test/typing/simple_wrong.dsubml|.
+Montrer l'inclusion comme dans WF, comment les variables de types sont gérées.
 
-- Gestion d'un environnement non vide, avec une librairie standard. On regarde
-alors maintenant les termes top level qui sont composés soit d'un let top level
-(sans in), soit d'un terme. Les termes top level sont là pour étendre
-l'environnement tandis que les termes usuels non. Dans l'implémentation, cela se
-traduit par un type somme Grammar.TopLevelTerm. Lorsque nous rencontrons un
-terme top level qui est un let, nous appelons la fonction \verb|$read_top_level_term|
-qui se charge de...
+\section{Sureté}
 
-- Possibilité de voir l'arbre de dérivation de typage.
-
-- Utilisation du terme Unimplemented.
-
-\subsection{Complexité des algorithmes}
-
-- Donner un détail sur la complexité des algorithmes de sous-typages et de
-typages. Expliquer pourquoi on a supprimé la règle REFL pour la remplacer par
-REFL-TYP et donner la preuve d'équivalence (qui est directe, en quelques mots).
-
-\subsection{Système d'\og actions \fg}
-
-- Expliquer le système d'actions pour DSubML.
-
-- Problème algorithmique pour les types chemins dépendants. Quel est vraiment le
-type de \verb|x.A| ? Parler des types bien formés.
-
-- Implémentation de DSubml et de RML. Insister sur le fait que l'extension n'est
-pas si simple pour l'implémentation.
-
-- Algorithme d'inférence (partiel) de types pour les modules.
-
-\subsection{Sucres syntaxiques}
-
-- fun(x : int.T) -> fun(y : int.T) <==> fun(x : int.T, y : int.T)
-- sucres syntaxiques pour unit.
-- Ascription et check de sous-typage.
-- Choix type unimplemented.
-- Choix pour le typage d'un entier dans l'algo (bottom, pour ascription).
-- Séparation dans le parser des termes qui doivent avoir des parenthèses quand
-on les utilise comme paramètres de fonctions et ceux qui n'en ont pas besoin.
-- application de fonctions à plusieurs paramètres.
-
-\subsection{Types de bases}
-
-- Implémentation des types de bases.
-- Entiers dans le lexeur.
-- Enregistrement: RecursiveType mais avec un ID \verb|'self| pour éviter de
-pouvoir définir des record récursifs.
+Ne pas tout démontrer, voir les théorèmes dans WF.
