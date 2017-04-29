@@ -36,9 +36,10 @@ Pour des raisons de facilité d'écriture, la syntaxe
 
 ou encore
 \begin{align*}
-  t ::= & \, x & \text{variables}\\
-        & \, t \, t & \text{abstractions} \\
-        & \, \lambda{x}{t} & \text{applications}
+  t ::= & \, & \text{term} \\
+        & \; x & \text{var} \\
+        & \; t \, t & \text{app} \\
+        & \; \lambdaExpr{x}{t} & \text{abs}
 \end{align*}
 
 où $x$ parcourt l'ensemble des variables $V$ et $t$ l'ensemble des termes, sont
@@ -58,6 +59,13 @@ Des exemples de $\lambda$-termes sont
 
 Comme le montrent les deux derniers exemples, des parenthèses sont utilisées pour
 délimiter les termes.
+
+Il est également possible de définir des fonctions à plusieurs paramètres à
+travers la curryfication : une fonction prenant 2 paramètres sera représentée
+par une fonction qui renvoie une fonction. Par exemple,
+$\lambdaExpr{x}{\lambdaExpr{y}{x y}}$ est une fonction qui attend un paramètre
+$x$ retournant une fonction qui attend un paramètre $y$,
+mais elle peut aussi être interprétée comme une fonction à deux paramètres $x$, $y$.
 %Le terme $\lambda x . \lambda y . xy$ $\lambda x . \lambda y . (x y)$ et $(\lambda x
 %. \lambda y . x) y$ sont différents selon la positionnement des parenthèses.
 
@@ -317,8 +325,8 @@ sous le lambda $\lambda z$.
 
 \subsubsection*{Call by value}
 
-La réduction dite \textit{call-by-value} vise à d'abord réduire les arguments,
-c'est-à-dire les redex les plus à droites, et ensuite le corps de la fonction.
+La réduction dite \textit{call-by-value} consiste à réduire en premier les
+redexes les plus à l'extérieur et réduire les arguments jusqu'à obtenir une valeur, et ensuite le corps de la fonction.
 Cette méthode de réduction est la plus courante dans les langages de
 programmation.
 
@@ -335,6 +343,80 @@ Cette stratégie appliquée à l'exemple donne:
   & \lambda z . (id \, z)
 \end{align*}
 
+\label{fig:untyped-lambda-calculus-evaluation-rules}
+
+%\noindent
+%\begin{minipage}{0.45\textwidth}
+%  \begin{align*}
+%    t ::= & \, & \text{terme} \\
+%          & \; x & \text{(var)} \\
+%          & \; t \, t & \text{(abs)} \\
+%          & \; \lambdaExpr{x}{t} & \text{(app)}
+%  \end{align*}
+%
+%  \begin{align*}
+%    v ::= & \, & \text{valeur} \\
+%          & \; \lambdaExpr{x}{t} & \text{(app)}
+%  \end{align*}
+%\end{minipage}
+%\begin{minipage}{0.45\textwidth}
+%  \begin{center}
+%    \inferrule{t \rightarrow t'}{v \, t \rightarrow v \, t'}
+%    \inferrule{t \rightarrow t'}{t \, t \rightarrow v \, t'}
+%  \end{center}
+%\end{minipage}
+
+   % v ::= & \, & \text{valeur} \\
+   %         & \, \lambdaExpr{x}{t} &
+%  \end{align*}
+
+% \end{minipage}
+
+
+%  {\begin{align}
+%    t ::= & \, & \text{term} \\
+%          & \, x & \text{VAR} \\
+%          & \, t \, t & \text{ABS} \\
+%          & \, \lambdaExpr{x}{t} & \text{APP}
+%  \end{align}} & t \\
+%  \begin{align*}
+%    t ::= & \, & \text{term} \\
+%          & \, x & \text{VAR} \\
+%          & \, t \, t & \text{ABS} \\
+%          & \, \lambdaExpr{x}{t} & \text{APP}
+%  \end{align*} \\
+
+Formellement, la stratégie call-by-value est définie par les \textit{règles
+  d'évaluation} définies ci-dessous, le terme $v$ étant utilisée pour une valeur.
+\begin{center}
+\begin{tabular}{cc}
+  \inferrule
+  {t_{1} \rightarrow t_{1}'}
+  {t_{1} \, t \rightarrow t_{1}' \, t} & (E-APP1)
+  \\ \\
+  \inferrule
+  {t \rightarrow t'}
+  {v \, t \rightarrow v \, t'} & (E-APP2)
+  \\ \\
+  \inferrule{(\lambdaExpr{x}{t}) u \rightarrow t[x := u]}{} & (E-ABS)
+\end{tabular}
+\end{center}
+
+La notation \inferrule{t \rightarrow t'}{v \, t \rightarrow v \, t'} est
+l'équivalent d'une implication où la prémisse (ici $t \rightarrow t'$) se trouve au dessus et la
+conclusion en dessous (ici $v \, t \rightarrow v \, t'$). La règle E-APP1 se lit
+donc \og si $t_{1}$ se réduit en $t_{1}'$, alors $t_{1} t$ se réduit en
+$t_{1}'t$ \fg. Lorsque qu'une règle
+ne comporte pas de conclusion comme E-ABS, cela signifie que c'est un axiome.
+Cette notation sera
+utilisée tout au long de ce document, en particulier pour les règles de typages
+et de sous-typages.
+
+Les règles (E-APP1) et (E-APP2) nous disent que nous devons, lors d'une
+application, réduire la fonction avant les paramètres, et ce jusqu'à obtenir une
+valeur. Quant à la règle (E-ABS), elle signifie qu'un redex se réduit toujours
+en utilisant la fonction de substitution (définition de la relation $\beta$).
+
 Par la suite, nous considérerons toujours le call-by-value car celle-ci est la
 plus utilisée. La sémantique et la $\beta$-réduction seront utiles lorsque nous discuterons des
 théorèmes de préservation et de sureté du typage.
@@ -345,6 +427,8 @@ Dans ce cours sont traités les sujets de normalisation (forme normale, finitude
 de la $\beta$-réduction), de confluence (est-ce que tout terme se réduit en une
 unique forme normale) et d'une différente sémantique appelée \textit{sémantique
 dénotationnelle}.
+
+
 
 \section{Codage de termes usuels}
 
