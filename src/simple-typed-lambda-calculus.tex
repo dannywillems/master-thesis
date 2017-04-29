@@ -1,32 +1,86 @@
 \chapter{$\lambda$-calcul simplement typé.}
 
-\section{Typage, contexte de typage et règle d'inférence}
-
 Dans le chapitre 1, nous avons défini la syntaxe et la sémantique d'un calcul
 appelé le $\lambda$-calcul non typé. Nous allons maintenant ajouter une notion de types à
-chaque terme de notre calcul.
+chaque terme de notre calcul, ce qui nous mènera au $\lambda$-calcul simplement typé.
 
-Motivation du typage.
+\section{Typage, contexte de typage et règle d'inférence}
+
+Le typage consiste à classer les termes en fonction de leur nature. Par exemple,
+une abstraction est interprétée comme une fonction prenant un paramètre et
+renvoyant un terme. Nous représentons cela par le type $\rightarrow$, appelé
+couramment \textit{type flèche}. Un type flèche dépend naturellement de deux autres types : le
+type du terme qu'il prend en paramètre (disons $T_{1}$) et le type du terme
+qu'il retourne (disons $T_{2}$). Dans ce cas, l'abstraction est dite de type
+$T_{1} \rightarrow T_{2}$. Un
+autre exemple est l'application. Une application $u \, v$ représentant une
+application de $v$ à la fonction $u$, il serait naturel de dire que $u$ est un
+type flèche dont le type de son paramètre est le type de $v$.
 
 \begin{definition} [Relation de typage]
+  Soit $\Lambda$ un ensemble de termes.
   Soit $\tau$ un ensemble, appelé \textbf{ensemble des types}, dont les éléments
-  sont notés $T_{i}$.
-  Soit $\Lambda$ l'ensemble des $\lambda$ termes.
+  sont notés $T$.
 
-  On définit une relation binaire $R$ entre les
-  $\lambda$ termes et les éléments de $\tau$.
+  On définit une relation binaire $R$, appelée \textbf{relation de typage}, entre les
+  termes et les éléments de $\tau$.
   
   On dit que \textbf{le terme $t \in \Lambda$ a le type $T \in \tau$} si $(t, T)
-  \in R$ (noté plus souvent $t : T$).
+  \in R$, noté le plus souvent $t : T$. Si un terme $t$ est en relation avec au
+  moins un type $T$, on dit que $t$ est \textbf{bien typé}.
 \end{definition}
 
-Le typage est donc un moyen de spécifier l'appartenance de certains
-$\lambda$-termes à un ensemble précis de type et ainsi réduire les opérations
-possibles sur ces $\lambda$-termes.
+Cette définition de la relation de typage est générale car il suffit de se
+donner un ensemble de termes et un ensemble de types. Dans ce chapitre, nous
+allons nous focaliser sur les termes du $\lambda$-calcul non typé. Dans les
+prochains chapitres, nous ajouterons des autres termes comme les enregistrements
+et nous devrons en conséquence donner un type à ces nouveaux termes.
 
-Dans le chapitre 1 sur le $\lambda$-calcul non typé, nous avons défini une
-relation d'évaluation, noté $\rightarrow$. Nous pouvons nous demander comment la
-relation de typage est compatible avec la relation $\rightarrow$.
+Dans ce chapitre, nous allons travailler avec l'ensemble des types dit
+\textit{simples}.
+
+\begin{definition}
+  Soit $B$ un ensemble de type appelé de \textbf{types de bases}.
+  L'ensemble des \textbf{types simples}, élément représentée par la lettre $T$,
+  est défini par la grammaire suivante:
+
+  \begin{align*}
+    T ::= & \, & \text{types} \\
+          & \; B & \text{base} \\
+          & \; T \rightarrow T & \text{type des fonctions}
+  \end{align*}
+\end{definition}
+
+L'ensemble $B$ pourrait être vide, et nous nous retrouvons alors avec un langage
+où seuls le type des fonctions existent. Cependant, il existe souvent dans les
+langages des types dit de bases ou primitifs, c'est-à-dire l'ensemble $B$.
+
+%Le typage est donc un moyen de spécifier l'appartenance de certains
+%$\lambda$-termes à un ensemble précis de type et ainsi réduire les opérations
+%possibles sur ces $\lambda$-termes.
+
+%Dans le chapitre 1 sur le $\lambda$-calcul non typé, nous avons défini une
+%relation d'évaluation, noté $\rightarrow$. Nous pouvons nous demander comment la
+%relation de typage est compatible avec la relation $\rightarrow$.
+
+\subsection*{Contexte de typage}
+
+Nous avons déjà mentionné que, naturellement, les abstraction $\lambdaExpr{x}{t}$ ont le type
+flèche, par exemple $T_{1} \rightarrow T_{2}$. Cependant, comment pouvons nous
+connaître le type des arguments, c'est-à-dire le type du paramètre que la
+fonction attend ? Deux solutions sont couramment utilisées : soit ajouter le type
+dans le terme de l'abstraction soit étudier le type de corps de la fonction et
+en déduire le type que le paramètre devrait avoir.
+Dans la suite, nous utiliserons la première solution. Le terme de l'abstraction
+se voit alors ajouter un type à son argument et devient $\lambdaExpr{x : T}{t}$.
+La syntaxe des termes devient alors:
+
+\begin{align*}
+  t ::= & \, & \text{term} \\
+        & \; x & \text{var} \\
+        & \; t \, t & \text{app} \\
+        & \; \lambdaExpr{x : T}{t} & \text{abs}
+\end{align*}
 
 Dans une règle de typage, il se peut que certains termes possèdent des variables
 libres (comme $\lambda x x y$). Lorsque nous $\beta$-réduisons un terme, il nous
@@ -42,6 +96,8 @@ $T_{i}$ est un type.
   L'union d'un contexte de typage $\Gamma$ avec le couple $(x, T)$ est noté
   $\Gamma, x : T$ (à la place de $\Gamma \cup \left\{(x, T)\right\}$).
 \end{definition}
+
+\subsection*{Règle et jugement de typage}
 
 \begin{definition} [Règle de typage / jugement de typage]
   Voir la définition récursive de wikipedia :
@@ -166,24 +222,6 @@ introduirons le sous-typage.
 \begin{proof}
 
 \end{proof}
-
-\section*{Normalisation}
-
-Peut être ne pas donner des preuves, mais en parler pour dire que c'est très important.
-
-On se pose des questions sur la finitude des évaluations.
-
-Regarder du coté du cours de l'ENS Lyon, chap 3 pour le lambda-calcul simplement typé.
-
-\begin{definition}
-  On dit qu'un $\lambda$-terme est
-  \begin{itemize}
-  \item \textbf{fortement normalisable} si
-  toute chaine de $\beta$-réduction est finie.
-  \item \textbf{faiblement normalisable} s'il existe une chaine de
-    $\beta$-réduction finie.
-  \end{itemize}
-\end{definition}
 
 \section{Enrichir le calcul avec des types de bases}
 
