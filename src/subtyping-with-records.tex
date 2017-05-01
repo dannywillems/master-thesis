@@ -1,5 +1,133 @@
 \chapter{$\lambda$-calcul avec sous-typage et enregistrements.}
 
+La syntaxe des termes du $\lambda$-calcul simplement typé est pauvre : nous ne pouvons définir que des
+variables, des fonctions et appliquer des termes entre eux.
+La plupart des langages de programmation fournissent diverses structures de
+données comme les paires, les tuples, ou encore les enregistrements.
+
+Un enregistrement est ensemble fini de couples $(l_{i}, t_{i})$, noté $\left\{
+  l_{i} = t_{i} \right\}$ où $l_{i}$ est
+un label pour le terme $t_{i}$, les couples étant séparés par des points-virgules. Par exemple, nous pouvons représenter un point
+d'un plan par ses coordonnées cartésiennes, nommées $x$ et $y$ et les termes
+$t_{x}$ et $t_{y}$ étant la valeur des coordonnées. Nous notons ce terme
+$\left\{ x = t_{x} ; y = t_{y} \right\}$.
+Il est également intéressant de pouvoir récupérer une des coordonnées d'un
+point.
+Nous ajoutons pour cela le terme $t.l$ qui permet de récupérer le label $l$ du
+terme $t$.
+
+Dans ce chapitre, nous allons étendre notre ensemble de termes avec les
+enregistrements ainsi que définir les règles d'évaluation et de typage pour ces
+nouveaux termes pour enfin introduire dans un second temps la notion de
+sous-typage qui définit le principe du \textit{polymorphisme par sous-typage}.
+
+Il nous faut également typer les enregistrements. Pour cela, nous ajoutons une
+nouvelle syntaxe dans les types, noté $\left\{l_{i} : T_{i}\right\}$ où $l_{i}$
+est un label de l'enregistrement et $T_{i}$ le type du terme référencé par le
+label $l_{i}$. Pour l'exemple du point dans le plan, si nous supposons avoir un
+type $R$ pour les réels, notre point serait de type $\left\{ x : R ; y : R
+\right\}$. Pour le typage des projections, il est naturel de dire que le type de
+$t.l_{i}$ soit le type du terme $t_{i}$ de l'enregistrement $t$.
+
+\section{$\lambda$-calcul simplement typé avec enregistrements}
+
+\section*{Syntaxe}
+
+Formellement, la syntaxe des termes et la syntaxe des types sont définies par
+les grammaires \ref{syntax-terms:lambda-calculus-with-records} et
+\ref{syntax-types:lambda-calculus-with-records}.
+
+\begin{minipage}{0.45\textwidth}
+  \begin{align*}
+    t ::= & \, & \text{terme} \\
+          & \; x & \text{var} \\
+          & \; t \, t & \text{app} \\
+          & \; \lambdaExpr{x}{t} & \text{abs} \\
+          & \; \left\{ l_{i} = t_{i} \right\}^{1 \leq i \leq n} & \text{enreg} \\
+          & \; t.l & \text{proj}
+  \end{align*}
+\end{minipage}
+\label{syntax-terms:lambda-calculus-with-records}
+\begin{minipage}{0.45\textwidth}
+  \begin{align*}
+    T ::= & \, & \text{type} \\
+          & \; b & \text{type de base} \\
+          & \; t \rightarrow t & \text{fonction} \\
+          & \; \left\{ l_{i} : t_{i} \right\}^{1 \leq i \leq n} & \text{enreg}
+  \end{align*}
+\end{minipage}
+\label{syntax-types:lambda-calculus-with-records}
+
+Nous allons également ajouter les enregistrements dont tous les termes sont des
+valeurs comme valeurs de notre langage. Nous obtenons alors la grammaire
+\ref{syntax-values:lambda-calculus-with-records}.
+
+\begin{align*}
+  v ::= & \, & \text{valeur} \\
+        & \; \lambdaExpr{x}{t} & \text{abs} \\
+          & \; \left\{ l_{i} = v_{i} \right\}^{1 \leq i \leq n} & \text{enreg} \\
+\end{align*}
+\label{syntax-values:lambda-calculus-with-records}
+
+\section*{Sémantique}
+
+Il nous faut également définir comment nous réduisons nos
+enregistrements. Nous ajoutons les règles d'évaluation suivantes aux règles
+d'évaluation définies dans les chapitres précédents.
+
+\begin{mathpar}
+  \inferrule
+  {t_{j} \rightarrow t'_{j}}
+  {\left\{ l_{1} = v_{1}; ... ; l_{j} = t_{j} ; ... ; l_{n} = v_{n} \right\}
+    \rightarrow \\\\ \left\{ l_{1} = v_{1}; ... ; l_{j} = t'_{j} ; ... ; l_{n} =
+      v_{n} \right\}} \quad (\textsc{E-RCD})
+  \and
+  \inferrule
+  {t_{1} \rightarrow t'_{1}}
+  {t_{1}.l \rightarrow t'_{1}.l} \quad (\textsc{E-PROJ})
+  \and
+  \inferrule
+    {\left\{l_{i} = v_{i} \right\}^{1 \leq i \leq n}.l_{j} \rightarrow v_{j}}
+    {} \quad (\textsc{E-PROJ-RCD})
+\end{mathpar}
+\label{semantics:lambda-calculus-with-records}
+
+La règle (E-RCD) nous dit comment les termes à l'intérieur d'un record sont
+évalués. Quant à (E-PROJ-RCD), elle nous dit que nous pouvons effectuer une
+évaluer une projection uniquement si les termes de l'enregistrement ont tous été
+réduits à des valeurs. Pour finir, (E-PROJ) nous dit comment nous simplifions
+le terme dans une projection.
+
+\section*{Règles de typage}
+
+En plus des règles de typages du $\lambda$-calcul simplement typé, la relation
+de typage comprend les règles définies par \ref{typing:lambda-calculus-with-records}.
+
+\begin{mathpar}
+  \inferrule
+  {\forall i \in \left\{1, ... n \right\}, \Gamma \vdash t_{i} : T_{i}}
+  {\Gamma \vdash \left\{ l_{i} = t_{i} \right\} : \left\{ l_{i} : T_{i}
+    \right\}}
+  \quad (\textsc{T-RCD})
+  \and
+  \inferrule
+  {\Gamma \vdash t_{1} : \left\{ l_{i} : T_{i} \right\}}
+  {\Gamma \vdash t_{1}.l_{j} : T_{j} } 
+  \quad (\textsc{T-PROJ})
+\end{mathpar}
+\label{typing:lambda-calculus-with-records}
+
+La règle (T-RCD) nous dit comment introduire un type enregistrement tandis que
+(T-PROJ) nous dit comme typer une projection.
+
+\section{Sous-typage}
+
+Maintenant que nous avons définis la syntaxe, la sémantique et les règles de
+typages de notre langage comprenant les enregistrements, nous allons définir la
+notion de sous-typage ainsi que les règles pour ce langage.
+
+\section{Sureté}
+
 Remarquons que de l'information sur le type du retour est perdue dans certains
 cas. Par exemple, prenons l'expression
 
@@ -7,8 +135,5 @@ let f = lambda(x : Any) x in
 let g = lambda(y : Nothing) y in
 f g
 
-\section{Syntaxe}
+\section{Top et Bottom}
 
-\section{Sémantique et règle de typage}
-
-\section{Sureté}
