@@ -78,14 +78,14 @@ Pour rappel, le principe de récurrence sur $\naturel^{2}$ est le suivant :
 
 et se démontre en plusieurs lemmes :
 
-\begin{proposition} [Principe d'induction sur un ensemble bien ordonné]
+\begin{lemma} [Principe d'induction sur un ensemble bien ordonné]
   Soit $(X, \leq)$ un ensemble bien ordonné, alors le principe d'induction est
   vrai sur $X$, c'est-à-dire:
 
   Soit $P$ une proposition sur $X$.
   Si pour tout $x \in X$, quelque soit $y \in X$ tel que $y \leq x$, $P(y)$ est
   vrai, alors $P(x)$ est vrai pour tout $x \in X$.
-\end{proposition}
+\end{lemma}
 
 \begin{proof}
   Même principe que la preuve sur $\naturel$.
@@ -113,7 +113,7 @@ et se démontre en plusieurs lemmes :
 \end{proof}
 
 De manière générale, le dernier lemme peut se démontrer, en utilisant les mêmes
-argument, pour un $n$ naturel quelconque.
+arguments, pour $X^{n}$ où $n$ est un naturel quelconque.
 
 Nous gardons le terme \textit{induction structurelle} qu'importe l'ensemble sur
 lequel nous utilisons le principe induction.
