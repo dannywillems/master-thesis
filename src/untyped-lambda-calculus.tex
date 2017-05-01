@@ -8,7 +8,7 @@ la réduction de ceux-ci à travers la $\beta$-réduction.
 \section{Syntaxe}
 
 \begin{definition} [Syntaxe du $\lambda$-calcul]
-  Soit $V$ un ensemble infini dénombrable. On note $\Lambda$, appelé \textbf{l'ensemble des $\lambda$-termes}, le plus petit
+  Soit $V$ un ensemble infini dénombrable dont les éléments sont appelés \textbf{variables}. On note $\Lambda$, appelé \textbf{l'ensemble des $\lambda$-termes}, le plus petit
   ensemble tel que:
   \begin{enumerate}
     \item $V \subseteq \Lambda$
@@ -36,7 +36,7 @@ Pour des raisons de facilité d'écriture, la syntaxe
 
 ou encore
 \begin{align*}
-  t ::= & \, & \text{term} \\
+  t ::= & \, & \text{terme} \\
         & \; x & \text{var} \\
         & \; t \, t & \text{app} \\
         & \; \lambdaExpr{x}{t} & \text{abs}
@@ -96,6 +96,8 @@ variables liées à partir des variables, des abstractions et des applications.
   \item[$\bullet$] $BV(u v) = BV(u) \union BV(v)$
   \end{itemize}
 \end{definition}
+
+Un terme qui ne comporte pas de variable libre est dit \textit{clos}.
 
 Il existe également des termes qui sont syntaxiquement différents, mais que nous
 voudrions naturellement qu'ils soient les mêmes. Par exemple, nous voudrions que
@@ -388,47 +390,53 @@ Cette stratégie appliquée à l'exemple donne:
 
 Formellement, la stratégie call-by-value est définie par les \textit{règles
   d'évaluation} définies ci-dessous, le terme $v$ étant utilisée pour une valeur.
-\begin{center}
-\begin{tabular}{cc}
+
+\begin{mathpar}
   \inferrule
-  {t_{1} \rightarrow t_{1}'}
-  {t_{1} \, t \rightarrow t_{1}' \, t} & (E-APP1)
-  \\ \\
+    {t_{1} \rightarrow t_{1}'}
+    {t_{1} \, t \rightarrow t_{1}' \, t} \quad (\textsc{E-APP1})
+  \and
   \inferrule
-  {t \rightarrow t'}
-  {v \, t \rightarrow v \, t'} & (E-APP2)
-  \\ \\
-  \inferrule{(\lambdaExpr{x}{t}) u \rightarrow t[x := u]}{} & (E-ABS)
-\end{tabular}
-\end{center}
+    {t \rightarrow t'}
+    {v \, t \rightarrow v \, t'} \quad (\textsc{E-APP2})
+  \and
+  \inferrule
+    {(\lambdaExpr{x}{t}) v \rightarrow [x := v]t}
+    {} \quad (\textsc{E-APPABS})
+\end{mathpar}
+\label{eval:untyped-lambda-calculus}
 
 La notation \inferrule{t \rightarrow t'}{v \, t \rightarrow v \, t'} est
 l'équivalent d'une implication où la prémisse (ici $t \rightarrow t'$) se trouve au dessus et la
 conclusion en dessous (ici $v \, t \rightarrow v \, t'$). La règle E-APP1 se lit
 donc \og si $t_{1}$ se réduit en $t_{1}'$, alors $t_{1} t$ se réduit en
 $t_{1}'t$ \fg. Lorsque qu'une règle
-ne comporte pas de conclusion comme E-ABS, cela signifie que c'est un axiome.
+ne comporte pas de conclusion comme E-APPABS, cela signifie que c'est un axiome.
 Cette notation sera
 utilisée tout au long de ce document, en particulier pour les règles de typages
 et de sous-typages.
 
 Les règles (E-APP1) et (E-APP2) nous disent que nous devons, lors d'une
 application, réduire la fonction avant les paramètres, et ce jusqu'à obtenir une
-valeur. Quant à la règle (E-ABS), elle signifie qu'un redex se réduit toujours
+valeur. Quant à la règle (E-APPABS), elle signifie qu'un redex se réduit toujours
 en utilisant la fonction de substitution (définition de la relation $\beta$).
 
-Par la suite, nous considérerons toujours le call-by-value car celle-ci est la
-plus utilisée. La sémantique et la $\beta$-réduction seront utiles lorsque nous discuterons des
-théorèmes de préservation et de sureté du typage.
+La relation de $\beta$-réduction pour la stratégie call-by-value est alors
+définie comme le plus petit ensemble généré par les règles
+\ref{eval:untyped-lambda-calculus}. Quand nous ajouterons à notre langage des
+autres termes comme les enregistrements, nous mentionnerons uniquement les
+règles d'évaluation, la relation de $\beta$-réduction étant implicitement
+définie de la même manière.
 
-Plus d'informations sur la réduction sont disponibles dans \cite{ENS-Cachan-cours-lambda-calcul}.
+Par la suite, nous considérerons toujours cette dernière stratégie car c'est la
+plus utilisée.
 
+La réécriture des termes est un large sujet, plus d'informations sur ce sujet
+sont disponibles dans \cite{ENS-Cachan-cours-lambda-calcul}.
 Dans ce cours sont traités les sujets de normalisation (forme normale, finitude
 de la $\beta$-réduction), de confluence (est-ce que tout terme se réduit en une
 unique forme normale) et d'une différente sémantique appelée \textit{sémantique
 dénotationnelle}.
-
-
 
 \section{Codage de termes usuels}
 
