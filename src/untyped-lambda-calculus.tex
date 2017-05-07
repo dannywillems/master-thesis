@@ -5,6 +5,7 @@ programmation fonctionnelle en parlant du $\lambda$-calcul non typé.
 Nous discutons de la syntaxe de ce langage (les termes) pour ensuite discuter de
 la réduction de ceux-ci à travers la $\beta$-réduction.
 
+
 \section{Syntaxe}
 
 \begin{definition} [Syntaxe du $\lambda$-calcul]
@@ -52,12 +53,12 @@ Des exemples de $\lambda$-termes sont
   \item la fonction identité : $\lambdaExpr{x}{x}$
   \item la fonction constante en $y$: $\lambdaExpr{x}{y}$
   \item la fonction qui renvoie la fonction constante pour n'importe quelle
-    variable: $\lambdaExpr{y}{\lambdaExpr{x y}}$.
+    variable: $\lambdaExpr{y}{\lambdaExpr{x}{y}}$.
   \item l'application identité appliquée à la fonction identité:
     $(\lambdaExpr{x}{x}) (\lambdaExpr{y}{y})$
 \end{itemize}
 
-Comme le montrent les deux derniers exemples, des parenthèses sont utilisées pour
+Comme le montrent le dernier exemple, des parenthèses sont utilisées pour
 délimiter les termes.
 
 Il est également possible de définir des fonctions à plusieurs paramètres à
@@ -79,7 +80,7 @@ variables liées à partir des variables, des abstractions et des applications.
 
 \begin{definition} [Ensemble de variables libres]
   L'ensemble des variables \textbf{libres} d'un terme $t$, noté $FV(t)$ est défini
-  récursivement sur les générateurs de $\Lambda$ par:
+  récursivement sur la structure des termes de $\Lambda$ par:
   \begin{itemize}
   \item[$\bullet$] $FV(x) = \GSset{x}$
   \item[$\bullet$] $FV(\lambdaExpr{x}{t}) = FV(t) \backslash \GSset{x}$
@@ -89,7 +90,7 @@ variables liées à partir des variables, des abstractions et des applications.
 
 \begin{definition} [Ensemble de variables liées]
   L'ensemble des variables \textbf{liées} d'un terme $t$, noté $BV(t)$ est défini
-  récursivement sur les générateurs de $\Lambda$ par:
+  récursivement sur la structure des termes de $\Lambda$ par:
   \begin{itemize}
   \item[$\bullet$] $BV(x) = \emptyset$
   \item[$\bullet$] $BV(\lambdaExpr{x}{t}) = BV(t) \union \GSset{x}$
@@ -389,7 +390,7 @@ Cette stratégie appliquée à l'exemple donne:
 %  \end{align*} \\
 
 Formellement, la stratégie call-by-value est définie par les \textit{règles
-  d'évaluation} définies ci-dessous, le terme $v$ étant utilisée pour une valeur.
+  d'évaluation} définies ci-dessous, le terme $v$ étant utilisé pour une valeur.
 
 \begin{mathpar}
   \inferrule
@@ -413,8 +414,8 @@ donc \og si $t_{1}$ se réduit en $t_{1}'$, alors $t_{1} t$ se réduit en
 $t_{1}'t$ \fg. Lorsque qu'une règle
 ne comporte pas de conclusion comme E-APPABS, cela signifie que c'est un axiome.
 Cette notation sera
-utilisée tout au long de ce document, en particulier pour les règles de typages
-et de sous-typages.
+utilisée tout au long de ce document, en particulier pour les règles de typage
+et de sous-typage.
 
 Les règles (E-APP1) et (E-APP2) nous disent que nous devons, lors d'une
 application, réduire la fonction avant les paramètres, et ce jusqu'à obtenir une
