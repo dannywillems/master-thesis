@@ -1,4 +1,5 @@
 \chapter*{Introduction}
+\addcontentsline{toc}{chapter}{Introduction}
 
 La programmation modulaire est un principe de développement consistant à séparer une
 application en composants plus petits appelés \textit{modules}. Le langage de
@@ -49,63 +50,66 @@ D'un autre côté, dans les types de bases d'OCaml se trouvent les
 majeure entre eux se situent dans la possibilité de définir des types dans un
 module.
 
-Ce mémoire vise à définir, dans un premier temps, un calcul typé dans lequel le
+Ce mémoire vise à donner, dans un premier temps et après avoir défini les notions
+nécessaires, un calcul typé, DOT\cite{WF-DOT-2016}, dans lequel le
 langage de modules est confondu avec le langage de base grâce aux
 enregistrements. Cette unification implique
 que les modules (et in fine les foncteurs) sont des citoyens de première
-classes, c'est-à-dire que nous pouvons les manipuler comme tout autre terme, ce qui
+classe, c'est-à-dire que nous pouvons les manipuler comme tout autre terme, ce qui
 n'est pas le cas actuellement en OCaml.
-Dans un second temps, de fournir une implémentation en OCaml
+Dans un second temps, ce travail apporte une implémentation en OCaml
 des algorithmes de typage et de sous-typage et d'un langage de surface qui nous
-permet d'écrire des programmes dans ce langage.
+permet d'écrire des programmes DOT.
 
 %Une preuve de la sûreté de ce calcul ainsi
 %qu'un interpréteur avec un algorithme de sous-typage et d'inférence de type est
 %fourni.
 
-Les chapitres sont organisés afin de comprendre la construction d'un tel calcul
+Les chapitres sont organisés afin de comprendre la construction de DOT
 à partir du plus simple des calculs, le $\lambda$-calcul.
 
-Dans le chapitre 1, nous présentons \textit{le $\lambda$-calcul non typé}, un calcul
+Dans le chapitre 1, nous présenterons \textit{le $\lambda$-calcul non typé}, un calcul
 minimal qui contient des termes pour les variables, pour les abstractions (afin
 de représenter des fonctions) et des applications (afin de représenter
 l'application d'une fonction à un paramètre). Nous discuterons également de la
 sémantique que nous attribuons à ce calcul. 
 
-Dans le chapitre 2, nous introduisons la notion de type et nous l'appliquons au
+Dans le chapitre 2, nous introduirons la notion de type et nous l'appliquons au
 $\lambda$-calcul, ce qui nous donnera \textit{le $\lambda$-calcul simplement typé}. Nous
 discuterons de la notion de \textit{sureté du typage} à travers \textit{les théorèmes
 de préservation et de progression} que nous démontrerons pour ce calcul typé.
 
-Dans les chapitres 3, 4 et 5, nous enrichissons le $\lambda$-calcul simplement
+Dans les chapitres 3, 4 et 5, nous enrichirons le $\lambda$-calcul simplement
 typé avec la notion de polymorphisme qui permet d'attribuer plusieurs types à un
 terme. Le chapitre 3 se concentre sur \textit{le polymorphisme avec sous-typage},
-illustré avec les enregistrements. Nous parlerons aussi de l'implémentation d'un
-algorithme de sous-typage pour ce calcul et nous montrerons qu'un travail est
-nécessaire pour passer de la théorie à l'implémentation.
-Dans le chapitre 4, nous parlons de
+illustré avec les enregistrements.
+%Nous parlerons aussi de l'implémentation d'un
+%algorithme de sous-typage pour ce calcul et nous montrerons qu'un travail est
+%nécessaire pour passer de la théorie à l'implémentation.
+Dans le chapitre 4, nous parlerons de
 \textit{polymorphisme paramétré} qui, combiné au $\lambda$-calcul simplement typé, forme
 le calcul appelé \textit{System F}.
-Le chapitre 5 se charge de combiner ces deux notions de polymorphismes dans un
+Le chapitre 5 se chargera de combiner ces deux notions de polymorphismes dans un
 calcul appelé \textit{System $F_{<:}$}.
 Une preuve des théorèmes de préservation et de progression seront donnés pour
 les calculs définis dans les chapitres 3 et 4.
 
-Dans le chapitre 6, nous parlerons de la notion de type récursif et nous
-étudierons \textit{le $\lambda$-calcul simplement typé avec type récursif}.
-
-Ensuite, dans le chapitre 7, nous compléterons les enregistrements définis
-dans le chapitre 3 avec les \textit{types chemins dépendants} qui offre la possibilité
-d'ajouter des types dans les enregistrements, la syntaxe manquante pour une
+Ensuite, dans le chapitre 6, nous étudierons le calcul DOT en complétant les
+enregistrements définis dans le chapitre 3 avec les \textit{types chemins
+dépendants} qui offre la possibilité d'ajouter des types dans les
+enregistrements, la syntaxe manquante pour une
 convergence entre enregistrements et modules. Ce dernier chapitre comportera en
 plus des types chemins dépendants, chaque notion étudiée précédemment,
-c'est-à-dire le $\lambda$-calcul simplement typé, les types récursifs, les
-enregistrements, le polymorphisme par sous-typage et le polymorphisme paramétré.
+c'est-à-dire le $\lambda$-calcul simplement typé, les
+enregistrements, le polymorphisme par sous-typage et le polymorphisme paramétré
+ainsi que les types récursifs.
 
-Pour finir, dans le chapitre 8, nous discuterons de l'implémentation du langage
-RML\cite{rml-github} qui comprend un algorithme de typage et de sous-typage ainsi que d'un langage de surface pour le
-calcul défini dans le chapitre précédent. Nous donnerons des comparaisons entre
-OCaml et RML pour
+Pour finir, dans le chapitre 7, nous discuterons de l'implémentation du langage
+RML\cite{rml-github} qui comprend un algorithme de typage et de sous-typage
+ainsi que d'un langage de surface pour le
+calcul DOT. Nous verrons que passer des règles de sous-typages à un algorithme
+n'est pas évident pour plusieurs raisons.
+% Nous donnerons des comparaisons entre OCaml et RML
 
 
 La principale difficulté de ce travail se trouve dans l'étude des types
