@@ -1,1 +1,44 @@
 \chapter*{Conclusion}
+\addcontentsline{toc}{chapter}{Conclusion}
+
+Dans les premiers chapitres, nous avons défini les bases théoriques de la
+programmation fonctionnelle et des langages typés. Nous sommes partis de
+différents calculs relativement simples comme le $\lambda$-calcul non typé et le
+$\lambda$-calcul simplement typé pour arriver à un calcul plus compliqué et plus
+récent (2016) appelé DOT qui unifie
+le comportement des enregistrements et des modules et permet en même temps
+de considérer les modules comme des citoyens de première classe. Nous
+avons également montré comment DOT pouvait être interprété comme une extension
+de System $F_{<:}$.
+
+Dans le dernier chapitre, nous avons présenté une implémentation en OCaml basée
+sur DOT. Nous avons pu remarquer qu'implémenter un langage à partir de règles
+théoriques n'est pas évident et cela à cause des différents arbres de
+dérivations possibles pour une même question ou encore en raison des arbres de
+tailles infinis.
+Nous avons également remarqué qu'il était nécessaire de changer certaines règles
+d'inférence pour écrire un algorithme, comme pour le cas de la réflexivité,
+l'inclusion de T-SUB dans les règles d'inférence ou encore l'introduction de
+UN-REC pour pouvoir comparer des types récursifs.
+De plus, nous avons remarqué qu'introduire des types chemins dépendents dans le
+langage ne facilite pas l'implémentation.
+
+Nous avons également vu qu'écrire des programmes dans un calcul théorique comme
+DOT n'est pas très pratique et implique de développer un langage de surface.
+Dans ce langage de surface, des sucres syntaxiques sont implémentés afin de
+pouvoir écrire des termes interdits dans DOT, comme l'application de termes à
+une fonction. Cependant, à travers l'implémentation de ces sucres, nous avons
+remarqué qu'il manquait certaines règles pour pouvoir écrire certains programmes
+usuels comme le binding local d'une variable.
+
+DOT n'est pas le seul calcul dans lequel les modules peuvent être considérés
+comme citoyens de première classe. D'autres calculs ont été explorés comme
+1ML\cite{1ml-paper}. Ce dernier catégorise les types en
+genres\cite{tapl-higher-order-systems} afin d'affiner les règles de typage et
+de sous-typage sur les types. DOT a été choisi à la place de 1ML car ce dernier possède
+déjà une implémentation et les règles de typage et de sous-typage sont plus
+élaborées que DOT.
+
+% Discuter qu'il y a d'autres sémantiques intéressantes comme la sémantique
+% catégorique, sujet de recherche assez récent et inexploré actuellement dans le
+% cas de DOT ?
