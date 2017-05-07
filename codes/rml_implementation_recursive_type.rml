@@ -1,0 +1,9 @@
+sig
+  type t
+  val f : self.t
+end
+<:
+sig(self')
+  type t
+  val f : self'.t
+end
