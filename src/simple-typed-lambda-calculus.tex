@@ -2,7 +2,8 @@
 
 Dans le chapitre 1, nous avons défini la syntaxe et la sémantique d'un calcul
 appelé le $\lambda$-calcul non typé. Nous allons maintenant ajouter une notion de types à
-chaque terme de notre calcul, ce qui nous mènera au $\lambda$-calcul simplement typé.
+chaque terme de notre calcul, ce qui nous mènera au $\lambda$-calcul simplement
+typé\footnote{Plus d'informations peuvent être trouvées dans \cite{tapl-simply-typed-lambda-calculus}}.
 
 \section{Typage, contexte de typage et règle d'inférence}
 
@@ -18,6 +19,7 @@ application de $v$ à la fonction $u$, il serait naturel de dire que $u$ est un
 type flèche dont le type de son paramètre est le type de $v$.
 
 \begin{definition} [Relation de typage]
+  \label{def:simply-typed-lambda-calculus-type-relation}
   Soit $\Lambda$ un ensemble de termes.
   Soit $\tau$ un ensemble, appelé \textbf{ensemble des types}, dont les éléments
   sont notés $T$.
@@ -40,6 +42,7 @@ Dans ce chapitre, nous allons travailler avec l'ensemble des types dit
 \textit{simples}.
 
 \begin{definition}
+  \label{def:simply-typed-lambda-calculus-types}
   Soit $B$ un ensemble de type appelé de \textbf{types de bases}.
   L'ensemble des \textbf{types simples} est défini par la grammaire suivante:
   \begin{align*}
@@ -73,6 +76,7 @@ se voit alors ajouter un type à son argument et devient $\lambdaExpr{x : T}{t}$
 La syntaxe des termes devient alors:
 
 \begin{align*}
+  \label{def:simply-typed-lambda-calculus-terms}
   t ::= & \, & \text{terme} \\
         & \; x & \text{var} \\
         & \; t \, t & \text{app} \\
@@ -86,17 +90,21 @@ souhaitons le typer, il est nécessaire de connaître le type de $y$. Cela nous
 amène à la notion de \textit{contexte de typage}.
 
 \begin{definition} [Contexte de typage]
+  \label{def:simply-typed-lambda-calculus-context}
   Un \textbf{contexte de typage}, noté $\Gamma$, est un ensemble fini de couple $(x_{i},
   T_{i})$ où $x_{i}$ est une variable et $T_{i}$ est un type. Chaque $x_{1}$ est différent.
   
   L'union d'un contexte de typage $\Gamma$ avec un couple $(x, T)$ est noté
   $\Gamma, x : T$. Le contexte vide est noté $\emptyset$.
+
+  Le domaine de $\Gamma$, noté $dom(\Gamma)$, est l'ensemble des $x_{i}$.
 \end{definition}
 
 La relation de typage devient alors une relation à trois composantes : le
 contexte, le terme et le type. Nous parlons alors de \textit{jugement de typage}.
 
 \begin{definition} [Jugement de typage]
+  \label{def:simply-typed-lambda-calculus-judgement}
   \textbf{Un jugement de typage} est un triplet $(\Gamma, t, T)$ où $\Gamma$ est un
   contexte de typage, $t$ un terme et $T$ un type. Nous le notons le plus
   souvent $\Gamma \vdash t : T$ et nous disons \og $t$ à le type $T$ sous les
@@ -110,6 +118,7 @@ Maintenant, nous avons les outils pour définir nos règles de typages,
 c'est-à-dire comment nous assignons les types aux termes.
 
 \begin{definition} [Règles de typage]
+  \label{def:simply-typed-lambda-calculus-typing-rules}
   Les règles de typage pour le $\lambda$-calcul simplement typé sont
   \begin{mathpar}
     \inferrule
@@ -208,6 +217,7 @@ Avant de montrer la préservation et la progression, il est nécessaire de
 remarquer certains faits qui découlent immédiatement des règles de typages.
 
 \begin{lemma} [Inversion des règles de typage]
+  \label{lemma:simply-typed-lambda-calculus-inversion}
   \begin{enumerate}
     \item Si $\Gamma \vdash x : T$, alors $(x : T) \in \Gamma$
     \item Si $\Gamma \vdash \lambdaExpr{x : T_{1}}{t_{2}} : T$ alors $T = T_{1}
@@ -218,6 +228,7 @@ remarquer certains faits qui découlent immédiatement des règles de typages.
 \end{lemma}
   
 \begin{proof}
+  \label{proof:simply-typed-lambda-calculus-inversion}
   Ces propositions découlent des règles de typage. En effet, pour la deuxième
   par exemple, la seule règle qui permet d'affirmer que $\Gamma \vdash
   \lambdaExpr{x : T_{1}}{t_{2}} : T$ est $T-ABS$.
@@ -239,12 +250,13 @@ dérivations ont uniques, est l'unicité de type. Nous verrons que cette
 proposition n'est pas vraie dans tous les calculs.
 
 \begin{theorem} [Unicité du typage]
-  \label{chap1-thm:type-unicity}
+  \label{thm:simply-typed-lambda-calculus-type-unicity}
   Soit $t$ un $\lambda$-terme. Si $t$ est bien typé, alors son type est unique. De plus, il existe au
   plus un arbre de dérivation qui permet de montrer que $t$ a ce type.
 \end{theorem}
 
 \begin{proof}
+  \label{proof:simply-typed-lambda-calculus-type-unicity}
   Supposons que $t$ possède deux types, par exemple $S$ et $T$. Nous avons donc les
   jugements de typage : $\Gamma \vdash t : S$ et $\Gamma \vdash t : T$. Nous procédons
   par induction sur la structure des termes.
@@ -269,19 +281,23 @@ proposition n'est pas vraie dans tous les calculs.
    et de la remarque ci-dessus.
 \end{proof}
 
+\subsection*{Progression}
+
 \begin{theorem} [de progression de $\lambda_{\rightarrow}$]
-  Soit $t$ un terme bien typé sans variables libre. Alors, soit $t$ est une
+  \label{thm:simply-typed-lambda-calculus-progression}
+  Soit $t$ un terme bien typé sans variable libre. Alors, soit $t$ est une
   valeur, soit il existe $t'$ tel que $t \rightarrow t'$.
 \end{theorem}
 
 \begin{proof}
+  \label{proof:simply-typed-lambda-calculus-progression}
   Nous procédons par induction sur la structure des termes.
   \begin{itemize}
-    \item Le cas d'une variable n'est pas possible. En effet, aucune règle
-      d'évaluation n'a comme prémisse une variable.
+    \item Le cas d'une variable, par exemple $x$, n'est pas possible car par
+      hypothèse le terme $t$ est clos. Or, $x$ est libre dans $x$.
     \item $t$ est une abstraction. Le résultat est direct car $t$ est une valeur.
     \item $t$ est de la forme $u \, v$. $t$ étant
-      bien typé, nous avons le jugement de typage $\vdash t : T$ où $\Gamma$ est
+      bien typé, nous avons le jugement de typage $\vdash u \, v : T$ où $\Gamma$ est
       vide car $t$ ne possède pas de variables libres. Par le lemme
       d'inversion, $u : T_{1} \rightarrow T$ et $v : T_{1}$. Par induction,
       comme $u$ (resp. $v$) est bien typé, $u$ (resp. $v$) est soit une valeur,
@@ -299,12 +315,14 @@ proposition n'est pas vraie dans tous les calculs.
 \subsection*{Préservation}
 
 \begin{lemma} [de permutation]
+  \label{thm:simply-typed-lambda-calculus-permutation}
   Soit $\Gamma \vdash t : T$ et soit $\Delta$ une permutation de $\Gamma$. Alors
   $\Delta \vdash t : T$.
 \end{lemma}
 
 \begin{proof}
-  Par induction sur la structure des termes.
+  \label{proof:simply-typed-lambda-calculus-permutation}
+  Par induction sur l'arbre de dérivation de typage.
   \begin{itemize}
   \item $t$ est une variable $x$. Par hypothèse, $\Gamma \vdash x : T$. Par le lemme
     d'inversion, $(x, T) \in \Gamma$ d'où $(x, T) \in \Delta$. Par $(T-VAR)$,
@@ -323,18 +341,20 @@ proposition n'est pas vraie dans tous les calculs.
 \end{proof}
 
 \begin{lemma} [d'affaiblissement]
+  \label{thm:simply-typed-lambda-calculus-weakening}
   Soit $\Gamma \vdash t : T$ et $x \notin dom(\Gamma)$.
 
   Alors $\Gamma, x : S \vdash t : T$.
 \end{lemma}
 
 \begin{proof}
-  Par induction sur la structure des termes.
+  \label{proof:simply-typed-lambda-calculus-weakening}
+  Par induction sur l'arbre de dérivation de typage.
   \begin{itemize}
   \item $t$ est une variable $y$. Le cas où $y = x$ est impossible car par le
     lemme d'inversion, nous avons $(x, T) \in \Gamma$ et cela contredit
-    l'hypothèse que $x \notin \Gamma$. Si $y \neq x$, $(y, T) \in \Gamma$ par le
-    lemme d'inversion et par conséquence, $(y, T) \in \Gamma, x : S$ et nous
+    l'hypothèse que $x \notin dom(\Gamma)$. Si $y \neq x$, $(y, T) \in \Gamma$ par le
+    lemme d'inversion et par conséquent, $(y, T) \in \Gamma, x : S$ et nous
     concluons en utilisant $(T-VAR)$.
   \item $t = \lambdaExpr{y : T_{1}}{t'}$ tel que $\Gamma \vdash t : T$. Par le
     lemme d'inversion, nous avons $T = T_{1} \rightarrow T_{2}$ et $\Gamma, y :
@@ -351,13 +371,16 @@ proposition n'est pas vraie dans tous les calculs.
 \end{proof}
 
 \begin{lemma} [de préservation du typage pour la substitution]
+  \label{thm:simply-typed-lambda-calculus-preservation-substitution}
   Soit $\Gamma, x : S \vdash t : T$ et $\Gamma \vdash s : S$.
 
   Alors $\Gamma \vdash [x \rightarrow s] t : T$
 \end{lemma}
 
 \begin{proof}
-  Nous procédons par une induction sur l'arbre de dérivation $\Gamma, x : S \vdash t : T$.
+  \label{proof:simply-typed-lambda-calculus-preservation-substitution}
+  Nous procédons par une induction sur l'arbre de dérivation du jugement $\Gamma, x : S
+  \vdash t : T$ et ce en fonction de la forme de $t$.
 
   \begin{itemize}
   \item $t = z$. Alors, par le lemme d'inversion, $(z, T) \in \Gamma, x : S$.
@@ -377,7 +400,7 @@ Alors $T = T_{1} \rightarrow R$ avec
       nous avons également $\Gamma, y : T_{1}, x : S \vdash t' : R$. En utilisant le lemme
       d'affaiblissement avec $\Gamma \vdash s : S$, comme $y \notin \Gamma$,
       nous obtenons $\Gamma, y : T_{1} \vdash s : S$.
-      Nous appliquons alors l'hypothèse de récurrence avec $t'$ et nous obtenons
+      Nous appliquons alors l'hypothèse de récurrence et nous obtenons
       $\Gamma, y : T_{1} \vdash [x \rightarrow s] t' : R$. Par T-ABS, nous avons
       $\Gamma \vdash [x \rightarrow s] (\lambdaExpr{y : T_{1}}{([x \rightarrow s]t')}) : R$ .
 
@@ -389,7 +412,7 @@ Alors $T = T_{1} \rightarrow R$ avec
 
       Par le lemme d'inversion, nous avons $\Gamma, x : S
       \vdash u : T_{1} \rightarrow T$ et $\Gamma, x : S \vdash v : T_{¡}$. Par
-      hypothèse d'induction sur $u$ et $v$, nous avons $\Gamma \vdash [x \rightarrow s]u :
+      hypothèse d'induction, nous avons $\Gamma \vdash [x \rightarrow s]u :
       T_{1} \rightarrow T$ et
       $\Gamma \vdash [x \rightarrow s]v : T_{1}$. Par T-APP et le rappel
       ci-dessus, nous pouvons conclure $\Gamma \vdash [x \rightarrow s](u \, v)
@@ -399,14 +422,16 @@ Alors $T = T_{1} \rightarrow R$ avec
 \end{proof}
 
 \begin{theorem} [de préservation du typage]
+  \label{thm:simply-typed-lambda-calculus-preservation}
   Soit $\Gamma \vdash t : T$ et $t \rightarrow t'$. Alors $\Gamma \vdash t' :
   T$.
 \end{theorem}
 
 \begin{proof}
+  \label{proof:simply-typed-lambda-calculus-preservation}
   Par induction sur l'arbre de dérivation de $\Gamma \vdash t : T$.
   \begin{itemize}
-  \item $\Gamma \vdash x : T$. Ce cas n'est pas possible car aucun règle de
+  \item $\Gamma \vdash x : T$. Ce cas n'est pas possible car aucune règle de
     réduction existe pour les variables.
   \item $\Gamma \vdash \lambdaExpr{x : T_{1}}{t'} : T$. Même chose que pour le
     cas des variables.
