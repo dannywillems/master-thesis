@@ -66,7 +66,12 @@ T_{1} \vdash t : T$ \fg : le contexte n'est pas le même.
 L'argument reste pourtant vrai : le principe de récurrence utilisé est celui sur
 $\naturel^{2}$ muni de l'ordre lexicographique en utilisant comme premier
 paramètre la hauteur de l'arbre de typage (qui diminue strictement dans le cas donné) et
-comme second la taille du contexte (qui augmente).
+comme second la taille du contexte (qui augmente). L'énoncé complet du lemme de
+permutation devrait être:
+
+\og Soit $\Gamma \vdash t : T$ dont l'arbre de dérivation est de hauteur $n$ et
+dont la cardinalité de $\Gamma$ est $m$. Alors, pour toute permutation $\Delta$ de
+$\Gamma$, $\Delta \vdash t : T$ \fg.
 
 Pour rappel, le principe de récurrence sur $\naturel^{2}$ est le suivant :
 \begin{proposition}
