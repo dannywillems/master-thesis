@@ -21,7 +21,7 @@ Il nous faut également typer les enregistrements. Pour cela, nous ajoutons une
 nouvelle syntaxe dans les types, noté $\left\{l_{i} : T_{i}\right\}^{1 \leq i
   \leq n}$ où $l_{i}$
 est un label de l'enregistrement et $T_{i}$ le type du terme référencé par le
-label $l_{i}$. Pour l'exemple du point dans le plan, si nous supposons avoir un
+label $l_{i}$. Pour l'exemple du point dans le plan réel, si nous supposons avoir un
 type $\real$ pour les réels, notre point serait de type $\left\{ x : \real ; y : \real
 \right\}$. Pour le typage des projections, il est naturel de dire que le type de
 $t.l_{i}$ soit le type du terme $t_{i}$ de l'enregistrement $t$.
@@ -43,7 +43,7 @@ les grammaires suivantes :
     t ::= & \, & \text{terme} \\
           & \; x & \text{var} \\
           & \; t \, t & \text{app} \\
-          & \; \lambdaExpr{x}{t} & \text{abs} \\
+          & \; \lambdaExpr{x : T}{t} & \text{abs} \\
           & \; \left\{ l_{i} = t_{i} \right\}^{1 \leq i \leq n} & \text{enreg} \\
           & \; t.l & \text{proj}
   \end{align*}
@@ -53,8 +53,8 @@ les grammaires suivantes :
   \begin{align*}
     T ::= & \, & \text{type} \\
           & \; b & \text{type de base} \\
-          & \; t \rightarrow t & \text{fonction} \\
-          & \; \left\{ l_{i} : t_{i} \right\}^{1 \leq i \leq n} & \text{enreg}
+          & \; T \rightarrow T & \text{fonction} \\
+          & \; \left\{ l_{i} : T_{i} \right\}^{1 \leq i \leq n} & \text{enreg}
   \end{align*}
 \end{minipage}
 \label{syntax-types:lambda-calculus-with-records}
@@ -66,7 +66,7 @@ suivante :
 \label{syntax-values:lambda-calculus-with-records}
 \begin{align*}
   v ::= & \, & \text{valeur} \\
-        & \; \lambdaExpr{x}{t} & \text{abs} \\
+        & \; \lambdaExpr{x : T}{t} & \text{abs} \\
           & \; \left\{ l_{i} = v_{i} \right\}^{1 \leq i \leq n} & \text{enreg} \\
 \end{align*}
 
@@ -94,14 +94,14 @@ d'évaluation définies dans les chapitres précédents.
 \label{semantics:lambda-calculus-with-records}
 
 La règle (E-RCD) nous dit comment les termes à l'intérieur d'un enregistrement sont
-évalués. Quant à (E-PROJ-RCD), elle nous dit que nous pouvons
-évaluer une projection uniquement si les termes de l'enregistrement ont tous été
-réduits à des valeurs. Pour finir, (E-PROJ) nous dit comment nous simplifions
-le terme dans une projection.
+évalués. Quant à (E-PROJ-RCD)\footnote{Nous supposons que $j \in \GSset{1, ...,
+n}$.}, elle nous dit que nous pouvons évaluer une projection uniquement si les
+termes de l'enregistrement ont tous été réduits à des valeurs. Pour finir,
+(E-PROJ) nous dit comment nous simplifions le terme dans une projection.
 
 \section*{Règles de typage}
 
-En plus des règles de typages du $\lambda$-calcul simplement typé, la relation
+En plus des règles de typage du $\lambda$-calcul simplement typé, la relation
 de typage comprend les règles suivantes :
 
 \begin{mathpar}
@@ -131,7 +131,7 @@ Le sous-typage est une forme de polymorphisme, c'est-à-dire une possibilité
 d'attribuer plusieurs types à un terme. Le polymorphisme est très courant dans
 les langages orientés objets et permet, par exemple, d'élargir le champ
 d'application des fonctions.
-De manière plus concrêtes, supposons que nous avons défini un type $\real$
+De manière plus concrète, supposons que nous ayons défini un type $\real$
 pour l'ensemble des réels et définissons le point $(5, 5)$ du plan $\real^{2}$ par
 $\left\{ x = 5 ; y = 5 \right\}$\footnote{En supposant que 5 fasse partie de
   notre syntaxe et que son type soit $\real$.}.
@@ -227,8 +227,8 @@ alors $S$ est sous-type de $T$.
 
 Pour finir, nous aimerions dire que si nous avons une fonction $f$ qui attend un
 enregistrement avec un champ $x$, nous pouvons également passer en paramètre à
-$f$ un enregistrement avec deux champs $x$ et $y$. Nous ajoutons en plus que le
-type de retour peut être un super-type.
+$f$ un enregistrement avec deux champs $x$ et $y$, c'est-à-dire un sous-type.
+Nous ajoutons en plus que le type de retour peut être un super-type.
 
 \begin{mathpar}
   \inferrule
@@ -239,26 +239,26 @@ type de retour peut être un super-type.
 
 Nous avons maintenant toutes les propriétés nécessaires pour résoudre notre
 problème. En effet, voici un arbre de dérivation qui permet de montrer
-$(\lambdaExpr{p : \left\{ x : R \right\}}{p.x}) \left\{ x = 5 ; y =
-  5 \right\} : R$.
+$(\lambdaExpr{p : \left\{ x : \real \right\}}{p.x}) \left\{ x = 5 ; y =
+  5 \right\} : \real$.
 
 \begin{mathpar}
 \inferrule* [Left=(T-APP)]
-{\Gamma \vdash \lambdaExpr{p : \left\{ x : R \right\}}{p.x} : \left\{ x : R
-  \right\} \rightarrow R
+{\Gamma \vdash \lambdaExpr{p : \left\{ x : \real \right\}}{p.x} : \left\{ x : \real
+  \right\} \rightarrow \real
   \\
   \inferrule* [Right=(T-SUB)]
-  {\Gamma \vdash \left\{ x = 5 ; y = 5 \right\} : \left\{ x : R ; y : R \right\}
+  {\Gamma \vdash \left\{ x = 5 ; y = 5 \right\} : \left\{ x : \real ; y : \real \right\}
     \\\\
-    \left\{ x : R ; y : R \right\} <: \left\{ x : R \right\}
+    \left\{ x : \real ; y : \real \right\} <: \left\{ x : \real \right\}
   }
-  {\Gamma \vdash \left\{ x = 5 ; y = 5 \right\} : \left\{ x : R \right\}}
+  {\Gamma \vdash \left\{ x = 5 ; y = 5 \right\} : \left\{ x : \real \right\}}
 }
-{\Gamma \vdash (\lambdaExpr{p : \left\{ x : R \right\}}{p.x}) \left\{ x = 5 ; y =
-  5 \right\} : R}
+{\Gamma \vdash (\lambdaExpr{p : \left\{ x : \real \right\}}{p.x}) \left\{ x = 5 ; y =
+  5 \right\} : \real}
 \end{mathpar}
 
-L'affirmation \inferrule{\left\{ x : R ; y : R \right\} <: \left\{ x : R
+L'affirmation \inferrule{\left\{ x : \real ; y : \real \right\} <: \left\{ x : \real
   \right\}}{} est inférée grâce à (S-RCD-WIDTH).
 
 \section{Sûreté}
@@ -277,7 +277,7 @@ les preuves seront moins détaillées.
   \label{lemma:record-subtyping-inversion-subtyping-rules}
   \begin{enumerate}
     \item Si $S <: T_{1} \rightarrow T_{2}$, alors $S$ est de la forme $S_{1}
-      \rightarrow S_{2}$ avec $T_{1} <: S_{1}$ et $S_{2} \rightarrow T_{2}$.
+      \rightarrow S_{2}$ avec $T_{1} <: S_{1}$ et $S_{2} <: T_{2}$.
     \item Si $S <: \left\{ l_{i} : T_{i} \right\}^{1 \leq i \leq n}$, alors $S$
       est de la forme $\left\{ k_{i} : S_{i} \right\}^{1 \leq i \leq m}$ tel que
       $(k_{i})_{1 \leq i \leq m} \subseteq (l_{i})_{1 \leq i \leq n}$ et $S_{i}
@@ -303,7 +303,8 @@ les preuves seront moins détaillées.
       {S <: T_{1} \rightarrow T_{2}}
     \end{mathpar}
     Nous appliquons d'abord l'hypothèse de récurrence sur l'affirmation $T <:
-    T_{1} \rightarrow T_{2}$ et ensuite sur l'affirmation $S <: T$.
+    T_{1} \rightarrow T_{2}$ et ensuite sur l'affirmation $S <: T$. Nous
+    concluons en utilisant (S-TRANS).
   \end{itemize}
 \end{proof}
 
@@ -327,10 +328,10 @@ démontré pour le $\lambda$-calcul simplementé typé.
   Encore une fois, nous ne montrons que pour le premier cas, les arguments étant
   sensiblement les mêmes pour le second.
 
-  Les seuls règles possibles sont T-SUB ou T-ABS.
+  Les seuls règles possibles sont (T-SUB) ou (T-ABS).
 
   \begin{enumerate}
-    \item T-SUB. Nous avons donc l'arbre de dérivation suivant:
+    \item (T-SUB). Nous avons donc l'arbre de dérivation suivant:
       \begin{mathpar}
         \inferrule* [Left=(T-SUB)]
         {\Gamma \vdash \lambdaExpr{x : S_{1}}{s_{2}} : T \\ T <: T_{1}
@@ -350,17 +351,17 @@ démontré pour le $\lambda$-calcul simplementé typé.
       obtenons $\tilde{S_{1}} <: S_{1}$ et $\Gamma, x : S_{1} \vdash s_{2} :
       \tilde{S_{2}}$.
       
-      En utilisant S-TRANS avec $\tilde{S_{1}} <: S_{1}$ et $T_{1}
-      <: \tilde{S_{1}}$, nous concluons avec $T_{1} <: S_{1}$.
-      Pour finir, en utilisant T-SUB avec $\Gamma, x : S_{1} \vdash s_{2} :
-      \tilde{S_{2}}$ et $\tilde{S_{2}} <: T_{2}$, nous obtenons $\Gamma, x : S_{1}
-      \vdash s_{2} : T_{2}$.
-      \item T-ABS. Le résultat est direct et $T_{1} = S_{1}$.
+      En utilisant (S-TRANS) avec $T_{1} <: \tilde{S_{1}}$ et $\tilde{S_{1}} <:
+      S_{1}$, nous concluons avec $T_{1} <: S_{1}$. Pour finir, en utilisant (T-SUB)
+      avec $\Gamma, x : S_{1} \vdash s_{2} : \tilde{S_{2}}$ et $\tilde{S_{2}} <:
+      T_{2}$, nous obtenons $\Gamma, x : S_{1} \vdash s_{2} : T_{2}$.
+      \item (T-ABS). Le résultat est direct et $T_{1} = S_{1}$.
   \end{enumerate}
 \end{proof}
 
 Nous pouvons maintenant démontrer le même lemme de substitution défini dans le
-chapitre précédent.
+chapitre précédent. La fonction de substitution est étendue aux projections et
+aux enregistrements de manière naturelle.
 
 \begin{lemma} [de préservation de typage par substitution]
   \label{lemma:subtyping-record-substitution}
@@ -372,58 +373,57 @@ chapitre précédent.
 \begin{proof}
   Même technique de preuve que dans le chapitre précédent. Il suffit d'ajouter 
   des cas pour les enregistrements et les projections en utilisant
-  respectivement T-RCD et T-PROJ et de manière générale pour T-SUB (hypothèse de
-  récurrence sur le jugement de gauche et utilisation de T-SUB pour conclure).
+  respectivement (T-RCD) et (T-PROJ) et de manière générale pour (T-SUB) (hypothèse de
+  récurrence sur le jugement de gauche et utilisation de (T-SUB) pour conclure).
 \end{proof}
 
-Et nous concluons avec le théorème de progression.
 
 \begin{theorem} [de préservation du typage]
-  Si $t$ est un terme bien typé sans variable libre, alors soit $t$ est une
-  valeur, soit il existe $t'$ tel que $t \rightarrow t'$.
+  Soit $\Gamma \vdash t : T$ et soit $t'$ tel que $t \rightarrow t'$. Alors,
+  $\Gamma \vdash t' : T$.
 \end{theorem}
 
 \begin{proof}
   Nous procédons de la même manière que pour le cas du $\lambda$-calcul
   simplement typé, c'est-à-dire sur le jugement $\Gamma \vdash t : T$.
   \begin{enumerate}
-    \item T-VAR. Nous avons alors $t = x$ : pas possible car il n'y a pas de
+    \item (T-VAR). Nous avons alors $t = x$ : pas possible car il n'y a pas de
       réduction pour les variables.
-      \item T-ABS. $t = \lambdaExpr{x : T_{1}}{t'}$ : déjà une valeur.
-      \item T-APP. $t = t_{1} \, t_{2}$. Nous avons
+      \item (T-ABS). $t = \lambdaExpr{x : T_{1}}{t_{12}}$ : déjà une valeur.
+      \item (T-APP). $t = t_{1} \, t_{2}$. Nous avons
           $\Gamma \vdash t_{1} : T_{1} \rightarrow T$, $\Gamma \vdash t_{2}
           : T_{1}$.
           Les possibles règles d'évaluation
-          sont E-APP1, E-APP2 et E-APPABS. Pour E-APP1 et E-APP2, même
+          sont (E-APP1), (E-APP2) et (E-APPABS). Pour (E-APP1) et (E-APP2), même
           raisonnement que pour le $\lambda$-calcul simplement typé.
 
-          Quant à E-APPABS, nous obtenons $t_{1} = \lambdaExpr{x : S_{1}}{t'}$ et
-          $t_{2} = v$. En utilisant \ref{lemma:subtyping-record-substitution},
-          nous déduisons $T_{1} <: S_{1}$ et $\Gamma, x : S \vdash t' : T$. Nous
-          concluons avec le lemme de substitution qui donne $\Gamma, x : S \vdash
-          [x \rightarrow v]t' : T$.
+          Quant à (E-APPABS), posons $t_{1} = \lambdaExpr{x : S_{1}}{t_{12}}$
+          et $t_{2} = v$. En utilisant
+          \ref{lemma:subtyping-record-substitution}, nous déduisons $T_{1} <:
+          S_{1}$ et $\Gamma, x : S \vdash t_{12} : T$. Nous concluons avec le lemme de
+          substitution qui donne $\Gamma, x : S \vdash [x \rightarrow v]t_{12} :
+          T$.
 
-       \item T-RCD. La seule règle d'évaluation est E-RCD qui réduit un des
+       \item (T-RCD). La seule règle d'évaluation est (E-RCD) qui réduit un des
          termes de l'enregistrement. Il suffit d'appliquer l'hypothèse de
-         récurrence sur ce terme et d'utiliser T-RCD pour conclure.
+         récurrence sur ce terme et d'utiliser (T-RCD) pour conclure.
 
-         \item T-PROJ. Nous obtenons $t = t_{1}.l_{j}$, $\Gamma \vdash t_{1}
-           : \left\{ l_{i} : T_{i} \right\}^{1 \leq i \leq n}$ et $T = T_{j}$.
-           Deux règles d'évaluation sont possibles : E-PROJ ou E-PROJ-RCD. Si
-           c'est E-PROJ, nous appliquons l'hypothèse de récurrence. Sinon,
-           E-PROJ-RCD nous dit que $t_{1} = \left\{ k_{i} = v_{i} \right\}^{1
-             \leq i \leq m}$ et par le lemme
-           \ref{lemma:record-subtyping-inversion-subtyping-rules}, nous avons
-           $(l_{i})_{1 \leq i \leq n} \subseteq (k_{i})_{1 \leq i \leq m}$ et
-           $\Gamma \vdash v_{i} : T_{i}$ pour $k_{i} = l_{i}$. Nous concluons
-           que $\Gamma \vdash v_{j} : T_{j}$.
-           \item T-SUB. Par hypothèse de récurrence et en utilisant T-SUB.
+       \item (T-PROJ). Nous obtenons $t = t_{1}.l_{j}$, $\Gamma \vdash t_{1}
+         : \left\{ l_{i} : T_{i} \right\}^{1 \leq i \leq n}$ et $T = T_{j}$.
+         Deux règles d'évaluation sont possibles : (E-PROJ) ou (E-PROJ-RCD). Si
+         c'est (E-PROJ), nous appliquons l'hypothèse de récurrence. Sinon,
+         (E-PROJ-RCD) nous dit que $t_{1} = \left\{ k_{i} = v_{i} \right\}^{1
+           \leq i \leq m}$ et par le lemme
+         \ref{lemma:record-subtyping-inversion-subtyping-rules}, nous avons
+         $(l_{i})_{1 \leq i \leq n} \subseteq (k_{i})_{1 \leq i \leq m}$ et
+         $\Gamma \vdash v_{i} : T_{i}$ pour $k_{i} = l_{i}$. Nous concluons
+         que $\Gamma \vdash v_{j} : T_{j}$.
+
+       \item (T-SUB). Par hypothèse de récurrence et en utilisant (T-SUB).
   \end{enumerate}
 \end{proof}
 
 \subsection*{Progression}
-
-Nous démontrons avant un lemme appelé \textit{lemme des formes canoniques}.
 
 \begin{lemma} [des formes canoniques]
   Soit $v$ une valeur sans variable libre.
@@ -440,14 +440,17 @@ Nous démontrons avant un lemme appelé \textit{lemme des formes canoniques}.
   
 \end{proof}
 
+Et nous concluons avec le théorème de progression.
+
 \begin{theorem} [de progression] 
-  Soit $t$ un terme bien typé sans variable libre. Alors soit $t$ est une
-  valeur, soit $t$ se réduit en $t'$
+  Si $t$ est un terme bien typé sans variable libre, alors soit $t$ est une
+  valeur, soit il existe $t'$ tel que $t \rightarrow t'$.
 \end{theorem}
 
 \begin{proof}
   Par induction sur l'arbre de dérivation de typage de $t$.
 \end{proof}
+
 
 \section{Type Top et type Bottom}
 
