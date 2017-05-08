@@ -73,7 +73,7 @@ mais elle peut aussi être interprétée comme une fonction à deux paramètres 
 Comme dans une formule mathématique, il est important de différencier les
 variables libres et les variables liées d'un $\lambda$-terme. Par exemple, dans
 le $\lambda$-terme $\lambdaExpr{x}{x}$ la variable $x$ est liée par un
-$\lambda$\footnote{on dit aussi qu'elle est \og sous \fg un $\lambda$.}
+$\lambda$\footnote{on dit aussi qu'elle est \og sous \fg \, un $\lambda$.}
 tandis que dans l'expression $\lambdaExpr{x}{y}$ la variable $y$ est libre.
 Nous définissons récursivement l'ensemble des variables libres et l'ensemble des
 variables liées à partir des variables, des abstractions et des applications.
@@ -142,12 +142,12 @@ terme $v$ dans un terme $u$.
 
 \begin{definition} [fonction de subtitution]
   Soient $x$ une variable et $u, v \in \Lambda$ tel que $x$ est substituable par
-  $v$ dans $u$. On définit récursivement la fonction de substitution, notée $u[x := v]$, par:
+  $v$ dans $u$. On définit récursivement la fonction de substitution, notée $[x := v]u$, par:
   \begin{itemize}
-  \item[$\bullet$] $x[x := v] = v$
-  \item[$\bullet$] $y[x := v] = y$ (si $y \neq x$)
-  \item[$\bullet$] $(u_{1} u_{2})[x := v] = (u_{1}[x := v])(u_{2}[x := v])$
-  \item[$\bullet$] $(\lambda y . u)[x := v] = \lambda y . (u[x := v])$
+  \item[$\bullet$] $[x := v]x = v$
+  \item[$\bullet$] $[x := v]y = y$ (si $y \neq x$)
+  \item[$\bullet$] $[x := v](u_{1} u_{2}) = ([x := v]u_{1})([x := v]u_{2})$
+  \item[$\bullet$] $[x := v](\lambda y . u) = \lambda y . ([x := v]u)$
   \end{itemize}
   $u[x := v]$ se lit \textit{x est substitué par v dans u}.
 \end{definition}
@@ -219,7 +219,7 @@ $\beta$, et nous l'étendons au contexte.
 
 \begin{definition} [Relation de $\beta$-réduction]
   Soit $\beta$ la relation sur $\Lambda$ tel que $(\lambda x . u) v \; \; \beta 
-  \; \; u[x := v]$.\footnote{Ne pas oublier que nous travaillons à
+  \; \; [x := v]u$.\footnote{Ne pas oublier que nous travaillons à
     $\alpha$-renommage près.}
   La relation de $\beta$-réduction, noté $\rightarrow_{\beta}$, ou simplement
   $\rightarrow$, est la plus petite relation contenant $\beta$ qui passe au
@@ -368,7 +368,7 @@ Formellement, la stratégie call-by-value est définie par les \textit{règles
     {v \, t \rightarrow v \, t'} \quad (\textsc{E-APP2})
   \and
   \inferrule
-    {(\lambdaExpr{x}{t}) v \rightarrow t[x := v]}
+    {(\lambdaExpr{x}{t}) v \rightarrow [x := v]t}
     {} \quad (\textsc{E-APPABS})
 \end{mathpar}
 \label{eval:untyped-lambda-calculus}
