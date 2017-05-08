@@ -152,8 +152,8 @@ terme $v$ dans un terme $u$.
   $u[x := v]$ se lit \textit{x est substitué par v dans u}.
 \end{definition}
 
-Nous définissons maintenant une relation, appelée relation d'
-\textbf{$\alpha$}-renommage, sur les abstractions qui capture
+Nous définissons maintenant une relation sur les abstractions, appelée relation d'
+\textbf{$\alpha$}-renommage, qui capture
 notre volonté d'égalité à renommage de variables près.
 
 \begin{definition} [relation d'$\alpha$-renommage]
@@ -194,7 +194,7 @@ Nous notons $=_{\alpha}$ la plus petite relation comprenant $\alpha$ et tel que
 
 Par définition, la relation $=_{\alpha}$ est une relation d'équivalence. Nous
 construisons alors le quotient $\Lambda \backslash =_{\alpha}$. Dans ce
-quotient, les termes égaux à renommage de variable près se retrouvent dans la
+quotient, les termes égaux à renommage de variables près se retrouvent dans la
 même classe d'équivalence. A partir de maintenant, nous considérons $\Lambda
 \backslash =_{\alpha}$, c'est-à-dire que nous parlons des termes à $\alpha$-renommage près.
 
@@ -206,10 +206,9 @@ effectuons des calculs avec ce langage. Les calculs
 se définissent par des \textit{réductions}\footnote{On parle aussi de
 \textit{réécriture}.} de termes, et en particulier des applications. Par exemple,
 nous voudrions dire que $(\lambda x . x) y$, i.e. $y$ appliqué à la fonction
-identité, se \t
-extit{réduit} en $y$ ou encore que $(\lambda x . (\lambda y . x
-y)) z$, i.e. $z$ appliqué à la fonction qui retourne la fonction
-constante pour toute variable, se réduit en $\lambda y . z y$, i.e. la fonction
+identité, se \textit{réduit} en $y$ ou encore que $(\lambda x . (\lambda y . x))
+z$, i.e. $z$ appliqué à la fonction qui retourne la fonction constante pour
+toute variable, se réduit en $\lambda y . z$, i.e. la fonction
 constante en $z$. Nous parlons également \textit{d'étape de calcul}, une étape
 de calcul correspondant à une réduction effectuée.
 
@@ -264,14 +263,14 @@ dans les deux premiers exemples. Dans le premier exemple, le terme
 irréductible n'est pas une valeur tandis que dans le second, nous obtenons
 une valeur.
 
+Le troisième et quatrième exemples montrent qu'il existe plusieurs manières,
+appelées aussi \textit{stratégie de réduction}, de
+réduire un terme.
+
 Lorsque toute réduction commençant par $t$ possède une forme normale, on dit que
 le terme $t$ est \textit{fortement normalisant}, ou tout simplement
 \textit{normalisant}. Lorsqu'il existe au moins une stratégie de réduction qui
 permet d'obtenir un terme irréductible, on dit que le terme est \textit{faiblement normalisant}.
-
-Le troisième et quatrième exemples montrent qu'il existe plusieurs manières,
-appelées aussi \textit{stratégie de réduction}, de
-réduire un terme.
 
 Le dernier exemple montre qu'il existe des termes dont aucune réduction se
 termine. Celui-ci nous montre que la $\beta$-réduction ne se termine pas toujours.
@@ -298,6 +297,14 @@ Nous présentons les stratégies les plus utilisées. Le terme
 \end{math}
 
 où $id = \lambda x . x$ sera utilisé pour interpréter chaque stratégie de réduction.
+Les redex de ce terme sont:
+\begin{itemize}
+\item $id (id (\lambda z . id \, z))$
+\item $id (\lambda z . id \, z)$.
+\item $id z$
+\end{itemize}
+
+Dans les exemples ci-dessous, le redex qui est réduit est souligné.
 
 \subsubsection*{Ordre normale}
 
@@ -348,47 +355,6 @@ Cette stratégie appliquée à l'exemple donne:
 
 \label{fig:untyped-lambda-calculus-evaluation-rules}
 
-%\noindent
-%\begin{minipage}{0.45\textwidth}
-%  \begin{align*}
-%    t ::= & \, & \text{terme} \\
-%          & \; x & \text{(var)} \\
-%          & \; t \, t & \text{(abs)} \\
-%          & \; \lambdaExpr{x}{t} & \text{(app)}
-%  \end{align*}
-%
-%  \begin{align*}
-%    v ::= & \, & \text{valeur} \\
-%          & \; \lambdaExpr{x}{t} & \text{(app)}
-%  \end{align*}
-%\end{minipage}
-%\begin{minipage}{0.45\textwidth}
-%  \begin{center}
-%    \inferrule{t \rightarrow t'}{v \, t \rightarrow v \, t'}
-%    \inferrule{t \rightarrow t'}{t \, t \rightarrow v \, t'}
-%  \end{center}
-%\end{minipage}
-
-   % v ::= & \, & \text{valeur} \\
-   %         & \, \lambdaExpr{x}{t} &
-%  \end{align*}
-
-% \end{minipage}
-
-
-%  {\begin{align}
-%    t ::= & \, & \text{term} \\
-%          & \, x & \text{VAR} \\
-%          & \, t \, t & \text{ABS} \\
-%          & \, \lambdaExpr{x}{t} & \text{APP}
-%  \end{align}} & t \\
-%  \begin{align*}
-%    t ::= & \, & \text{term} \\
-%          & \, x & \text{VAR} \\
-%          & \, t \, t & \text{ABS} \\
-%          & \, \lambdaExpr{x}{t} & \text{APP}
-%  \end{align*} \\
-
 Formellement, la stratégie call-by-value est définie par les \textit{règles
   d'évaluation} définies ci-dessous, le terme $v$ étant utilisé pour une valeur.
 
@@ -402,7 +368,7 @@ Formellement, la stratégie call-by-value est définie par les \textit{règles
     {v \, t \rightarrow v \, t'} \quad (\textsc{E-APP2})
   \and
   \inferrule
-    {(\lambdaExpr{x}{t}) v \rightarrow [x := v]t}
+    {(\lambdaExpr{x}{t}) v \rightarrow t[x := v]}
     {} \quad (\textsc{E-APPABS})
 \end{mathpar}
 \label{eval:untyped-lambda-calculus}
@@ -442,7 +408,7 @@ dénotationnelle}.
 \section{Codage de termes usuels}
 
 Le $\lambda$-calcul est assez riche pour définir des
-termes usuels des langages de programmations comme les booléens (et en même temps les
+termes usuels des langages de programmation comme les booléens (et en même temps les
 conditions), les paires ou encore les entiers. Ces codages peuvent être trouvées
 dans \cite{tapl-untyped-lambda-calculus}. Voici l'exemple des booléens, utilisé dans RML (\cite{rml-github}):
 
