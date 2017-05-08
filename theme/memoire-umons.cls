@@ -184,7 +184,7 @@
 \renewcommand{\maketitle}{%
   % Checks:
   \umons@notempty{\@directeur}{directeur}{\directeur}%
-  \umons@notempty{\@rapporteurs}{rapporteurs}{\rapporteurs}%
+  %\umons@notempty{\@rapporteurs}{rapporteurs}{\rapporteurs}%
   \umons@notempty{\umons@service}{service}{\service}%
   \umons@notempty{\@date}{d'annee academique}{\date}%
   \begin{titlepage}
