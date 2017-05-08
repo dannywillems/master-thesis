@@ -358,13 +358,13 @@ proposition n'est pas vraie dans tous les calculs.
     l'hypothèse que $x \notin dom(\Gamma)$. Si $y \neq x$, $(y, T) \in \Gamma$ par le
     lemme d'inversion et par conséquent, $(y, T) \in \Gamma, x : S$ et nous
     concluons en utilisant $(T-VAR)$.
-  \item $t = \lambdaExpr{y : T_{1}}{t'}$ tel que $\Gamma \vdash t : T$. Par le
+  \item $t = \lambdaExpr{y : T_{1}}{t'}$. Par le
     lemme d'inversion, nous avons $T = T_{1} \rightarrow T_{2}$ et $\Gamma, y :
     T_{1} \vdash t' : T_{2}$. Par hypothèse de récurrence, on a $\Gamma, y :
     T_{1}, x : S \vdash t' : T_{2}$. Par le lemme de permutation, nous avons
     $\Gamma, x : S, y : T_{1} \vdash t' : T_{2}$ et par (T-ABS), nous déduisons
     $\Gamma, x : S \vdash \lambdaExpr{y : T_{1}}{t'} : T_{1} \rightarrow T_{2}$.
-    \item $t = u \, v$ tel que $\Gamma \vdash u \, v : T$. Par le lemme
+    \item $t = u \, v$. Par le lemme
       d'inversion, nous avons $\Gamma \vdash u : T_{1} \rightarrow T$ et $\Gamma
       \vdash v : T_{1}$. Par hypothèse de récurrence, $\Gamma, x : S \vdash u :
       T_{1} \rightarrow T$ et $\Gamma, x : S \vdash v : T_{1}$. Nous concluons
@@ -397,10 +397,10 @@ proposition n'est pas vraie dans tous les calculs.
     \begin{equation*}
       [x \rightarrow s](\lambdaExpr{y : T_{1}}{t'}) = (\lambdaExpr{y : T_{1}})([x \rightarrow s] t')
     \end{equation*}
-Alors $T = T_{1} \rightarrow R$ avec
+    Par le lemme d'inversion, nous avons $T = T_{1} \rightarrow R$ avec
       $\Gamma, x : S, y : T_{1} \vdash t' : R$. Par le lemme de permutation,
       nous avons également $\Gamma, y : T_{1}, x : S \vdash t' : R$. En utilisant le lemme
-      d'affaiblissement avec $\Gamma \vdash s : S$, comme $y \notin \Gamma$,
+      d'affaiblissement avec $\Gamma \vdash s : S$, comme $y \notin dom(\Gamma)$,
       nous obtenons $\Gamma, y : T_{1} \vdash s : S$.
       Nous appliquons alors l'hypothèse de récurrence et nous obtenons
       $\Gamma, y : T_{1} \vdash [x \rightarrow s] t' : R$. Par T-ABS, nous avons
@@ -435,21 +435,22 @@ Alors $T = T_{1} \rightarrow R$ avec
   \begin{itemize}
   \item $\Gamma \vdash x : T$. Ce cas n'est pas possible car aucune règle de
     réduction existe pour les variables.
-  \item $\Gamma \vdash \lambdaExpr{x : T_{1}}{t'} : T$. Même chose que pour le
+  \item $\Gamma \vdash \lambdaExpr{x : T_{1}}{t_{2}} : T$. Même chose que pour le
     cas des variables.
   \item $\Gamma \vdash u v : T$. Par le lemme d'inversion, nous avons $\Gamma
     \vdash u : T_{1} \rightarrow T$ et $\Gamma \vdash v : T_{1}$. Plusieurs cas possibles:
     \begin{itemize}
     \item $u$ s'évalue en $u'$. Alors, $t' = u' \, v$ par E-APP1. Par hypothèse
-      de récurrence sur l'arbre de dérivation $\Gamma \vdash u \, v : T$, nous
+      de récurrence, nous
       obtenons $\Gamma \vdash u' : T_{1} \rightarrow T$. Par T-APP,
       $\Gamma \vdash u' \, v : T$.
     \item $v$ s'évalue en $v'$ et $u$ est une valeur. Alors, $t' = u \, v'$ par
       E-APP2. Nous appliquons alors le même argument que pour le cas précedent.
-    \item $u$ et $v$ sont des valeurs. Posons $u = \lambdaExpr{x : T_{1}} t_{1}$.
-      alors $t' = [x \rightarrow v]t_{1}$. Par le lemme d'inversion, nous
-      obtenons $\Gamma, x : T_{1} \vdash t_{1} : T$. Par le lemme de
-      substitution, nous concluons $\Gamma \vdash [x \rightarrow v]t_{1} : T$.
+    \item $u$ et $v$ sont des valeurs. Posons $u = \lambdaExpr{x : T_{1}} t_{2}$.
+      Alors $t' = [x \rightarrow v]t_{2}$ et nous avons $\Gamma \vdash v :
+      T_{1}$. Par le lemme d'inversion, nous obtenons $\Gamma, x : T_{1} \vdash t_{2}
+      : T$. Par le lemme de
+      substitution, nous concluons $\Gamma \vdash [x \rightarrow v]t_{2} : T$.
     \end{itemize}
   \end{itemize}
 \end{proof}
