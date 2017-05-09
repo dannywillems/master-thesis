@@ -8,14 +8,13 @@ données comme les paires, les tuples, ou encore les enregistrements.
 
 Un enregistrement est ensemble fini de couples $(l_{i}, t_{i})$, noté $\left\{
   l_{i} = t_{i} \right\}^{1 \leq i \leq n}$ où $l_{i}$ est
-un label pour le terme $t_{i}$, les couples étant séparés par des points-virgules. Par exemple, nous pouvons représenter un point
-d'un plan par ses coordonnées cartésiennes, nommées $x$ et $y$ et par les termes
-$t_{x}$ et $t_{y}$ pour la valeur des coordonnées. Nous notons ce terme
-$\left\{ x = t_{x} ; y = t_{y} \right\}$.
-Il est également intéressant de pouvoir récupérer une des coordonnées d'un
-point.
-Nous ajoutons pour cela le terme $t.l$ qui permet de récupérer le label $l$ du
-terme $t$.
+un label pour le terme $t_{i}$, les couples étant séparés par des
+points-virgules. Par exemple, nous pouvons représenter un point d'un plan par
+ses coordonnées cartésiennes, nommées $x$ et $y$, et par les termes $t_{x}$ et
+$t_{y}$ pour la valeur des coordonnées. Nous notons ce terme $\left\{ x = t_{x}
+; y = t_{y} \right\}$. Il est également intéressant de pouvoir récupérer une des
+coordonnées d'un point. Pour cette raison, nous ajoutons le terme $t.l$ qui permet de
+récupérer le label $l$ du terme $t$.
 
 Il nous faut également typer les enregistrements. Pour cela, nous ajoutons une
 nouvelle syntaxe dans les types, noté $\left\{l_{i} : T_{i}\right\}^{1 \leq i
@@ -52,7 +51,6 @@ les grammaires suivantes :
 \begin{minipage}{0.45\textwidth}
   \begin{align*}
     T ::= & \, & \text{type} \\
-          & \; b & \text{type de base} \\
           & \; T \rightarrow T & \text{fonction} \\
           & \; \left\{ l_{i} : T_{i} \right\}^{1 \leq i \leq n} & \text{enreg}
   \end{align*}
@@ -290,8 +288,7 @@ les preuves seront moins détaillées.
   cherchons quelle règle peut y avoir mené et nous montrons cas par cas, en
   utilisant le principe d'induction sur l'arbre de dérivation. Seul le
   premier point est démontré, le second étant identique. Pour le premier point,
-  seules les règles (S-REFL), (S-ARROW) et (S-TRANS) sont possibles, les autres
-  étant pour les enregistrements.
+  seules les règles (S-REFL), (S-ARROW) et (S-TRANS) sont possibles.
 
   \begin{itemize}
   \item (S-REFL). Le résultat est direct car $S = T_{1} \rightarrow T_{2}$.
@@ -373,10 +370,10 @@ aux enregistrements de manière naturelle.
 \begin{proof}
   Même technique de preuve que dans le chapitre précédent. Il suffit d'ajouter 
   des cas pour les enregistrements et les projections en utilisant
-  respectivement (T-RCD) et (T-PROJ) et de manière générale pour (T-SUB) (hypothèse de
-  récurrence sur le jugement de gauche et utilisation de (T-SUB) pour conclure).
+  respectivement (T-RCD) et (T-PROJ) et de manière générale pour (T-SUB). Pour
+  (T-SUB), nous utilisons l'hypothèse de récurrence sur le jugement de gauche et
+(T-SUB) pour conclure.
 \end{proof}
-
 
 \begin{theorem} [de préservation du typage]
   Soit $\Gamma \vdash t : T$ et soit $t'$ tel que $t \rightarrow t'$. Alors,
@@ -459,8 +456,9 @@ aux enregistrements de manière naturelle.
       S_{2}$, nous avons $v$ qui est une abstraciton.
     \end{itemize}
   \item $v$ est de type $\left\{ l_{i} : T_{i} \right\}^{1 \leq i \leq n}$. Les
-    seules règles possibles sont (T-SUB) et (T-RCD). Même argument que
-    précédemment pour (T-SUB) ainsi que pour (T-RCD).
+    seules règles possibles sont (T-SUB) et (T-RCD). Le résultat est direct pour
+    (T-RCD). Quant à (T-SUB), nous utilisons les mêmes arguments que 
+    précédemment.
   \end{itemize}
 \end{proof}
 
@@ -492,16 +490,17 @@ Et nous concluons avec le théorème de progression.
     \item si chaque $t_{i}$ est une valeur, alors le résultat est direct car $t$
       est une valeur.
     \item s'il existe $i$ tel que $t_{i}$ n'est pas une valeur, alors nous
-      utilisons l'hypothèse de récurrence et (E-RCD) s'applique.
+      utilisons l'hypothèse de récurrence sur $t_{i}$ et (E-RCD) s'applique.
     \end{itemize}
-  \item (T-PROJ). Nous avons alors $t = t_{1}.l_{j}$ avec $T = \left\{ l_{i} : T_{i} \right\}^{1
-    \leq i \leq n}$
-  et $t_{i} : T_{i}$.
+  \item (T-PROJ). Nous avons alors
+    $t = t_{1}.l_{j}$ et $\vdash t_{1} : T$ où $T = \left\{ l_{i} : T_{i}
+    \right\}^{1 \leq i \leq n}$.
 
-  Par hypothèse de récurrence, $t_{1}$ est soit une valeur, soit il existe
-  $t_{1}'$ tel que $t_{1} \rightarrow t_{1}'$. Si $t_{1}$ est une valeur, alors
-  le lemme des formes canoniques, nous utilisons le lemme des formes canoniques
-et (E-PROJ-RCD) s'applique. Sinon, (E-PROJ) s'applique.
+  Par hypothèse de récurrence sur $\vdash t_{1} : T$, $t_{1}$ est soit une
+  valeur, soit il existe $t_{1}'$ tel que $t_{1} \rightarrow t_{1}'$. Si $t_{1}$
+  est une valeur, nous utilisons le lemme
+  des formes canoniques
+  et (E-PROJ-RCD) s'applique. Sinon, (E-PROJ) s'applique.
   \item (T-SUB). Il suffit d'appliquer l'hypothèse de récurrence.
   \end{itemize}
 \end{proof}
@@ -511,8 +510,7 @@ et (E-PROJ-RCD) s'applique. Sinon, (E-PROJ) s'applique.
 
 Finalement, il
 est courant d'ajouter dans les types un type qui est super-type de tous les
-autres types, souvent appelé \verb|Top|\footnote{En Java, le type Top
-  est représenté par la classe Object.} ainsi qu'un type qui est sous-type de
+autres types, souvent appelé \verb|Top| ainsi qu'un type qui est sous-type de
 tous les autres types, souvent appelé \verb|Bottom|.
 
 La syntaxe des types est donc finalement
@@ -534,3 +532,4 @@ et nous ajoutons les règles de typage suivantes.
   \inferrule* [Right=(S-BOTTOM)] {Bottom <: T}{}
 \end{mathpar}
 
+Nous utiliserons ceux-ci dans DOT.
