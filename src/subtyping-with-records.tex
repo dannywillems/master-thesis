@@ -437,7 +437,31 @@ aux enregistrements de manière naturelle.
 \end{lemma}
 
 \begin{proof}
-  
+  Une valeur ne peut être que de deux formes : $\lambdaExpr{x : S_{1}}t_{1}$ ou
+  $\left\{ k_{i} = v_{i} \right\}^{1 \leq i \leq m}$.
+  \begin{itemize}
+  \item $v$ est de type $T_{1} \rightarrow T_{2}$. Les seules règles permettant
+    de montrer $\vdash v : T_{1} \rightarrow T_{2}$ sont (T-SUB) et (T-ARROW).
+
+    \begin{itemize}
+    \item (T-ARROW). Le résultat est direct.
+    \item (T-SUB). Nous avons alors :
+
+      \begin{mathpar}
+        \inferrule
+        {\vdash v : S \\ S <: T_{1} \rightarrow T_{2}}
+        {\vdash v : T_{1} \rightarrow T_{2}}
+      \end{mathpar}
+      En utilisant le lemme d'inversion des règles de sous-typage, nous obtenons
+      $S = S_{1} \rightarrow S_{2}$ avec $T_{1} <: S_{1}$ et $S_{2} <: T_{2}$.
+      
+      En utilisant l'hypothèse de récurrence sur $\vdash v : S_{1} \rightarrow
+      S_{2}$, nous avons $v$ qui est une abstraciton.
+    \end{itemize}
+  \item $v$ est de type $\left\{ l_{i} : T_{i} \right\}^{1 \leq i \leq n}$. Les
+    seules règles possibles sont (T-SUB) et (T-RCD). Même argument que
+    précédemment pour (T-SUB) ainsi que pour (T-RCD).
+  \end{itemize}
 \end{proof}
 
 Et nous concluons avec le théorème de progression.
@@ -449,6 +473,37 @@ Et nous concluons avec le théorème de progression.
 
 \begin{proof}
   Par induction sur l'arbre de dérivation de typage de $t$.
+  $t$ ne peut pas être une variable car $t$ est clos et si $t = \lambdaExpr{x :
+    S_{1}}{t_{1}}$, le résultat est direct car les abstractions sont des valeurs.
+  \begin{itemize}
+  \item (T-APP). Alors $t = t_{1}t_{2}$, $\vdash : t_{1} : T_{1} \rightarrow
+    t_{2}$ et $\vdash t_{2} : T_{1}$. Plusieurs cas sont possibles.
+    \begin{itemize}
+    \item Si $t_{1}$ n'est pas une valeur, (E-APP1) peut s'appliquer.
+    \item Si $t_{1}$ est une valeur et $t_{2}$ non, (E-APP2) s'applique.
+    \item Si $t_{1}$ et $t_{2}$ sont des valeurs, par le lemme des formes
+      canoniques, comme $\vdash t_{1} : T_{1} \rightarrow T_{2}$ et $t_{1}$ n'a
+      pas de variable libre, $t_{1} = \lambdaExpr{x : S_{1}}{t_{12}}$ et (E-APPABS) s'applique.
+    \end{itemize}
+  \item (T-RCD). Alors $t = \left\{ l_{i} = t_{i} \right\}^{1 \leq i \leq n}$ et
+    $\vdash t : \left\{ l_{i} : T_{i} \right\}^{1 \leq i \leq n}$. Plusieurs cas
+    sont possibles :
+    \begin{itemize}
+    \item si chaque $t_{i}$ est une valeur, alors le résultat est direct car $t$
+      est une valeur.
+    \item s'il existe $i$ tel que $t_{i}$ n'est pas une valeur, alors nous
+      utilisons l'hypothèse de récurrence et (E-RCD) s'applique.
+    \end{itemize}
+  \item (T-PROJ). Nous avons alors $t = t_{1}.l_{j}$ avec $T = \left\{ l_{i} : T_{i} \right\}^{1
+    \leq i \leq n}$
+  et $t_{i} : T_{i}$.
+
+  Par hypothèse de récurrence, $t_{1}$ est soit une valeur, soit il existe
+  $t_{1}'$ tel que $t_{1} \rightarrow t_{1}'$. Si $t_{1}$ est une valeur, alors
+  le lemme des formes canoniques, nous utilisons le lemme des formes canoniques
+et (E-PROJ-RCD) s'applique. Sinon, (E-PROJ) s'applique.
+  \item (T-SUB). Il suffit d'appliquer l'hypothèse de récurrence.
+  \end{itemize}
 \end{proof}
 
 
