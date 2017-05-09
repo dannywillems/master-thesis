@@ -12,7 +12,7 @@ méthode nous permet alors d'éviter
 d'écrire plusieurs fonctions qui ont le même corps mais qui différent uniquement
 par le type du paramètre.
 
-Supposons que nous avons $\naturel$ et $\real$ comme types dans notre langage et
+Supposons que nous ayons $\naturel$ et $\real$ comme types dans notre langage et
 prenons l'exemple de la fonction identité sur les réels
 \begin{equation*}
   id_{1} = \lambdaExpr{x : \real}{x}
@@ -20,7 +20,13 @@ prenons l'exemple de la fonction identité sur les réels
 
 Le polymorphisme avec sous-typage nous permet de passer en paramètre un
 naturel
-car $\naturel <: \real$. Cependant, il n'est pas autorisé de passer un
+car $\naturel <: \real$. Dans tous les cas, la fonction $id_{1}$ étant de type
+$\real \rightarrow \real$, le type de la valeur de retour sera $\real$, et non
+$\naturel$ si nous passons un naturel à la fonction.
+Dans le cas des enregistrements, cela implique que nous perdons des
+champs de l'enregistrement passé en paramètre.
+
+De plus, il n'est pas autorisé de passer un
 enregistrement ayant un champ $x$ de type $\naturel$ car $\real$ n'est pas
 un sous-type de $\left\{ x : \naturel \right\}$. Nous devons alors définir une
 nouvelle fonction pour l'identité:
@@ -32,8 +38,8 @@ Et nous pouvons continuer de la sorte avec les enregistrements qui ont
 uniquement le champ $y$ ou le champ $z$ et ainsi de suite.
 
 Le polymorphisme paramétré résout ce problème en définissant de nouveaux termes
-et de nouvelles règles de typage et d'évaluation. Le calcul qui en résulte est
-appelé \textit{System F}.
+et de nouvelles règles de typage et d'évaluation au $\lambda$-calcul simplement
+typé. Le calcul qui en résulte est appelé \textit{System F}.
 
 \section{Syntaxe}
 
@@ -66,12 +72,11 @@ Arbitrairement, nous ajoutons aussi les abstractions de type comme valeurs.
           & \; \forall X . \, T & \text{universel}
   \end{align*}
 \end{minipage}
-
-  \begin{align*}
-    v ::= & \, & \text{valeur} \\
-          & \; \lambdaExpr{x : T}{t} & \text{abs} \\
-          & \; \lambdaExprType{X}{t} & \text{type abs}
-  \end{align*}
+\begin{align*}
+  v ::= & \, & \text{valeur} \\
+        & \; \lambdaExpr{x : T}{t} & \text{abs} \\
+        & \; \lambdaExprType{X}{t} & \text{type abs}
+\end{align*}
 
 Par exemple, nous pouvons définir une fonction qui prend un type en paramètre et
 qui renvoie la fonction identité pour ce type:
@@ -88,6 +93,29 @@ nouveaux termes $t[T]$ et $\lambdaExprType{X}{t}$.
   [x \rightarrow s] \, (\lambdaExprType{X}{t}) & = \lambdaExprType{X}([x \rightarrow s]t)
 \end{align*}
 
+Nous définissons également une fonction de substitution de variable de type pour
+un type donné, notée $[X \rightarrow S]$. Comme les types peuvent apparaître
+aussi bien dans les termes que dans les types, cette fonction est définie sur
+ces deux ensembles.
+
+\begin{definition}
+  Soit $X$ une variable de type et $S$ un type. On définit la fonction de
+  substitution de $X$ par $S$, noté $[X \rightarrow S]$, sur les termes et types
+  de la manière suivante :
+
+  \begin{align*}
+    [X \rightarrow S]x & = x \\
+    [X \rightarrow S]\lambdaExpr{x : T} t & = \lambdaExpr{x : [X \rightarrow S]T}{[X \rightarrow S]t} \\
+    [X \rightarrow S](t_{1} \; t_{2}) & = ([X \rightarrow S]t_{1}) \; ([X \rightarrow S]t_{2}) \\
+    [X \rightarrow S](\lambdaExprType{Y} t) & = \lambdaExprType{Y}([X \rightarrow S] t) \\
+    [X \rightarrow S](t[T]) & = ([X \rightarrow S] t)[[X \rightarrow S] T] \\
+    \\
+    [X \rightarrow S]X & = S \\
+    [X \rightarrow S]Y & = Y \\
+    [X \rightarrow S](T_{1} \rightarrow T_{2}) & = ([X \rightarrow S]T_{1}) \rightarrow ([X \rightarrow S] T_{2}) \\
+    [X \rightarrow S](\forall Y \, T) & = \forall Y \, [X \rightarrow S]T
+  \end{align*}
+\end{definition}
 \section{Sémantique}
 
 Nous ajoutons également des règles d'évaluation pour les nouveaux termes
@@ -104,12 +132,7 @@ définis. Celles-ci sont très semblables à (E-APPABS) et (E-APP).
 \end{mathpar}
 
 (E-T-APP) est l'équivalent de (E-APP1) pour les applications de types tandis que
-(E-T-ABS) nous dit comment les abstractions de types sont évaluées. La notation
-$[X \rightarrow T]t$ signifie que nous remplaçons la variable de type $X$ par le
-type $T$ dans le terme $t$\footnote{Un travail devrait être fait pour redéfinir
-  les notions de variables de type libres, de variables de type liées ainsi que
-  la substitution. Cependant, le travail est xactement le même pour les
-  variables.}.
+(E-T-ABS) nous dit comment les abstractions de types sont évaluées.
 
 Par exemple, nous pouvons utiliser $id_{poly}$ et les types $\real$ et
 $\naturel$ pour obtenir la fonction identité sur les réels et les naturels.
@@ -184,7 +207,7 @@ $\lambda$-calcul simplement typé restant vrais.
 \end{lemma}
   
 \begin{proof}
-  Même argument que \ref{proof:simply-typed-lambda-calculus-inversion}.
+  Direct vu les règles de typage.
 \end{proof}
 
 Nous montrons également un lemme des formes canoniques comme nous l'avons fait
@@ -215,14 +238,32 @@ pour le $\lambda$-calcul avec sous-typage.
   Dans le premier cas, $t$ est une valeur donc le résultat est direct.
 
   Dans le second cas, par le lemme d'inversion, nous avons $\vdash t_{1} :
-  \forall X \, T_{1}$. Nous appliquons l'hypothèse de récurrence sur $t_{1}$ et
-  utilisons (E-T-APP) ou (E-T-ABS) en fonction du résultat de l'appel récursif.
+  \forall X \, T_{1}$. L'hypothèse de récurrence nous dit que soit $t_{1}$ est
+  une valeur, soit il existe $t'_{1}$ tel que $t_{1} \rightarrow t'_{1}$.
+
+  \begin{itemize}
+  \item Si $t_{1}$ est une valeur, par le lemme des formes canoniques, $t_{1} =
+    \lambdaExprType{X}{t}$ et (E-T-ABS) s'applique.
+  \item Si $t_{1}$ se réduit en $t'_{1}$, alors (E-T-APP) s'applique.
+  \end{itemize}
 \end{proof}
 
 \subsection*{Préservation}
 
-Nous montrons d'abord un lemme de substitution équivalent à
-\ref{thm:system-f-preservation-substitution}.
+Comme premier lemme, nous renforçons
+\ref{thm:simply-typed-lambda-calculus-preservation-substitution} en ajoutant un
+contexte $\Delta$.
+
+\begin{lemma}
+  \label{thm:system-f-preservation-substitution-term}.
+  Soit $\Gamma, x : S, \Delta \vdash t : T$ et $\Gamma \vdash s : S$.
+
+  Alors $\Gamma, \Delta \vdash [x \rightarrow s] t : T$
+\end{lemma}
+
+\begin{proof}
+  
+\end{proof}
 
 \begin{lemma} [de substitution de variable de type]
   \label{thm:system-f-preservation-substitution-type}.
@@ -238,8 +279,12 @@ Nous montrons d'abord un lemme de substitution équivalent à
 
 \begin{proof}
   \label{proof:system-f-preservation-substitution-type}
-  La preuve se réalise par récurrence sur l'arbre de dérivation en analysant
-  cas par cas le terme et le type. Le contexte $\Delta$ est nécéssaire pour
+  La preuve se réalise par récurrence sur l'arbre de dérivation.
+
+  \begin{itemize}
+  \item (T-ABS). Nous avons $\Gamma, X, \Delta \vdash \lambdaExpr{x : T_{1}}t_{2}$.
+  \end{itemize}
+  Le contexte $\Delta$ est nécéssaire pour
   l'appel récursif pour le cas $T-ABS$.
 \end{proof}
 
@@ -250,14 +295,24 @@ Nous montrons d'abord un lemme de substitution équivalent à
 \end{theorem}
 
 \begin{proof}
-  \label{thm:system-f-preservation-proof}.
-  Identique à la preuve du $\lambda$-calcul simplement typé. Le cas $t =
-  \lambdaExpr{x : T_{1}}{t_{1}}$ n'est pas possible car il n'existe pas de règle
-  d'évaluation.
+  \label{thm:system-f-preservation-proof}. Nous procédons par induction sur
+  l'arbre de dérivation du jugement de typage $\Gamma \vdash t : T$. Par rapport
+  à la preuve du $\lambda$-calcul simplement typé, il nous
+  suffit d'ajouter des cas pour (T-T-ABS) et (T-T-APP).
 
-  Pour le cas $t = t_{1}[T_{1}]$, nous utilisons le lemme d'inversion pour
-  obtenir $\Gamma \vdash t_{1} : \forall X . \, T_{12}$ et $T = [X \rightarrow
-  T_{1}] T_{12}$. Nous appliquons ensuite l'hypothèse de récurrence sur $t_{1}$
-  et en fonction du résultat, nous conclusion avec (E-T-ABS) ou (E-T-APP) en
-  utilisant \ref{thm:system-f-preservation-substitution-type}.
+  \begin{itemize}
+  \item (T-T-ABS). Ce cas n'est pas possible car il n'existe pas de règle d'évaluation.
+  \item (T-T-APP). Nous avons $t = t_{1}[T_{1}]$. Par le lemme d'inversion, nous
+    avons $\Gamma \vdash t_{1} : \forall X . \, T_{12}$ et $T = [X \rightarrow
+  T_{1}] T_{12}$. Les deux règles d'évaluation possibles sont (E-T-ABS) et
+  (E-T-APP).
+    \begin{itemize}
+    \item (E-T-APP). Nous utilisons l'hypothèse de récurrence et (E-T-APP).
+    \item (E-T-ABS). Alors, $t_{1} = \lambdaExprType{X}{t_{12}}$ avec $\Gamma, X
+      \vdash t_{12} : T_{12}$ et $t'_{1} = [X \rightarrow T_{1}] t_{12}$. Par
+     \ref{thm:system-f-preservation-substitution-type}, nous avons $\Gamma \vdash
+     [X \rightarrow T_{1}] t_{12} : [X \rightarrow T_{1}] T_{12}$. Nous concluons
+     en se souvenant que $[X \rightarrow T_{1}]T_{12} = T$.
+    \end{itemize}
+  \end{itemize}
 \end{proof}
