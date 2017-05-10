@@ -153,6 +153,7 @@ Les règles de typages deviennent :
   \inferrule
   {\Gamma \vdash t_{1} : \forall X <: T_{1}. \, T \\ \Gamma \vdash T' <: T_{1}}
   {\Gamma \vdash t_{1}[T'] : [X \rightarrow T']T}
+
   \quad (\textsc{T-T-APP})
   \and
   \inferrule
@@ -190,13 +191,12 @@ Quant aux règles de sous-typage, nous avons :
   \quad (\textsc{S-ARROW})
   \and
   \inferrule
-  {\Gamma, X <: U_{1} \vdash S_{2} <: T_{2}}
-  {\Gamma \vdash \forall X <: U_{1}. S_{2} <: \forall X <: U_{1}. T_{2}}
+  {\Gamma \vdash T_{1} <: S_{1} \\ \Gamma, X <: T_{1} \vdash S_{2} <: T_{2}}
+  {\Gamma \vdash \forall X <: S_{1}. S_{2} <: \forall X <: T_{1}. T_{2}}
   \quad (\textsc{S-ALL})
 \end{mathpar}
 
-Remarquons que dans (S-ALL), la borne supérieur de la variable $X$ est la même
-des deux cotés, c'est-à-dire $U_{1}$.
+Remarquons que dans (S-ALL), la borne supérieur de la variable $X$ peut être différente.
 
 \section{Sûreté}
 
@@ -209,3 +209,19 @@ lemme des formes canoniques, lemme d'inversion de la relation de sous-typage, le
 substitution des types, preuve par induction structurelle, etc.
 Des preuves des théorèmes peuvent être trouvées dans
 \cite{tapl-bounded-quantification}.
+
+\section{Indécidabilité du sous-typage}
+
+Etant donnés deux types $S$ et $T$, la question $S <: T$ a-t-elle
+toujours une réponse ? En d'autres termes, la question du sous-typage est-elle
+décidable ?
+
+Il a été démontré qu'il n'existe pas d'algorithme de sous-typage donnant une
+réponse sur toute question $S <: T$. Plus d'informations peuvent être trouvées
+dans \cite{tapl-bounded-quantification-metatheory}.
+
+Le problème de l'indécidabilité du sous-typage de System $F_{<:}$ est important
+quand nous considérons l'écriture d'un algorithme de sous-typage pour ce calcul.
+En effet, cela implique que sur certaines entrées, l'algorithme peut
+boucler\footnote{Si bien sûr nous ne définissons pas des règles pour l'arrêter
+  dans le cas où il n'y a pas de réponse.}.
