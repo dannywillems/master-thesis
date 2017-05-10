@@ -88,7 +88,7 @@ Au niveau de la sémantique, les règles restent les mêmes que System F.
     {v \, t \rightarrow v \, t'} \quad (\textsc{E-APP2})
   \and
   \inferrule
-    {(\lambdaExpr{x}{t}) v \rightarrow [x := v]t}
+    {(\lambdaExpr{x : T}{t}) v \rightarrow [x := v]t}
     {} \quad (\textsc{E-APPABS})
   \and
   \inferrule
@@ -124,7 +124,8 @@ La syntaxe du contexte de typage est donc :
 \section{Règles de typage et de sous-typage}
 
 Comme le contexte comporte des relations de sous-typage, nous ajoutons un
-contexte $\Gamma$ dans les règles de sous-typage.
+contexte $\Gamma$ dans les règles de sous-typage. Une affirmation $S <: T$
+devient $\Gamma \vdash S <: T$.
 
 Les règles de typages deviennent :
 
@@ -140,7 +141,7 @@ Les règles de typages deviennent :
   \quad (\textsc{T-ABS})
   \and
   \inferrule
-  {\Gamma \vdash u : T_{1} \rightarrow T_{2} \\ \Gamma \vdash v : T_{2}}
+  {\Gamma \vdash u : T_{1} \rightarrow T_{2} \\ \Gamma \vdash v : T_{1}}
   {\Gamma \vdash u \, v : T_{2}}
   \quad (\textsc{T-APP})
   \\
