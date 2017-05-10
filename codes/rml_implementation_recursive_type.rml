@@ -1,4 +1,4 @@
-sig
+sig(self)
   type t
   val f : self.t
 end
