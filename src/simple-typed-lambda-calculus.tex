@@ -232,7 +232,7 @@ remarquer certains faits qui découlent immédiatement des règles de typage.
   \label{proof:simply-typed-lambda-calculus-inversion}
   Ces propositions découlent des règles de typage. En effet, pour la deuxième
   par exemple, la seule règle qui permet d'affirmer que $\Gamma \vdash
-  \lambdaExpr{x : T_{1}}{t_{2}} : T$ est $T-ABS$.
+  \lambdaExpr{x : T_{1}}{t_{2}} : T$ est (T-ABS).
 \end{proof}
 
 Le lemme d'inversion des règles de typage dit également quelque chose de
@@ -241,19 +241,20 @@ nous souhaitons implémenter un algorithme de typage\footnote{Nous verrons par l
 suite que ce n'est pas tout le temps évident de passer des règles de typage à un
 algorithme de typage.}. En effet, les 3 points du
 lemmes nous donnent quels sont les possibles fils de la conclusion. Par
-exemple, si nous devons montrer que $\lambdaExpr{x : T}{t} : T'$, nous sommes
-convaincus, par le lemme d'inversion, que le noeud précédent provient de la
-règle $(T-ABS)$. Cela implique que pour un jugement de typage donné, il n'y a au
-plus qu'un seul arbre de dérivation.
+exemple, si nous devons montrer que $\Gamma \vdash \lambdaExpr{x : T}{t} : T'$,
+nous sommes convaincus, par le lemme d'inversion, que le noeud précédent
+provient de la règle (T-ABS). Cela implique que pour un jugement de typage
+donné, il n'y a au plus qu'un seul arbre de dérivation.
 
 Une autre remarque importante, et qui découle du fait que les arbres de
-dérivations ont uniques, est l'unicité de type. Nous verrons que cette
+dérivations sont uniques, est l'unicité de type. Nous verrons que cette
 proposition n'est pas vraie dans tous les calculs.
 
 \begin{theorem} [Unicité du typage]
   \label{thm:simply-typed-lambda-calculus-type-unicity}
-  Soit $t$ un $\lambda$-terme. Si $t$ est bien typé, alors son type est unique. De plus, il existe au
-  plus un arbre de dérivation qui permet de montrer que $t$ a ce type.
+  Soit $t$ un $\lambda$-terme. Si $t$ est bien typé, alors son type est unique.
+  De plus, il existe au plus un arbre de dérivation qui permet de montrer que $t$
+  a ce type.
 \end{theorem}
 
 \begin{proof}
@@ -262,8 +263,9 @@ proposition n'est pas vraie dans tous les calculs.
   jugements de typage : $\Gamma \vdash t : S$ et $\Gamma \vdash t : T$. Nous procédons
   par induction sur la structure des termes.
   \begin{itemize}
-   \item $t$ est une variable $x$. Alors nous avons les jugements de typage $\Gamma \vdash x : S$ et $\Gamma
-     \vdash x : T$. Par le lemme d'inversion, nous en déduisons que $(x, S) \in
+   \item $t$ est une variable $x$. Alors nous avons les jugements de typage
+     $\Gamma \vdash x : S$ et $\Gamma \vdash x : T$. Par le lemme d'inversion, nous
+     en déduisons que $(x, S) \in
      \Gamma$ et $(x, T) \in \Gamma$. Comme une variable ne peut apparaître
      qu'une fois dans un contexte, nous en déduisons $S = T$.
 
@@ -299,8 +301,7 @@ proposition n'est pas vraie dans tous les calculs.
       hypothèse le terme $t$ est clos. Or, $x$ est libre dans $x$.
     \item $t$ est une abstraction. Le résultat est direct car $t$ est une valeur.
     \item $t$ est de la forme $u \, v$. $t$ étant
-      bien typé, nous avons le jugement de typage $\vdash u \, v : T$ où $\Gamma$ est
-      vide car $t$ ne possède pas de variable libre. Par le lemme
+      bien typé, nous avons le jugement de typage $\vdash u \, v : T$. Par le lemme
       d'inversion, $u : T_{1} \rightarrow T$ et $v : T_{1}$. Par induction,
       comme $u$ (resp. $v$) est bien typé, $u$ (resp. $v$) est soit une valeur,
       soit s'évalue en un $u'$ (resp. $v'$).
@@ -326,19 +327,25 @@ proposition n'est pas vraie dans tous les calculs.
   \label{proof:simply-typed-lambda-calculus-permutation}
   Par induction sur l'arbre de dérivation de typage.
   \begin{itemize}
-  \item $t$ est une variable $x$. Par hypothèse, $\Gamma \vdash x : T$. Par le lemme
-    d'inversion, $(x, T) \in \Gamma$ d'où $(x, T) \in \Delta$. Par $(T-VAR)$,
-    $\Delta \vdash x : T$.
-  \item $t = \lambdaExpr{x : T_{1}} t'$. Par hypothèse et le lemme d'inversion,
-    $\Gamma \vdash \lambdaExpr{x : T_{1}} t' : T_{1} \rightarrow T_{2}$ et
-    $\Gamma, x : T_{1} \vdash t' : T_{2}$. Par hypothèse de récurrence, $\Delta,
-    x : T_{1} \vdash t' : T_{2}$. Par $(T-ABS)$, $\Delta \vdash \lambdaExpr{x :
-      T_{1}}{t'} : T_{1} \rightarrow T_{2}$.
-  \item $t = u \, v$. Nous savons que $\Gamma \vdash u \, v : T$. Par le lemme
-    d'inversion, nous obtenons $\Gamma \vdash u : T_{1} \rightarrow T$ et
-    $\Gamma \vdash v : T_{1}$. Par hypothèse de récurrence, $\Delta \vdash u :
-    T_{1} \rightarrow T$ et $\Delta \vdash v : T_{1}$. Par $(T-APP)$, $\Delta
-    \vdash u \, v : T$.
+  \item (T-VAR). $t$ est une variable $x$. Par hypothèse, $\Gamma \vdash x : T$
+    et $(x, T) \in \Gamma$. D'où $(x, T) \in \Delta$. Par (T-VAR), $\Delta \vdash x
+    : T$.
+  \item (T-ABS). Nous avons $t = \lambdaExpr{x : T_{1}} t'$ et
+    \begin{mathpar}
+      \inferrule*[Left=(T-ABS)]
+      {\Gamma, x : T_{1} \vdash t' : T_{2}}
+      {\Gamma \vdash \lambdaExpr{x : T_{1}} t' : T_{1} \rightarrow T_{2}}
+    \end{mathpar}
+      Par hypothèse de récurrence, $\Delta, x : T_{1} \vdash t' : T_{2}$. Par
+(T-ABS), $\Delta \vdash \lambdaExpr{x : T_{1}}{t'} : T_{1} \rightarrow T_{2}$.
+  \item (T-APP). Nous avons donc $t = u \, v$ et
+    \begin{mathpar}
+      \inferrule*[Left=(T-APP)]
+      {\Gamma \vdash u : T_{1} \rightarrow T \\ \Gamma \vdash v : T_{1}}
+      {\Gamma \vdash u \, v : T}
+    \end{mathpar}
+    Par hypothèse de récurrence, $\Delta \vdash u : T_{1} \rightarrow T$ et
+    $\Delta \vdash v : T_{1}$. Par (T-APP), $\Delta \vdash u \, v : T$.
   \end{itemize}
 \end{proof}
 
@@ -353,22 +360,20 @@ proposition n'est pas vraie dans tous les calculs.
   \label{proof:simply-typed-lambda-calculus-weakening}
   Par induction sur l'arbre de dérivation de typage.
   \begin{itemize}
-  \item $t$ est une variable $y$. Le cas où $y = x$ est impossible car par le
-    lemme d'inversion, nous avons $(x, T) \in \Gamma$ et cela contredit
-    l'hypothèse que $x \notin dom(\Gamma)$. Si $y \neq x$, $(y, T) \in \Gamma$ par le
-    lemme d'inversion et par conséquent, $(y, T) \in \Gamma, x : S$ et nous
-    concluons en utilisant $(T-VAR)$.
-  \item $t = \lambdaExpr{y : T_{1}}{t'}$. Par le
-    lemme d'inversion, nous avons $T = T_{1} \rightarrow T_{2}$ et $\Gamma, y :
-    T_{1} \vdash t' : T_{2}$. Par hypothèse de récurrence, on a $\Gamma, y :
+  \item (T-VAR). $t = y$. Le cas où $y = x$ est impossible car nous avons $(x, T)
+    \in \Gamma$ et cela contredit l'hypothèse que $x \notin dom(\Gamma)$. Si $y \neq
+    x$, nous avons $(y, T) \in \Gamma$ et par conséquent, $(y, T) \in \Gamma, x : S$ et nous
+    concluons en utilisant (T-VAR).
+  \item (T-ABS). $t = \lambdaExpr{y : T_{1}}{t'}$. Nous avons $T = T_{1}
+    \rightarrow T_{2}$ et $\Gamma, y : T_{1} \vdash t' : T_{2}$. Par hypothèse de
+    récurrence, on a $\Gamma, y :
     T_{1}, x : S \vdash t' : T_{2}$. Par le lemme de permutation, nous avons
     $\Gamma, x : S, y : T_{1} \vdash t' : T_{2}$ et par (T-ABS), nous déduisons
     $\Gamma, x : S \vdash \lambdaExpr{y : T_{1}}{t'} : T_{1} \rightarrow T_{2}$.
-    \item $t = u \, v$. Par le lemme
-      d'inversion, nous avons $\Gamma \vdash u : T_{1} \rightarrow T$ et $\Gamma
-      \vdash v : T_{1}$. Par hypothèse de récurrence, $\Gamma, x : S \vdash u :
-      T_{1} \rightarrow T$ et $\Gamma, x : S \vdash v : T_{1}$. Nous concluons
-      que $\Gamma, x : S \vdash u \, v : T$ par T-APP.
+    \item (T-APP). $t = u \, v$. Nous avons $\Gamma \vdash u : T_{1} \rightarrow
+      T$ et $\Gamma \vdash v : T_{1}$. Par hypothèse de récurrence, $\Gamma, x : S
+      \vdash u : T_{1} \rightarrow T$ et $\Gamma, x : S \vdash v : T_{1}$. Nous
+      concluons que $\Gamma, x : S \vdash u \, v : T$ par (T-APP).
   \end{itemize}
 \end{proof}
 
@@ -382,43 +387,42 @@ proposition n'est pas vraie dans tous les calculs.
 \begin{proof}
   \label{proof:simply-typed-lambda-calculus-preservation-substitution}
   Nous procédons par une induction sur l'arbre de dérivation du jugement $\Gamma, x : S
-  \vdash t : T$ et ce en fonction de la forme de $t$.
+  \vdash t : T$.
 
   \begin{itemize}
-  \item $t = z$. Alors, par le lemme d'inversion, $(z, T) \in \Gamma, x : S$.
+  \item (T-VAR). $t = z$. Alors, par le lemme d'inversion, $(z, T) \in \Gamma, x : S$.
     Deux cas sont possibles. Si $z = x$, alors $[x \rightarrow s] z = s$ ainsi que
     $S = T$ et nous obtenons le résultat souhaité. Si $z \neq x$,
     alors $[x \rightarrow s] z = z$ et il n'y a rien à montrer car $\Gamma
     \vdash z : T$.
-  \item $t = \lambdaExpr{y : T_{1}}{t'}$.
-    Sans perte de généralité, nous supposons
-      $y \notin FV(s)$ et $x \neq y$. 
+  \item (T-ABS). $t = \lambdaExpr{y : T_{1}}{t'}$.
+    Nous avons $T = T_{1} \rightarrow R$ avec
+    $\Gamma, x : S, y : T_{1} \vdash t' : R$. 
+
+    Sans perte de généralité, nous supposons $y \notin dom(\Gamma)$.
     Rappelons que par définition de la $\beta$-réduction,
     \begin{equation*}
-      [x \rightarrow s](\lambdaExpr{y : T_{1}}{t'}) = (\lambdaExpr{y : T_{1}})([x \rightarrow s] t')
+      [x \rightarrow s]\lambdaExpr{y : T_{1}}{t'} = \lambdaExpr{y : T_{1}}[x \rightarrow s] t'
     \end{equation*}
-    Par le lemme d'inversion, nous avons $T = T_{1} \rightarrow R$ avec
-      $\Gamma, x : S, y : T_{1} \vdash t' : R$. Par le lemme de permutation,
-      nous avons également $\Gamma, y : T_{1}, x : S \vdash t' : R$. En utilisant le lemme
-      d'affaiblissement avec $\Gamma \vdash s : S$, comme $y \notin dom(\Gamma)$,
-      nous obtenons $\Gamma, y : T_{1} \vdash s : S$.
-      Nous appliquons alors l'hypothèse de récurrence et nous obtenons
-      $\Gamma, y : T_{1} \vdash [x \rightarrow s] t' : R$. Par T-ABS, nous avons
-      $\Gamma \vdash [x \rightarrow s] (\lambdaExpr{y : T_{1}}{([x \rightarrow s]t')}) : R$ .
+    Par le lemme de permutation,
+    nous avons également $\Gamma, y : T_{1}, x : S \vdash t' : R$. En utilisant le lemme
+    d'affaiblissement avec $\Gamma \vdash s : S$, comme $y \notin dom(\Gamma)$,
+    nous obtenons $\Gamma, y : T_{1} \vdash s : S$.
+    Nous appliquons alors l'hypothèse de récurrence et nous obtenons
+    $\Gamma, y : T_{1} \vdash [x \rightarrow s] t' : R$. Par (T-ABS), nous avons
+    $\Gamma \vdash [x \rightarrow s] \lambdaExpr{y : T_{1}}{t'} : R$ .
 
     \item $t = u \, v$.
       Rappelons que par définition de la $\beta$-réduction,
       \begin{equation*}
         [x \rightarrow s](u \, v) = ([x \rightarrow s] u) \, ([x \rightarrow s] v)
       \end{equation*}
-
-      Par le lemme d'inversion, nous avons $\Gamma, x : S
+      Nous avons $\Gamma, x : S
       \vdash u : T_{1} \rightarrow T$ et $\Gamma, x : S \vdash v : T_{¡}$. Par
-      hypothèse d'induction, nous avons $\Gamma \vdash [x \rightarrow s]u :
+      hypothèse de récurrence, nous avons $\Gamma \vdash [x \rightarrow s]u :
       T_{1} \rightarrow T$ et
-      $\Gamma \vdash [x \rightarrow s]v : T_{1}$. Par T-APP et le rappel
-      ci-dessus, nous pouvons conclure $\Gamma \vdash [x \rightarrow s](u \, v)
-      : T$.
+      $\Gamma \vdash [x \rightarrow s]v : T_{1}$. Par (T-APP), nous avons
+      $\Gamma \vdash [x \rightarrow s](u \, v) : T$.
   \end{itemize}
   
 \end{proof}
@@ -433,22 +437,22 @@ proposition n'est pas vraie dans tous les calculs.
   \label{proof:simply-typed-lambda-calculus-preservation}
   Par induction sur l'arbre de dérivation de $\Gamma \vdash t : T$.
   \begin{itemize}
-  \item $\Gamma \vdash x : T$. Ce cas n'est pas possible car aucune règle de
+  \item (T-VAR). $t = x$. Ce cas n'est pas possible car aucune règle de
     réduction existe pour les variables.
-  \item $\Gamma \vdash \lambdaExpr{x : T_{1}}{t_{2}} : T$. Même chose que pour le
+  \item (T-ABS). $t = \lambdaExpr{x : T_{1}}{t_{2}} : T$. Même chose que pour le
     cas des variables.
-  \item $\Gamma \vdash u v : T$. Par le lemme d'inversion, nous avons $\Gamma
+  \item (T-APP). $t = u v$. Nous avons $\Gamma
     \vdash u : T_{1} \rightarrow T$ et $\Gamma \vdash v : T_{1}$. Plusieurs cas possibles:
     \begin{itemize}
-    \item $u$ s'évalue en $u'$. Alors, $t' = u' \, v$ par E-APP1. Par hypothèse
+    \item $u$ s'évalue en $u'$. Alors, $t' = u' \, v$ par (E-APP1). Par hypothèse
       de récurrence, nous
-      obtenons $\Gamma \vdash u' : T_{1} \rightarrow T$. Par T-APP,
+      obtenons $\Gamma \vdash u' : T_{1} \rightarrow T$. Par (T-APP),
       $\Gamma \vdash u' \, v : T$.
     \item $v$ s'évalue en $v'$ et $u$ est une valeur. Alors, $t' = u \, v'$ par
-      E-APP2. Nous appliquons alors le même argument que pour le cas précedent.
+      (E-APP2). Nous appliquons alors le même argument que pour le cas précedent.
     \item $u$ et $v$ sont des valeurs. Posons $u = \lambdaExpr{x : T_{1}} t_{2}$.
       Alors $t' = [x \rightarrow v]t_{2}$ et nous avons $\Gamma \vdash v :
-      T_{1}$. Par le lemme d'inversion, nous obtenons $\Gamma, x : T_{1} \vdash t_{2}
+      T_{1}$. Nous avons $\Gamma, x : T_{1} \vdash t_{2}
       : T$. Par le lemme de
       substitution, nous concluons $\Gamma \vdash [x \rightarrow v]t_{2} : T$.
     \end{itemize}
