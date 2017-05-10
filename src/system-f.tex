@@ -113,7 +113,7 @@ ces deux ensembles.
     [X \rightarrow S]X & = S \\
     [X \rightarrow S]Y & = Y \\
     [X \rightarrow S](T_{1} \rightarrow T_{2}) & = ([X \rightarrow S]T_{1}) \rightarrow ([X \rightarrow S] T_{2}) \\
-    [X \rightarrow S](\forall Y \, T) & = \forall Y \, [X \rightarrow S]T
+    [X \rightarrow S](\forall Y .\, T) & = \forall Y . \, [X \rightarrow S]T
   \end{align*}
 \end{definition}
 \section{Sémantique}
@@ -238,7 +238,7 @@ pour le $\lambda$-calcul avec sous-typage.
   Dans le premier cas, $t$ est une valeur donc le résultat est direct.
 
   Dans le second cas, par le lemme d'inversion, nous avons $\vdash t_{1} :
-  \forall X \, T_{1}$. L'hypothèse de récurrence nous dit que soit $t_{1}$ est
+  \forall X . \, T_{1}$. L'hypothèse de récurrence nous dit que soit $t_{1}$ est
   une valeur, soit il existe $t'_{1}$ tel que $t_{1} \rightarrow t'_{1}$.
 
   \begin{itemize}
@@ -250,42 +250,87 @@ pour le $\lambda$-calcul avec sous-typage.
 
 \subsection*{Préservation}
 
-Comme premier lemme, nous renforçons
-\ref{thm:simply-typed-lambda-calculus-preservation-substitution} en ajoutant un
-contexte $\Delta$.
-
-\begin{lemma}
-  \label{thm:system-f-preservation-substitution-term}.
-  Soit $\Gamma, x : S, \Delta \vdash t : T$ et $\Gamma \vdash s : S$.
-
-  Alors $\Gamma, \Delta \vdash [x \rightarrow s] t : T$
-\end{lemma}
-
-\begin{proof}
-  
-\end{proof}
+%Comme premier lemme, nous renforçons
+%\ref{thm:simply-typed-lambda-calculus-preservation-substitution} en ajoutant un
+%contexte $\Delta$.
+%
+%\begin{lemma}
+%  \label{thm:system-f-preservation-substitution-term}.
+%  Soit $\Gamma, x : S, \Delta \vdash t : T$ et $\Gamma \vdash s : S$.
+%
+%  Alors $\Gamma, \Delta \vdash [x \rightarrow s] t : T$
+%\end{lemma}
+%
+%\begin{proof}
+%  
+%\end{proof}
 
 \begin{lemma} [de substitution de variable de type]
   \label{thm:system-f-preservation-substitution-type}.
   Soit $S$ un type.
 
-  Si $\Gamma, X, \Delta \vdash t : T$, alors
-  \begin{equation}
+  Si
+
+  \begin{equation*}
+    \Gamma, X, \Delta \vdash t : T
+  \end{equation*}
+  alors
+  \begin{equation*}
     \Gamma, [X \rightarrow S]\Delta \vdash [X \rightarrow S]t : [X \rightarrow S] T 
-  \end{equation}
+  \end{equation*}
   où $[X \rightarrow S]\Delta$ signifie que nous remplaçons toutes les
   occurences de $X$ par $S$ dans le contexte $\Delta$.
 \end{lemma}
 
 \begin{proof}
   \label{proof:system-f-preservation-substitution-type}
-  La preuve se réalise par récurrence sur l'arbre de dérivation.
+  La preuve se réalise par récurrence sur l'arbre de dérivation. Nous ne
+  démontrons que le cas (T-ABS) où $\Delta$ est nécessaire.
 
-  \begin{itemize}
-  \item (T-ABS). Nous avons $\Gamma, X, \Delta \vdash \lambdaExpr{x : T_{1}}t_{2}$.
-  \end{itemize}
-  Le contexte $\Delta$ est nécéssaire pour
-  l'appel récursif pour le cas $T-ABS$.
+%  \begin{itemize}
+   (T-ABS). Nous avons
+   \begin{equation*}
+     \Gamma, X, \Delta \vdash \lambdaExpr{x : T_{1}}t_{2} : T_{1} \rightarrow T_{2}
+   \end{equation*}
+   Par le lemme d'inversion, nous obtenons
+   \begin{equation*}
+     \Gamma, X, \Delta, x : T_{1} \vdash t_{2} : T_{2}
+   \end{equation*}
+   Par hypothèse de récurrence,
+   \begin{equation*}
+     \Gamma, [X \rightarrow S]\Delta, x : [X \rightarrow S]T_{1} \vdash [X
+     \rightarrow S]t_{2} : [X \rightarrow S]T_{2}
+   \end{equation*}
+   En utilisant (T-ABS), nous avons
+   \begin{equation*}
+     \Gamma, [X \rightarrow S]\Delta \vdash \lambdaExpr{x : [X \rightarrow S]T_{1}}[X
+     \rightarrow S]t_{2} : [X \rightarrow S]T_{2}
+   \end{equation*}
+   En utilisant la définition de la fonction de substitution, nous concluons
+   \begin{equation*}
+     \Gamma, [X \rightarrow S]\Delta \vdash [X \rightarrow S]\lambdaExpr{x :
+       T_{1}} t_{2} : [X \rightarrow S]T_{2}
+   \end{equation*}
+%  \item (T-T-APP). Nous avons
+%    \begin{equation*}
+%      \Gamma, X, \Delta \vdash t[T'] : [Y \rightarrow T']T
+%    \end{equation*}
+%    Par le lemme d'inversion, nous avons
+%    \begin{equation*}
+%      \Gamma, X, \Delta \vdash t : \forall Y . T
+%    \end{equation*}
+%    Par hypothèse de récurrence,
+%     \begin{align*}
+%       & & \Gamma, [X \rightarrow S]\Delta \vdash [X \rightarrow S]t : [X \rightarrow S] \forall Y . T \\
+%       & = & \Gamma, [X \rightarrow S]\Delta \vdash [X \rightarrow S]t : \forall Y . [X \rightarrow S]T
+%    \end{align*}
+%    En utilisant (T-T-APP), nous obtenons
+%     \begin{equation*}
+%        \Gamma, [X \rightarrow S]\Delta \vdash [X \rightarrow S]t[T'] : [Y \rightarrow T'][X \rightarrow S]T
+%    \end{equation*}
+%\end{itemize}
+   
+
 \end{proof}
 
 \begin{theorem} [de préservation du typage]
