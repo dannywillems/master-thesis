@@ -1,38 +1,41 @@
-\chapter{RML : implémentation}
+\chapter{RML}
+\label{chapter:rml}
 
-Dans ce chapitre, nous allons discuter de l'apport principal de
-ce travail qui est l'implémentation d'un algorithme de typage, d'un algorithme
-de sous-typage ainsi que d'un langage de surface basé sur le calcul théorique du
-chapitre précédent, DOT.
+Dans ce chapitre, nous proposons un algorithme de typage et de sous-typage ainsi
+qu'un langage de surface pour DOT. Une implémentation en OCaml du langage et des
+algorithmes sont disponibles sur Github\cite{rml-github} sous le nom de RML.
+
 Nous parlerons également des difficultés rencontrées lors de l'implémentation
 d'un calcul théorique et nous remarquerons que DOT nécessite des règles et des termes
 supplémentaires pour résoudre certains problèmes d'implémentation.
 
-Le code de RML peut être trouvé sur Github\cite{rml-github}. RML est développé
-entièrement en OCaml en utilisant plusieurs dépendances comme
-\verb|ocamllex| comme lexeur, \verb|menhir|\cite{menhir} pour la
-génération du parseur, \verb|AlphaLib|\cite{alphalib} pour la gestion des
-variables, \verb|PPrint|\cite{pprint} pour pouvoir afficher plus clairement les termes et les
-types et enfin \verb|ANSITerminal|\cite{ansiterminal} pour ajouter des couleurs
-lors de l'affichage.
+%Plusieurs dépendances comme
+%\verb|ocamllex| comme lexeur, \verb|menhir|\cite{menhir} pour la
+%génération du parseur, \verb|AlphaLib|\cite{alphalib} pour la gestion des
+%variables, \verb|PPrint|\cite{pprint} pour pouvoir afficher plus clairement les termes et les
+%types et enfin \verb|ANSITerminal|\cite{ansiterminal} pour ajouter des couleurs
+%lors de l'affichage.
 
 Sur la page principale se trouve, en anglais, une description complète de la syntaxe de RML,
-du but du langage ainsi que des exemples. Cette documentation est plus orientée
-pour les développeurs ayant une base en OCaml et les personnes souhaitant utiliser le langage pour
-écrire des programmes ; les concepts théoriques sont donc omis.
+du but du langage ainsi que des exemples.
+%Cette documentation est plus orientée
+%pour les développeurs ayant une base en OCaml et les personnes souhaitant utiliser le langage pour
+%écrire des programmes ; les concepts théoriques sont donc omis.
 La structure du projet, la méthode de compilation et l'exécution des
 algorithmes sont clairement expliquées sur la page du projet. Pour ces raisons,
-ces détails ne seront pas dupliqués dans ce document. Il est
-fortement conseillé au lecteur de lire la page principale pour avoir une idée
-générale avant de continuer.
+ces détails ne seront pas dupliqués dans ce document.
+Il est fortement conseillé au lecteur de lire la page principale pour avoir une
+idée générale avant de continuer.
 
 \section{Langage de surface}
 
 Par langage de surface, nous désignons une syntaxe plus simple et plus pratique
-à utiliser pour écrire des programmes d'un calcul. Pour RML, la syntaxe d'OCaml
-est utilisée. En particulier, la syntaxe des modules OCaml est utilisée pour les
+à utiliser pour écrire des programmes d'un calcul. Pour RML, une syntaxe proche
+de celle d'OCaml est utilisée. En particulier, la syntaxe des modules OCaml est utilisée pour les
 termes récursifs $\nu(x : T)d$ ou encore la syntaxe des types récursifs $\mu(x :
 T)$ est remplacée par la syntaxe des signatures des modules en OCaml.
+
+%TODO Ajouter un tableau
 
 Le langage de surface est entièrement décrit sur la page du
 projet\cite{rml-github}. Dans la suite, nous
@@ -120,84 +123,87 @@ des fonctions pour afficher un contexte donné.
 %  \item Donner un détail sur la complexité des algorithmes de sous-typages et de
 %  typages. %\end{itemize}
 
-\section{Bornes d'un type dépendant}
+\section{Meilleures bornes d'un type dépendant}
 
-Un algorithme important est celui qui permet de donner la meilleure borne d'un
-type dépendant. C'est-à-dire, étant donnés une variable
+Un problème qui se pose lors de l'écriture des algorithmes, est étant donnés une variable
 $x$ et un contexte, quelle est la borne inférieure ou la borne supérieure du
 type dépendant $x.t$ ? La question se pose, par exemple, quand nous devons
 comparer deux types dépendants $x.t$ et $y.t$.
 
-En d'autres termes, pour la borne supérieure, pour une variable $x$, de type $T$ et
+En d'autres termes, pour la borne supérieure, pour une variable $x$ de type $T$ et
 un champ $t$, quel est le plus petit type $U$ tel que $T <: \left\{ t : L .. U
-\right\}$. La fonction implémentant cet algorithme est
-\verb|least_upper_bound_of_recursive_type| (pour la borne inférerieure, la
-fonction est \\ \verb|greater_lower_bound_of_recursive_type|) dans le fichier \\
-\verb|typing/TypeUtils.ml|.
+\right\}$.
 
 Remarquons d'abord que la question n'a pas toujours de réponse. En effet, si $x$
 est de type \verb|Top|\footnote{Bien que la question n'ait pas de sens, nous
   pouvons la poser car les règles ne l'empêchent pas.}, le seul super-type de
-$T$ est \verb|Top|. En OCaml, nous représentons cela par un type \verb|option|
-où \verb|None| est renvoyé si la question n'a pas de réponse.
+$T$ est \verb|Top|. En OCaml, nous représentons le retour de l'algorithme par un
+type \verb|option| où \verb|None| est renvoyé si la question n'a pas de réponse
+et \verb|Some(T)| si la réponse est $T$. Nous omettons le \verb|Some| pour la
+description ci-dessous.
 
-L'algorithme travaille sur la structure de $T$ :
+Cet algorithme n'est jamais discuté ni décrit dans les différents
+documents au sujet de DOT.
+
+L'algorithme prend comme
+paramètres, en plus de la variable $x$, du type $T$ et du label $t$, un contexte
+$\Gamma$ et une direction. La direction est soit \verb|Lower| pour la
+plus grande borne inférieure soit \verb|Upper| pour la plus petite borne
+inférieure. L'algorithme travaille sur la structure de $T$ :
 
 \begin{itemize}
-\item Si $T$ est \verb|Bottom|, la réponse est \verb|Bottom|.
-\item Si $T$ est \verb|Top|, il n'y a pas de réponse, l'algorithme
-  renvoie donc \verb|None|.
-  \item Si $T$ est une fonction, il n'y a également pas de réponse car nous
-    ne pouvons comparer un enregistrement avec une fonction. L'algorithme
-    renvoie \verb|None|.
-  \item Si $T$ est un type récursif, nous utilisons la règle (VAR-UNPACK) et
-    appelons récursivement l'algorithme.
-  \item Si $T$ est un type intersection, par exemple $T_{1} \wedge T_{2}$, nous
-    appliquons l'algorithme récursivement sur $T_{1}$ et sur $T_{2}$. Plusieurs
-    cas sont possibles :
-    \begin{itemize}
-      \item Si les deux appels retournent \verb|None|, l'algorithme retourne
-        \verb|None| car cela signifie qu'il n'y a pas de réponse. Cela peut se
-        passer si $T_{1}$ et $T_{2}$ sont des fonctions.
-      \item Si l'un des deux retourne une valeur, nous la retournons.
-      \item Si les deux retournent un type, nous renvoyons la valeur retournée
-        pour le type $T_{2}$.
-    \end{itemize}
-  \item Si $T$ est une déclaration de type, par exemple $\left\{ t : L .. U
-      \right\}$, la réponse est $U$.
-  \item Si $T$ est une déclaration de champ, par exemple $\left\{ t : U \right\}$, la réponse est $U$
-  \item Le dernier cas est si $T$ est de la forme $y.t'$. Un appel récursif est
-    effectué sur le type de $y$ avec le champ $t'$. Si la réponse est
-    \verb|None|, \verb|None| est renvoyé car cela signifie qu'il n'y avait déjà
-    pas de réponse pour $y$ (par exemple, si $y$ est de type fonction) : il ne peut donc pas en avoir pour $x$. Si un type
-    $U$ est renvoyé, alors, nous avons le plus petit $U$ tel que $T_{y} <: \left\{ t'
-      : L .. U \right\}$ où $T_{y}$ est le type de $y$. En supposant que
-    l'algorithme donne bien le plus petit $U$, nous savons alors que $U$ est la
-    borne supérieure de $T$, c'est-à-dire le plus petit super-type de $T$.
-    Nous retournons alors le résultat de l'appel récursif sur $U$ avec le champ $t$.
+\item Si $T = Bottom$, nous retournons $Bottom$ pour la borne supérieure et
+  $None$ pour la borne inférieure.
+\item Si $T = Top$, nous retournons $Top$ pour la borne inférieure et
+  $Top$ pour la borne supérieure.
+\item Si $T = \forall(x : S_{1}) S_{2}$, nous retournons $None$ car nous
+  ne pouvons pas comparer un enregistrement avec une fonction.
+\item Si $T = \mu(x : S^{x})$, nous appelons récursivement l'algorithme sur
+  $S^{x}$ et renvoyons ce résultat.
+\item Si $T = T_{1} \wedge T_{2}$, nous
+  appliquons l'algorithme récursivement sur $T_{1}$ et sur $T_{2}$. Notons
+  $T'_{1}$ et $T'_{2}$ les résultats. Plusieurs cas possibles :
+  \begin{itemize}
+  \item Si $T'_{1} = T'_{2} = None$\footnote{Cela peut se
+    passer si $T'_{1}$ et $T'_{2}$ sont des fonctions}, nous retournons $None$.
+  \item Si $T'_{1} = None$ et $T'_{2} \neq None$, nous retournons $T'_{2}$.
+  \item Si $T'_{2} = None$ et $T'_{1} \neq None$, nous retournons $T'_{1}$.
+  \item Sinon, nous retournons $T'_{1} \wedge T'_{2}$.
+  \end{itemize}
+\item Si $T = \left\{ t : L .. U \right\}$, nous retournons $U$ pour la borne
+  supérieure et $L$ pour la borne inférieure.
+\item Si $T = \left\{ t : U \right\}$, nous retournons $U$.
+\item Si $T = y.t'$, nous appelons récursivement l'algorithme avec les paramètres
+  $y$, le type de $y$, le label $t'$, le contexte $\Gamma$ et la direction et
+  nous notons $S$ la réponse.
+  \begin{itemize}
+  \item Si $S = None$, nous retournons $None$. Cela signifie qu'il n'y avait déjà
+  pas de réponse pour $y$ (par exemple, si $y$ est de type fonction).
+  \item Sinon, nous savons que $S$ est le plus petit $U$ tel que $T_{y} <: \left\{ t'
+    : L .. U \right\}$ où $T_{y}$ est le type de $y$. Nous savons alors que $U$
+  est la plus petite borne supérieure de $T$, c'est-à-dire le plus petit super-type de $T$. Nous
+  appelons alors récursivement l'algorithme en remplaçant $T$ par $S$.
+  \end{itemize}
 \end{itemize}
 
 L'algorithme actuel est satisfaisant sur différents exemples. Cependant, nous
 remarquons que le cas où $T = y.t'$ n'est pas très clair. Il serait nécessaire de
-montrer que la réponse pour $T$ est la même que la réponse pour le $U$ donné par
-l'appel récursif.\footnote{Plusieurs tentatives de démonstrations ont échoué, et la
-possibilité que l'assertion soit fausse a été envisagée. Cependant, par manque
-de temps, nous acceptons l'algorithme actuel.} Nous pouvons seulement dire que
+montrer que la réponse pour $T$ est la même que pour $S$.\footnote{Plusieurs tentatives de démonstrations ont échoué, et la
+possibilité que l'assertion soit fausse a été envisagée car la relation de
+sous-typage n'est pas totale. Cependant, vu les bons résultats, nous acceptons
+l'algorithme actuel.} Nous pouvons seulement dire que
 la réponse actuelle est un candidat, mais non le meilleur.
 
-L'algorithme n'est également pas exact dans le cas des intersections. En effet,
-dans le cas où les deux retournent une valeur, il faudrait retourner le plus
-petit type. Cependant, cela implique une dépendance de module avec l'algorithme
-de sous-typage, ce qui n'est pas possible vu l'implémentation actuelle car
-l'algorithme de sous-typage dépend de \verb|TypeUtils|. Et même
-si ce problème de dépendances était résolu, vu que la relation de sous-typage n'est
-pas totale, il se peut que les types ne soient pas comparables.
+L'implémentation OCaml est la fonction \verb|best_bound_of_recursive_type|.
+\verb|least_upper_bound_of_recursive_type| est l'algorithme pour la direction \\
+\verb|Upper| tandis que \verb|greatest_lower_bound_of_recursive_type| est pour
+la direction \verb|Lower|.
 
-Un algorithme semblable, \verb|least_upper_bound_of_dependent_function|,\\ est
-implémenté pour le cas où nous cherchons le plus petit type fonction pour une
-variable donnée. Le retour de l'algorithme est
+Un algorithme semblable est implémenté pour le cas où nous cherchons le plus
+petit type fonction pour une variable donnée. Le retour de l'algorithme est
 différent pour le cas des fonctions et des déclarations de type et de champ. Le
 même argument est réalisé pour la forme $y.t'$ et l'intersection.
+L'implémentation OCaml est la fonciton \verb|least_upper_bound_of_dependent_function|.
 
 \section{Algorithme de typage}
 
@@ -223,8 +229,8 @@ son type. Lorsque nous écrivons des programmes, cela implique que lorsque nous
 définissons des modules, nous devons donner leur signature. Du
 coté développeur, cela n'est pas très pratique.
 
-Pour éviter cela, un algorithme est implémenté pour typer une liste de
-declarations. Lorsqu'un type récursif est rencontré, par exemple $\mu(x : T) d$,
+Pour simplifier l'écrire de programmes, nous avons décide d'ajouter un algorithme pour typer une liste de
+declarations. Lorsqu'un terme récursif $\nu(x : T) d$ est rencontré,
 nous commençons par ajouter dans le contexte $x$ avec le type \verb|Top|.
 Ensuite, nous allons parcourir la déclaration $d$ et affiner le type de $x$ en
 fonction de la forme de $d$.
@@ -237,9 +243,8 @@ fonction de la forme de $d$.
 
 L'algorithme n'est pas parfait : il échouera par exemple si des champs sont
 mutuellement récursifs. 
-
-Cependant, celui-ci est satisfaisant pour une partie des cas et permet de
-faciliter l'écrire de programmes DOT.
+Cependant, celui-ci est satisfaisant pour une partie des exemples et permet
+d'écrire de programmes DOT moins verbeux.
 
 \section{Algorithme de sous-typage}
 
@@ -248,11 +253,11 @@ L'algorithme de sous-typage se trouve dans le fichier \verb|subtype.ml| du dossi
 donnés grâce à un pattern matching. Le but de cet algorithme est, étant donnés
 deux types $S$ et $T$, retourner oui si $S$ est un sous-type de $T$ et non sinon.
 
-L'ordre dans le pattern matching est très important contrairement à
-l'algorithme de typage. En effet, pour arriver à une conclusion, il est possible
-d'y arriver par plusieurs chemins.
+Remarquons que pour une question posée, il est possible
+d'utiliser plusieurs règles.
 En effet, pour répondre à $S_{1} \wedge S_{2} <: T_{1} \wedge T_{2}$, nous
 pouvons utiliser (<: AND), (AND-1-<:) ou (AND-2-<:).
+
 
 De plus l'ordre influence la réponse. Par exemple, prenons le cas où $S_{1} =
 T_{1} = \left\{ t : Nothing .. Any \right\}$ et $T_{1} = T_{2} = \left\{ a :
@@ -307,7 +312,7 @@ L'algorithme procède par cas :
 \end{itemize}
 
 Dans le second cas, \verb|best_bound_of_recursive_type| est utilisé pour trouver
-le type $x$.
+le type $x$ et le type de $y et le type de $y$$.
 
 \subsection*{Types récursifs}
 
@@ -535,7 +540,9 @@ projet\cite{rml-github-issues}. Voici quelques exemples.
   \item L'algorithme de sous-typage provoque sur certains cas des stack
     overflow. Ceci n'est pas très surprenant. En effet, à cause
     du type récursif, un arbre de dérivation n'est pas nécessairement de taille finie car
-    il est possible que l'algorithme doive répondre à la même question dans un sous-arbre.
+    il est possible que l'algorithme doive répondre à la même question dans un
+    sous-arbre. De plus, comme le problème du sous-typage est indécidable, il
+    existe des questions qui ne disposent pas de réponse.
   \item Nous nous sommes focalisés essentiellement sur l'implémentation des
     algorithmes de typage et de sous-typage, et non sur l'évaluation des termes.
     Un évaluateur pourrait être implémenté en se basant sur \cite{WF-DOT-2016}.
