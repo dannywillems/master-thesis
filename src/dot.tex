@@ -114,7 +114,8 @@ Nous retrouvons les règles (T-VAR) et (T-SUB) comme dans les précédents calcu
 (ALL-I) est l'équivalent de (T-ABS) et (ALL-E) est l'équivalent de (T-APP).
 (LET) nous dit que le terme $t$ et la variable $x$ à laquelle nous lions ce
 terme doivent avoir le même type, le type du terme en entier est celui de $u$.
-(AND-I) type les intersections. ($\left\{ \; \right\}$-I) type les terme
+(AND-I) nous dit que si une variable a deux types $T$ et $U$, alors il a
+également le type intersection $T \wedge U$. ($\left\{ \; \right\}$-I) type les terme
 récursifs et oblige que la variable du terme récursif ait le même type que la déclaration.
 (FLD-E) est l'équivalent de (T-PROJ) que nous avions défini pour les
 enregistrements.
