@@ -5,6 +5,8 @@
 \usepackage[francais]{babel}
 \usepackage{amssymb,amsmath,amsthm}
 \usepackage{fancyvrb}
+%\usepackage{algorithm}
+%\usepackage{algorithmic}
 
 % Pour la coloration du code. Le dossier de sortie doit être ajouté car un
 % fichier pyg est créé pendant la compilation et est nécéssaire pour la suite de
@@ -40,6 +42,8 @@
 \input{latex-macros-math/macros_math}
 
 \begin{document}
+
+\newcommand{\localLetBinding}[3]{let \; #1 \; = \; #2 \; in \; #3}
 
 \input{remerciements}
 
