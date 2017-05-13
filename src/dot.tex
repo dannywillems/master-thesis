@@ -39,6 +39,9 @@ et la syntaxe des types par la grammaire suivante :
            & \; S \wedge T & \text{inter}
 \end{align*}
 
+Le domaine d'une déclaration $d$, noté $dom(d)$ est défini comme l'ensemble des
+noms de ses champs.
+
 \section{Sémantique}
 
 La sémantique est laissée de coté actuellement.
@@ -126,7 +129,8 @@ le type à l'intérieur de ce dernier.
 
 Quant aux définitions, (TYP-I) donne le même type à la borne inférieure et à la
 borne supérieure d'une déclaration de type. (FLD-I) ressemble à (T-RCD)
-restreint à un enregistrement avec un champ. (ANDDEF-I) type l'union de deux déclarations.
+restreint à un enregistrement avec un champ. (ANDDEF-I) type l'union de deux
+déclarations dont les champs ont obligatoirement des noms différents.
 
 \subsection*{Problème d'échappement}
 
