@@ -4,21 +4,219 @@ Faire le lien avec le sujet initial.
 
 \section{Syntaxe}
 
+La syntaxe des termes de DOT est définie par la grammaire suivante :
+\begin{minipage}{0.45\textwidth}
+  \begin{align*}
+    t ::= & \, & \text{terme} \\
+          & \; x, y, z & \text{var} \\
+          & \; x \, y & \text{app} \\
+          & \; \lambdaExpr{x : T}{t} & \text{abs} \\
+          & \; \localLetBinding{x}{t}{t} & \text{let} \\
+          & \; \nu(x : T)d & \text{rec} \\
+          & \; x.a & \text{champ proj} \\
+\end{align*}
+\end{minipage}
+\begin{minipage}{0.45\textwidth}
+  \begin{align*}
+    d ::= & \, & \text{decl} \\
+          & \; \left\{ a : t \right\} & \text{champ} \\
+          & \; \left\{ A = T \right\} & \text{type} \\
+          & \; d \wedge d & \text{aggregation}
+\end{align*}
+\end{minipage}
+
+et la syntaxe des types par la grammaire suivante :
+
+\begin{align*}
+  S, T ::= & \, & \text{type} \\
+           & \; Top & \text{top} \\
+           & \; Bottom & \text{bottom} \\
+           & \; \left\{ A : S .. T \right\} & \text{type decl} \\
+           & \; x.A & \text{type proj} \\
+           & \; \forall(x : S) T & \text{fonction} \\
+           & \; \left\{ a : T \right\} & \text{champ decl} \\
+           & \; \mu(x : T) & \text{rec} \\
+           & \; S \wedge T & \text{inter}
+\end{align*}
+
 \section{Sémantique}
 
 La sémantique est laissée de coté actuellement.
 
 \section{Règles de typage}
 
-\section{Règles de sous-typage}
+Nous séparons les règles de typage en deux catégories : celles pour les termes
+et celles pour les définitions.
 
-Pouvoir définir des record récursifs.
+Les règles de typage pour les termes sont les suivantes :
+
+\begin{mathpar}
+  \inferrule
+  {\Gamma, x : T, \Gamma' \vdash x : T}
+  {} \quad (\textsc{T-VAR})
+  \and
+  \inferrule
+  {\Gamma \vdash t : S \\ \Gamma \vdash S <: T}
+  {\Gamma \vdash t : T} \quad (\textsc{T-SUB})
+  \and
+  \inferrule
+  {\Gamma, x : T \vdash t : U \\ x \notin FV(T)}
+  {\Gamma \vdash \lambdaExpr{x : T}{t} : \forall(x : T) U} \quad (\textsc{ALL-I})
+  \and
+  \inferrule
+  {\Gamma \vdash x : \forall(z : S) T \\ \Gamma \vdash y : S}
+  {\Gamma \vdash x \; y : [z := y] T} \quad (\textsc{ALL-E})
+  \and
+  \inferrule
+  {\Gamma \vdash t : T \\ \Gamma, x : T \vdash u : U \\ x \notin FV(U)}
+  {\Gamma \vdash \localLetBinding{x}{t}{u} : U} \quad (\textsc{LET})
+  \and
+  \inferrule
+  {\Gamma \vdash x : T \\ \Gamma \vdash x : U}
+  {\Gamma \vdash x : T \wedge U} \quad (\textsc{AND-I})
+  \and
+  \\
+  \inferrule
+  {\Gamma, x : T \vdash d : T}
+  {\Gamma \vdash \nu(x : T)d : \mu(x : T)} \quad (\textsc{$\left\{ \; \right\}$-I})
+  \and
+  \inferrule
+  {\Gamma \vdash x : T^{x}}
+  {\Gamma \vdash x : \mu(z : T^{z})}  \quad (\textsc{VAR-PACK})
+  \and
+  \inferrule
+  {\Gamma \vdash x : \mu(z : T^{z})}
+  {\Gamma \vdash x : T^{x}}  \quad (\textsc{VAR-UNPACK})
+  \and
+  \inferrule
+  {\Gamma \vdash x : \left\{ a : T \right\}}
+  {\Gamma \vdash x.a : T} \quad (\textsc{FLD-E})
+\end{mathpar}
+
+Et les règles de typage pour les définitions sont :
+
+\begin{mathpar}
+  \inferrule
+  {\Gamma \vdash \left\{ A = T \right\}} 
+  {\Gamma \vdash \left\{ A : T  .. T \right\}} \quad (\textsc{TYP-I})
+  \and
+  \inferrule
+  {\Gamma \vdash d_{1} : T_{1} \\ \Gamma \vdash d_{2} : T_{2} \\ dom(d_{1})
+    \cap dom(d_{2}) = \emptyset}
+  {\Gamma \vdash d_{1} \wedge d_{2} : T_{1} \wedge T_{2}} \quad (\textsc{ANDDEF-I})
+  \and
+  \inferrule
+  {\Gamma \vdash t : T}
+  {\Gamma \vdash \left\{ a : t \right\} : \left\{ a : T \right\}} \quad (\textsc{FLD-I})
+\end{mathpar}
+
+Nous retrouvons les règles (T-VAR) et (T-SUB) comme dans les précédents calculs.
+(ALL-I) est l'équivalent de (T-ABS) et (ALL-E) est l'équivalent de (T-APP).
+(LET) nous dit que le terme $t$ et la variable $x$ à laquelle nous lions ce
+terme doivent avoir le même type, le type du terme en entier est celui de $u$.
+(AND-I) type les intersections. ($\left\{ \; \right\}$-I) type les terme
+récursifs et oblige que la variable du terme récursif ait le même type que la déclaration.
+(FLD-E) est l'équivalent de (T-PROJ) que nous avions défini pour les
+enregistrements.
+Pour finir, (VAR-PACK) nous dit que lorsque nous pouvons
+contruire un type récursifs à partir de n'importe quel autre type. De l'autre
+coté, (VAR-UNPACK) nous dit qu'un terme ayant un type récursif possède également
+le type à l'intérieur de ce dernier.
+
+Quant aux définitions, (TYP-I) donne le même type à la borne inférieure et à la
+borne supérieure d'une déclaration de type. (FLD-I) ressemble à (T-RCD)
+restreint à un enregistrement avec un champ. (ANDDEF-I) type l'union de deux déclarations.
 
 \subsection*{Problème d'échappement}
+
+Supposons que nous ayons un type $\real$ et prenons l'exemple suivant :
+\begin{align*}
+  & let \; y = \\
+  &\; \; \; \nu(x : \mu(z : \left\{ A : Bottom .. Top \right\} \wedge \left\{ a : z.A \right\})) \left\{ A : \real \right\} \wedge \left\{ a : z.A \right\} \\
+  & in \; y.a
+\end{align*}
+
+Le type de l'expression est $y.A$. Cependant, la variable $y$ n'existe pas en
+dehors du let car c'est une variable locale. C'est un exemple du
+\textit{problème d'échappement}\footnote{\og Avoidance problem \fg \; en
+anglais.}. Pour éviter cela, dans la règle (LET), une condition supplémentaire
+est ajoutée : $x \notin FV(U)$.
+
+Nous verrons dans le chapitre \ref{chapter:rml} qu'il est nécessaire d'y faire
+attention lors de l'implémentation, en particulier lorsque nous faisons des
+bindings locaux de variables.
+
+\section{Règles de sous-typage}
+
+\begin{mathpar}
+  \inferrule
+  {\Gamma \vdash T <: Top}
+  {}
+  \quad (\textsc{S-TOP})
+  \and
+  \inferrule
+  {\Gamma \vdash Bottom <: T}
+  {}
+  \quad (\textsc{S-Bottom})
+  \and
+  \inferrule
+  {\Gamma \vdash S <: T \\ \Gamma \vdash T <: U}
+  {\Gamma \vdash S <: U}
+  \quad (\textsc{S-TRANS})
+  \and
+  \inferrule
+  {\Gamma \vdash T <: T}
+  {}
+  \quad (\textsc{S-REFL})
+  \and
+  \inferrule
+  {\Gamma \vdash S_{2} <: S_{1} \\ \Gamma, x : S_{2} \vdash T_{1} <: T_{2}}
+  {\Gamma \vdash \forall(x : S_{1}) T_{1} <: \forall(x : S_{2}) T_{2}}
+  \quad (\textsc{ALL<:ALL})
+  \and
+  \inferrule
+  {\Gamma \vdash x : \left\{ A : S .. T \right\}}
+  {\Gamma \vdash S <: x.A}
+  \quad (\textsc{<: SEL})
+  \and
+  \inferrule
+  {\Gamma \vdash x : \left\{ A : S .. T \right\}}
+  {\Gamma \vdash x.A <: T}
+  \quad (\textsc{SEL <:})
+  \and
+  \inferrule
+  {\Gamma \vdash T \wedge U <: T}
+  {}
+  \quad (\textsc{$AND_{1}$ <:})
+  \and
+  \inferrule
+  {\Gamma \vdash T \wedge U <: U}
+  {}
+  \quad (\textsc{$AND_{2}$ <:})
+  \and
+  \inferrule
+  {\Gamma \vdash S <: T \\ \Gamma \vdash S <: U}
+  {\Gamma \vdash S <: T \wedge U}
+  \quad (\textsc{<: AND})
+  \and
+  \inferrule
+  {\Gamma \vdash S_{2} <: S_{1} \\ \Gamma \vdash T_{1} <: T_{2}}
+  {\Gamma \vdash \left\{ A : S_{1} .. T_{1} \right\} <: \left\{ A : S_{2} ..
+      T_{2} \right\}}
+  \quad (\textsc{TYP<:TYP})
+  \and
+  \inferrule
+  {\Gamma \vdash T <: U}
+  {\Gamma \vdash \left\{ a : T \right\} <: \left\{ a : U \right\}}
+  \quad (\textsc{FLD <: FLD})
+\end{mathpar}
 
 \section{Encodage de System $F_{<:}$}
 
 Montrer l'inclusion comme dans WF, comment les variables de types sont gérées.
+
+Cette propriété de DOT implique que la question du sous-typage de DOT est
+indécidable.
 
 \section{Notion de bonne formation}
 
