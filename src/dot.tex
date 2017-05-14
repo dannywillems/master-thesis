@@ -1,6 +1,20 @@
 \chapter{DOT}
 
-Faire le lien avec le sujet initial.
+Dans ce chapitre, nous présentons DOT, un calcul développé récemment pour le
+langage Scala. Ce calcul ajoute les types, alors
+appelés types chemin dépendants, dans les enregistrements. Des types
+récursifs, c'est-à-dire des types qui peuvent faire référence à eux-mêmes, sont
+également définis. Un système de sous-typage pour ce calcul sera
+également présenté.
+Nous montrerons que DOT peut être vu comme une
+extension de System $F_{<:}$ bien que sa syntaxe soit différente et ne possède
+pas de variables de type.
+
+Plusieurs définitions du calcul DOT existent et sont dispersées à travers
+plusieurs documents comme \cite{nada-amin-thesis}, \cite{OOPSLA-DOT-2016},
+\cite{POPL-2017-DOT} ou encore \cite{WF-DOT-2016}. Dans ce document, nous avons
+fait le choix d'utiliser \cite{WF-DOT-2016} car la syntaxe et les règles sont
+proches des précédents calculs.
 
 \section{Syntaxe}
 
@@ -8,9 +22,9 @@ La syntaxe des termes de DOT est définie par la grammaire suivante :
 \begin{minipage}{0.45\textwidth}
   \begin{align*}
     t ::= & \, & \text{terme} \\
-          & \; x, y, z & \text{var} \\
-          & \; x \, y & \text{app} \\
+          & \; x, y & \text{var} \\
           & \; \lambdaExpr{x : T}{t} & \text{abs} \\
+          & \; x \, y & \text{app} \\
           & \; \localLetBinding{x}{t}{t} & \text{let} \\
           & \; \nu(x : T)d & \text{rec} \\
           & \; x.a & \text{champ proj} \\
@@ -31,16 +45,50 @@ et la syntaxe des types par la grammaire suivante :
   S, T ::= & \, & \text{type} \\
            & \; Top & \text{top} \\
            & \; Bottom & \text{bottom} \\
-           & \; \left\{ A : S .. T \right\} & \text{type decl} \\
-           & \; x.A & \text{type proj} \\
            & \; \forall(x : S) T & \text{fonction} \\
+           & \; x.A & \text{type proj} \\
+           & \; \left\{ A : S .. T \right\} & \text{type decl} \\
            & \; \left\{ a : T \right\} & \text{champ decl} \\
            & \; \mu(x : T) & \text{rec} \\
            & \; S \wedge T & \text{inter}
 \end{align*}
 
-Le domaine d'une déclaration $d$, noté $dom(d)$ est défini comme l'ensemble des
-noms de ses champs.
+Nous retrouvons (var) et (abs) pour les variables et les
+abstractions.
+A la différence des autres calculs, une application n'est pas constituée de deux
+termes mais de deux variables. Nous retrouvons la projection d'un champ avec
+(champ proj). Comme pour les applications, uniquement une variable peut être
+utilisée.
+
+(let) permet de créer des variables locales comme il est possible en OCaml.
+(let) est utilisé pour lier un terme à une variable et pouvoir utiliser cette
+dernière dans un autre terme.
+
+Enfin, (rec) est l'équivalent des enregistrements à la différence qu'il permet
+de définir des termes récursifs, c'est-à-dire des termes
+dont le corps peut faire référence à eux-mêmes à travers la variable $x$ qui
+doit obligatoirement être accompagnée d'un type. Le
+corps d'un terme récursif est une déclaration. Une déclaration est soit un
+couple $(a, t)$ où $a$ est un nom et $t$ un terme comme pour les
+enregistrements, soit une déclaration de type représentée par un couple $(A,
+T)$ où $A$ est le nom de la déclaration et $T$ le type associé. Un enregistrement peut contenir plusieurs déclarations de champ et
+de type en utilisant (aggregation). Ces déclarations peuvent être mutuellement
+dépendantes grâce au terme récursif.
+Le domaine d'une déclaration $d$, noté $dom(d)$, est défini comme l'ensemble des
+labels.
+
+Quant aux types, nous retrouvons $Top$ et $Bottom$ comme décrits dans le
+chapitre \ref{chapter:lambda-calculus-with-records}. Le type fonction est
+également présent avec une syntaxe différente. (champ decl) est le type d'un
+champ d'un enregistrement. (type decl) est le type d'une déclaration d'un type
+dans un enregistrement et possède une borne inférieure $S$ et une borne
+supérieure $T$. (inter) permet de typer le corps d'un enregistrement contenant
+plusieurs déclarations et ce dernier est encapsulé dans un type récursif grâce à (rec). Les
+types des déclarations peuvent être mutuellement dépendants grâce à la variable
+$x$ du type récursif.
+
+Enfin, les types dépendants (type proj), en parallèle de (champ proj),
+permettent de récupérer le type à l'intérieur d'un enregistrement.
 
 \section{Sémantique}
 
@@ -123,7 +171,7 @@ récursifs et oblige que la variable du terme récursif ait le même type que la
 (FLD-E) est l'équivalent de (T-PROJ) que nous avions défini pour les
 enregistrements.
 Pour finir, (VAR-PACK) nous dit que lorsque nous pouvons
-contruire un type récursifs à partir de n'importe quel autre type. De l'autre
+contruire un type récursif à partir de n'importe quel autre type. De l'autre
 coté, (VAR-UNPACK) nous dit qu'un terme ayant un type récursif possède également
 le type à l'intérieur de ce dernier.
 
@@ -137,7 +185,7 @@ déclarations dont les champs ont obligatoirement des noms différents.
 Supposons que nous ayons un type $\real$ et prenons l'exemple suivant :
 \begin{align*}
   & let \; y = \\
-  &\; \; \; \nu(x : \mu(z : \left\{ A : Bottom .. Top \right\} \wedge \left\{ a : z.A \right\})) \left\{ A : \real \right\} \wedge \left\{ a : z.A \right\} \\
+  &\; \; \; \nu(x : \mu(z : \left\{ A : Bottom .. Top \right\} \wedge \left\{ a : z.A \right\})) \left\{ A : \real \right\} \wedge \left\{ a : x.A \right\} \\
   & in \; y.a
 \end{align*}
 
@@ -216,16 +264,134 @@ bindings locaux de variables.
   \quad (\textsc{FLD <: FLD})
 \end{mathpar}
 
+Comme pour le chapitre \ref{chapter:lambda-calculus-with-records}, nous
+avons (S-REFL), (S-TRANS), (S-TOP), (S-BOTTOM) et l'équivalent de (S-ARROW), (ALL<:ALL).
+
+(<: SEL) (resp. (SEL <:)) nous dit qu'une projection est un super-type (resp.
+sous-type) de sa borne inférieure (resp. supérieure).
+
+(FLD <: FLD) est l'équivalent de (S-RCD-DEPTH) pour un enregistrement à un
+unique champ.
+
+A travers (TYP<:TYP), les déclarations de type sont naturellement contravariants
+pour les bornes inférieures et covariants pour les bornes supérieures.
+
+Pour les intersections, les règles ($AND_{1}$ <:) et ($AND_{2}$ <:) nous donnent
+l'équivalent de (S-RCD-WIDTH). Quant à (<:AND), cette dernière règle nous dit
+que si un même type est sous-type de deux types différents, alors il est
+également sous-typage de leur intersection.
+
+Bien que l'analogie avec les enregistrements et les règles de sous-typage du
+chapitre \ref{chapter:lambda-calculus-with-records} permet de comprendre
+l'utilité des règles, il faut remarquer que les règles sont plus expressives. En
+effet, le type intersection n'est pas défini uniquement pour les déclarations,
+mais pour n'importe quel type. Cela signifie qu'il est autorisé d'écrire $\mu(x
+: T) \wedge \left\{ a : S .. T \right\}$ ou encore $x.A \wedge \left\{ a : S ..
+  T \right\} \wedge y.A \wedge \mu(x : U)$.
+De même, la variable $x$ dans un type dépendant n'est pas nécéssairement un
+terme récursif mais peut être une abstraction. Bien que ça n'ait pas de sens, la
+syntaxe le permet.
+La difficulté de DOT réside dans cette expressivité.
+
 \section{Encodage de System $F_{<:}$}
 
-Montrer l'inclusion comme dans WF, comment les variables de types sont gérées.
+Bien que la syntaxe soit différente de System $F_{<:}$ et que DOT ne comporte
+pas de variables de type, nous allons montrer que DOT permet d'encoder System
+$F_{<:}$. De plus, les jugements de typage vrais pour le système de typage et de
+sous-typage de System $F_{<:}$ restent vrais pour le système de typage et de
+sous-typage de DOT à travers cet encodage.
+
+Notons $\mathcal{V}_{DOT}$ l'ensemble des variables de DOT et $\mathcal{V}_{T,
+  F}$ l'ensemble des variables de type de System $F_{<:}$. Ces ensembles 
+étant infini dénombrables, il existe une fonction injective $f$ entre
+$\mathcal{V}_{T, F}$ et $\mathcal{V}_{DOT}$. Nous notons $x_{X} \in
+\mathcal{V}_{DOT}$ l'image de $X \in \mathcal{V}_{T, F}$ par la fonction $f$.
+
+Nous définissons alors la fonction ${}^{*}$ qui à chaque terme (resp. type) de
+System $F_{<:}$ associe un terme (resp. type) de DOT.
+
+\begin{align*}
+  X^{*} & = x_{X}.A \\
+  Top^{*} & = Top \\
+  (S \rightarrow T)^{*} & = \forall(x : S^{*}) T^{*} \\
+  (\forall X <: S . \, T)^{*} & = \forall(x : \mu(z : \left\{ A : Bottom .. S^{*} \right\})) T^{*} \\ \\
+  x^{*} & = x \\
+  (\lambdaExpr{x : T}{t})^{*} & = \lambdaExpr{x : T^{*}}{t^{*}} \\
+  (\lambdaExprType{X <: S}t)^{*} & = \lambdaExpr{x : \mu(y : \left\{ Bottom .. S^ {*} \right\})}{t^{*}} \\
+  (t \; u)^{*} & = \localLetBinding{x}{t^{*}}{\localLetBinding{y}{u^{*}}}{x \; y} \\
+  (t[U])^{*} & = \localLetBinding{x}{t^{*}}{\localLetBinding{y_{Y}}{\mu(z : \left\{ A = U^{*} \right\})}{x \; y_{Y}}}
+\end{align*}
+Quant aux contextes, la fonction ${}^{*}$ est définie naturellement
+inductivement par :
+\begin{align*}
+  (X <: Top)^{*} & = x_{X} : \mu(z : \left\{ A : Bottom .. Top \right\}) \\
+  (x : T)^{*} & = x : T^{*}
+\end{align*}
+
+Cependant, DOT est plus riche syntaxiquement que System $F_{<:}$ car, par
+exemple, la fonction $\lambdaExpr{x : Top .. Top}{x}$ ne peut être définie dans
+System $F_{<:}$ alors qu'elle peut l'être en DOT avec la fonction $\lambda{x :
+  \mu(z : \left\{ Top .. Top \right\})}{x}$.
+
+
+Notons $\Gamma \vdash_{F} t : T$ (resp. $\Gamma \vdash_{D} t : T$) un jugement
+de typage pour le système de typage de System $F_{<:}$ (resp. DOT). Nous faisons
+de même pour $\Gamma \vdash_{F} S <: T$.
+
+Nous utilisons la même technique que précédemment, c'est-à-dire par induction
+sur les arbres de dérivation.
+\begin{theorem}
+  Si $\Gamma \vdash_{F} S <: T$, alors $\Gamma^{*} \vdash_{D} S^{*} <: T^{*}$.
+\end{theorem}
+
+\begin{proof}
+  \begin{itemize}
+  \item (S-TVAR). Utilisation de (<: SEL).
+  \item (S-ALL). Pour le membre de gauche, nous utilisons (VAR-UNPACK) suivi de
+    (TYP<:TYP).
+  \item Les cas (S-REFL), (S-TRANS), (S-TOP) et (S-ARROW) sont directs
+    en utilisant l'encodage, l'hypothèse de récurrence et (VAR-UNPACK)
+    si besoin.
+    %Nous avons
+    %\begin{mathpar}
+    %  \inferrule
+    %  {\Gamma \vdash T_{1} <: S_{1} \\ \Gamma, X \vdash S_{2} <: T_{2}}
+    %  {\Gamma \vdash \forall X <: S_{1} . S_{2} <: \forall X <: T_{1} . T_{2}}
+    %\end{mathpar}
+    %et nous devons montrer que
+    %\begin{mathpar}
+    %  \inferrule
+    %  {\Gamma^{*} \vdash_{D} \forall(x : \mu(z : \left\{ A : Bottom .. S_{1}^{*}
+    %    \right\})) S_{2}^{*} <: \forall(x : \mu(z : \left\{ A : Bottom .. T_{1}^{*}\right\})) T_{2}^{*}}
+    %  {}
+    %\end{mathpar}
+  \end{itemize}
+\end{proof}
+
+\begin{theorem}
+  Si $\Gamma \vdash_{F} t : T$, alors $\Gamma^{*} \vdash_{D} t^{*} : T^{*}$.
+\end{theorem}
+
+\begin{proof}
+  TODO: Démontrer ? Besoin de deux lemmes intermédiaires.
+  \begin{itemize}
+  \item (T-VAR) et (T-SUB). Direct.
+  \item (T-ABS).
+  \item (T-APP).
+  \item (T-T-ABS).
+  \item (T-T-APP).
+  \end{itemize}
+\end{proof}
 
 Cette propriété de DOT implique que la question du sous-typage de DOT est
 indécidable.
 
 \section{Notion de bonne formation}
 
-
 \section{Sûreté}
 
-Ne pas tout démontrer, voir les théorèmes dans WF.
+Les théorèmes de préservation et de progression
+restent vrais. Cependant, nous les démontrerons pas dans ce document car ils
+nécessitent plusieurs lemmes techniques. Différentes preuves de la sûreté de DOT
+existent, en utilisant des techniques et des sémantiques différentes. Nous
+redirigeons le lecteur aux références données au début de ce chapitre pour plus d'information.
