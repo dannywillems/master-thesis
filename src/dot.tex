@@ -46,9 +46,9 @@ et la syntaxe des types par la grammaire suivante :
            & \; Top & \text{top} \\
            & \; Bottom & \text{bottom} \\
            & \; \forall(x : S) T & \text{fonction} \\
-           & \; x.A & \text{type proj} \\
            & \; \left\{ A : S .. T \right\} & \text{type decl} \\
            & \; \left\{ a : T \right\} & \text{champ decl} \\
+           & \; x.A & \text{type proj} \\
            & \; \mu(x : T) & \text{rec} \\
            & \; S \wedge T & \text{inter}
 \end{align*}
@@ -62,7 +62,7 @@ utilisée.
 
 (let) permet de créer des variables locales comme il est possible en OCaml.
 (let) est utilisé pour lier un terme à une variable et pouvoir utiliser cette
-dernière dans un autre terme.
+dernière dans un autre terme\footnote{On dit aussi que $x$ est est un binding local.}.
 
 Enfin, (rec) est l'équivalent des enregistrements à la différence qu'il permet
 de définir des termes récursifs, c'est-à-dire des termes
@@ -73,7 +73,7 @@ couple $(a, t)$ où $a$ est un nom et $t$ un terme comme pour les
 enregistrements, soit une déclaration de type représentée par un couple $(A,
 T)$ où $A$ est le nom de la déclaration et $T$ le type associé. Un enregistrement peut contenir plusieurs déclarations de champ et
 de type en utilisant (aggregation). Ces déclarations peuvent être mutuellement
-dépendantes grâce au terme récursif.
+dépendantes grâce à la variable $x$.
 Le domaine d'une déclaration $d$, noté $dom(d)$, est défini comme l'ensemble des
 labels.
 
@@ -166,7 +166,7 @@ Nous retrouvons les règles (T-VAR) et (T-SUB) comme dans les précédents calcu
 (LET) nous dit que le terme $t$ et la variable $x$ à laquelle nous lions ce
 terme doivent avoir le même type, le type du terme en entier est celui de $u$.
 (AND-I) nous dit que si une variable a deux types $T$ et $U$, alors il a
-également le type intersection $T \wedge U$. ($\left\{ \; \right\}$-I) type les terme
+également le type intersection $T \wedge U$. ($\left\{ \; \right\}$-I) type les termes
 récursifs et oblige que la variable du terme récursif ait le même type que la déclaration.
 (FLD-E) est l'équivalent de (T-PROJ) que nous avions défini pour les
 enregistrements.
@@ -182,13 +182,12 @@ déclarations dont les champs ont obligatoirement des noms différents.
 
 \subsection*{Problème d'échappement}
 
-Supposons que nous ayons un type $\real$ et prenons l'exemple suivant :
+Supposons que nous ayons un type $\real$ et les nombres et prenons l'exemple suivant :
 \begin{align*}
   & let \; y = \\
-  &\; \; \; \nu(x : \mu(z : \left\{ A : Bottom .. Top \right\} \wedge \left\{ a : z.A \right\})) \left\{ A : \real \right\} \wedge \left\{ a : x.A \right\} \\
+  &\; \; \; \nu(x : \mu(z : \left\{ A : Bottom .. Top \right\} \wedge \left\{ a : z.A \right\})) \left\{ A = \real \right\} \wedge \left\{ a = 5 \right\} \\
   & in \; y.a
 \end{align*}
-
 Le type de l'expression est $y.A$. Cependant, la variable $y$ n'existe pas en
 dehors du let car c'est une variable locale. C'est un exemple du
 \textit{problème d'échappement}\footnote{\og Avoidance problem \fg \; en
@@ -267,7 +266,7 @@ bindings locaux de variables.
 Comme pour le chapitre \ref{chapter:lambda-calculus-with-records}, nous
 avons (S-REFL), (S-TRANS), (S-TOP), (S-BOTTOM) et l'équivalent de (S-ARROW), (ALL<:ALL).
 
-(<: SEL) (resp. (SEL <:)) nous dit qu'une projection est un super-type (resp.
+(<: SEL) (resp. (SEL <:)) nous dit qu'une projection de type est un super-type (resp.
 sous-type) de sa borne inférieure (resp. supérieure).
 
 (FLD <: FLD) est l'équivalent de (S-RCD-DEPTH) pour un enregistrement à un
@@ -279,11 +278,11 @@ pour les bornes inférieures et covariants pour les bornes supérieures.
 Pour les intersections, les règles ($AND_{1}$ <:) et ($AND_{2}$ <:) nous donnent
 l'équivalent de (S-RCD-WIDTH). Quant à (<:AND), cette dernière règle nous dit
 que si un même type est sous-type de deux types différents, alors il est
-également sous-typage de leur intersection.
+également sous-type de leur intersection.
 
 Bien que l'analogie avec les enregistrements et les règles de sous-typage du
 chapitre \ref{chapter:lambda-calculus-with-records} permet de comprendre
-l'utilité des règles, il faut remarquer que les règles sont plus expressives. En
+l'utilité des règles, il faut remarquer que ces dernières sont plus expressives. En
 effet, le type intersection n'est pas défini uniquement pour les déclarations,
 mais pour n'importe quel type. Cela signifie qu'il est autorisé d'écrire $\mu(x
 : T) \wedge \left\{ a : S .. T \right\}$ ou encore $x.A \wedge \left\{ a : S ..
@@ -311,15 +310,19 @@ Nous définissons alors la fonction ${}^{*}$ qui à chaque terme (resp. type) de
 System $F_{<:}$ associe un terme (resp. type) de DOT.
 
 \begin{align*}
-  X^{*} & = x_{X}.A \\
-  Top^{*} & = Top \\
-  (S \rightarrow T)^{*} & = \forall(x : S^{*}) T^{*} \\
-  (\forall X <: S . \, T)^{*} & = \forall(x : \mu(z : \left\{ A : Bottom .. S^{*} \right\})) T^{*} \\ \\
-  x^{*} & = x \\
-  (\lambdaExpr{x : T}{t})^{*} & = \lambdaExpr{x : T^{*}}{t^{*}} \\
-  (\lambdaExprType{X <: S}t)^{*} & = \lambdaExpr{x : \mu(y : \left\{ Bottom .. S^ {*} \right\})}{t^{*}} \\
-  (t \; u)^{*} & = \localLetBinding{x}{t^{*}}{\localLetBinding{y}{u^{*}}}{x \; y} \\
-  (t[U])^{*} & = \localLetBinding{x}{t^{*}}{\localLetBinding{y_{Y}}{\mu(z : \left\{ A = U^{*} \right\})}{x \; y_{Y}}}
+  X^{*} & = && x_{X}.A \\
+  Top^{*} & = && Top \\
+  (S \rightarrow T)^{*} & = && \forall(x : S^{*}) T^{*} \\
+  (\forall X <: S . \, T)^{*} & = && \forall(x : \mu(z : \left\{ A : Bottom .. S^{*} \right\})) T^{*} \\ \\
+  x^{*} & = && x \\
+  (\lambdaExpr{x : T}{t})^{*} & = && \lambdaExpr{x : T^{*}}{t^{*}} \\
+  (\lambdaExprType{X <: S}t)^{*} & = && \lambdaExpr{x : \mu(y : \left\{ Bottom .. S^ {*} \right\})}{t^{*}} \\
+  (t \; u)^{*} & = && let \; x \; = \; t^{*} \; in \\
+              &  && let \; y \; = \; u^{*} \; in \\
+              &  && x \; y \\
+   (t[U])^{*}  & = && let \; x \; = \; t^{*} \; in \\
+              &  && let \; y_{Y} \; = \; \nu(z : \left\{ A : U^{*} .. U^{*} \right\}) \left\{ A = U^{*} \right\} \; in \\
+              &  && x \; y_{Y}
 \end{align*}
 Quant aux contextes, la fonction ${}^{*}$ est définie naturellement
 inductivement par :
@@ -329,9 +332,8 @@ inductivement par :
 \end{align*}
 
 Cependant, DOT est plus riche syntaxiquement que System $F_{<:}$ car, par
-exemple, la fonction $\lambdaExpr{x : Top .. Top}{x}$ ne peut être définie dans
-System $F_{<:}$ alors qu'elle peut l'être en DOT avec la fonction $\lambda{x :
-  \mu(z : \left\{ Top .. Top \right\})}{x}$.
+exemple, il n'est pas possible de donner une borne inférieure à la variable
+d'une abstraction alors que DOT le permet.
 
 
 Notons $\Gamma \vdash_{F} t : T$ (resp. $\Gamma \vdash_{D} t : T$) un jugement
@@ -386,7 +388,7 @@ sur les arbres de dérivation.
 Cette propriété de DOT implique que la question du sous-typage de DOT est
 indécidable.
 
-\section{Notion de bonne formation}
+%\section{Notion de bonne formation}
 
 \section{Sûreté}
 
