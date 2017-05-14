@@ -35,7 +35,60 @@ de celle d'OCaml est utilisée. En particulier, la syntaxe des modules OCaml est
 termes récursifs $\nu(x : T)d$ ou encore la syntaxe des types récursifs $\mu(x :
 T)$ est remplacée par la syntaxe des signatures des modules en OCaml.
 
-%TODO Ajouter un tableau
+Les tableaux ci-dessous regroupent l'ensemble des correspondances \\ syntaxique entre DOT et
+RML.
+
+\begin{center}
+$[\arraycolsep=1.0pt\def\arraystretch{1.5}
+\begin{array}{|c|c|}
+  \hline
+  DOT & RML \\
+  \hline \hline
+  \text{Bottom} & \text{Nothing} \\
+  \text{Top} & \text{Any} \\
+  \hline
+  \left\{ \text{A : S .. T} \right\} & \text{type a = S  .. T} \\
+  \left\{ \text{A : S .. Top} \right\} & \text{type a $:>$ S} \\
+  \left\{ \text{A : Bottom .. T} \right\} & \text{type a $<:$ T} \\
+  \left\{ \text{a : T} \right\} & \text{val a : T} \\
+  d_{1} \wedge d_{2} & d_{1} \; d_{2} \\
+  \hline
+  \mu(x : T) & \text{sig(x) T end} \\
+  \mu(self : T) & \text{sig T end} \\
+  \hline
+  \forall(x : S) T & S \rightarrow T \\
+  \forall(x : S) T & \text{forall(x : S) T} \\
+  \hline
+  T_{1} \wedge T_{2} & T_{1} \text{ \& } T_{2} \\
+  T \wedge \left\{ \text{A : S .. T } \right\} & \text{T with type a = S .. T} \\
+  T \wedge \left\{ \text{A : S .. T } \right\} \wedge \left\{ \text{A' : S' ..
+  T' } \right\} & \text{T with type a = S .. T and a' = S' .. T'} \\
+  \hline
+\end{array}
+$
+\captionof{table}{Correspondance entre DOT et RML pour la syntaxe des types}
+\end{center}
+
+\begin{center}
+$[\arraycolsep=1.0pt\def\arraystretch{1.5}
+\begin{array}{|c|c|}
+  \hline
+  DOT & RML \\
+  \hline \hline
+  \lambdaExpr{x : T} t & fun(x : T) \rightarrow t \\
+  \hline
+  \left\{ \text{A = T} \right\} & \text{type a = T} \\
+  \left\{ \text{a = t} \right\} & \text{let a = t} \\
+  \hline
+  \nu(x : T) d & \text{sig(x) T end : struct(x) d end } \\
+  \nu(self : T) d & \text{sig T end : struct d end } \\
+  \hline
+\end{array}
+$
+\captionof{table}{Correspondance entre DOT et RML pour la syntaxe des termes}
+\end{center}
+
+% TODO Ajouter un tableau
 
 Le langage de surface est entièrement décrit sur la page du
 projet\cite{rml-github}. Dans la suite, nous
@@ -90,14 +143,15 @@ exemple :
   les abstractions et la gestion des fonctions dépendantes.
 \end{enumerate}
 
-\ref{code:implementation-grammar-terms-examples} montre l'implémentation
-concrète des termes.
-
 \begin{listing}
-  \label{code:implementation-grammar-terms-examples}
   \inputminted{OCaml}{codes/grammar.ml}
-  \caption{Implémentation de la grammaire des termes officiels de DOT en utilisant AlphaLib.}
+  \caption{Implémentation de la grammaire des termes officiels de DOT en
+    utilisant AlphaLib. field\_label est un alias de type pour string.}
+  \label{lst:implementation-grammar-terms-examples}
 \end{listing}
+
+\ref{lst:implementation-grammar-terms-examples} montre l'implémentation
+concrète des termes.
 
 Plus d'information et d'explications sur AlphaLib et son fonctionnement peuvent
 être trouvées dans \cite{alphalib-paper}.
@@ -551,7 +605,7 @@ projet\cite{rml-github-issues}. Voici quelques exemples.
       comme nous l'avons vu, celui-ci est relativement naif et ne permet pas par
       exemple de gérer un module contenant des champs mutuellement dépendants.
   \item Améliorer et prouver ensuite que les algorithmes de sous-typage et de
-      typage définissent bien les relations de typages et de sous-typages.
+      typage définissent bien les relations de typage et de sous-typage.
   \item Pour l'instant, il est nécessaire de donner un type lorsque nous
     utilisons un match sur une option (voir fichier \verb|stdlib/option_church.rml|), ce qui
     n'est pas courant en OCaml car le type est inféré. Cette inférence de type
