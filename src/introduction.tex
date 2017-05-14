@@ -17,7 +17,7 @@ distinction est faite entre le langage de base, contenant les types dits \og de
 bases \fg \, comme les entiers, les chaînes de caractères ou les fonctions, et le
 langage de module. En particulier, le terme \textit{foncteur} est employé à la
 place de \textit{fonction} pour parler des fonctions prenant un module en
-paramètres et en retournant un autre. De plus, il n'est pas possible de définir
+paramètre et en retournant un autre. De plus, il n'est pas possible de définir
 des fonctions prenant un module et un type de base et retournant un module (ou un
 type de base).
 
@@ -43,12 +43,11 @@ type de base).
   \inputminted{OCaml}{codes/intro_point2D_polymorphic_app.ml}
 \end{listing}
 
-
-D'un autre côté, dans les types de bases d'OCaml se trouvent les
+D'un autre côté, dans les types de base d'OCaml se trouvent les
 \textit{enregistrements}. Ces derniers sont des ensembles de couples
-\textit{(label, valeur)}, et ressemblent aux modules. Cependant, la différence
-majeure entre eux se situent dans la possibilité de définir des types dans un
-module.
+\textit{(label, valeur)}, et ressemblent aux modules. Cependant, les deux
+différences majeures sont la possibilité de définir des types dans un
+module ainsi que d'avoir des champs mutuellement dépendants.
 
 Ce mémoire vise à donner, dans un premier temps et après avoir défini les notions
 nécessaires, un calcul typé, DOT\cite{WF-DOT-2016}, dans lequel le
@@ -57,7 +56,7 @@ enregistrements. Cette unification implique
 que les modules (et in fine les foncteurs) sont des citoyens de première
 classe, c'est-à-dire que nous pouvons les manipuler comme tout autre terme, ce qui
 n'est pas le cas actuellement en OCaml.
-Dans un second temps, ce travail apporte une implémentation en OCaml
+Dans un second temps, ce travail propose une implémentation en OCaml
 des algorithmes de typage et de sous-typage et d'un langage de surface qui nous
 permet d'écrire des programmes DOT.
 
@@ -107,7 +106,7 @@ ainsi que les types récursifs.
 Pour finir, dans le chapitre 7, nous discuterons de l'implémentation du langage
 RML\cite{rml-github} qui comprend un algorithme de typage et de sous-typage
 ainsi que d'un langage de surface pour le
-calcul DOT. Nous verrons que passer des règles de sous-typages à un algorithme
+calcul DOT. Nous verrons que passer des règles de sous-typage à un algorithme
 n'est pas évident pour plusieurs raisons.
 % Nous donnerons des comparaisons entre OCaml et RML
 
