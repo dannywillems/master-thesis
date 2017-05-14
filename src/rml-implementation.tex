@@ -512,7 +512,12 @@ d'avoir des champs mutuellement dépendants.
 
 Une fonctionnalité intéressante et pratique est l'utilisation de
 termes pour les paramètres ainsi que pour les fonctions. Ceci
-est géré dans le parseur et ce dernier génère des bindings locaux.
+est géré dans le parseur et ce dernier génère des bindings locaux. Cela se
+résume par la règle suivante
+
+\begin{center}
+  x t $\rightarrow$ let y = t in x y
+\end{center}
 
 Un point important\footnote{Et qui n'est pas mentionné dans les documents sur
 DOT.} est qu'il faut éviter de réaliser un binding local d'une variable car
