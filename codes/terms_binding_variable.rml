@@ -3,6 +3,6 @@ let module M = struct
   let x : self.t = 42
 end;;
 
-let f = fun(m : sig type t val x : self.t end) -> m.x;;
+let f = fun(m : sig type t val x : self.t end, x : Int.t) -> m.x;;
 
-f M;;
+f M 4;;

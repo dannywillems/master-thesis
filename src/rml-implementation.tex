@@ -316,11 +316,11 @@ d'utiliser plusieurs règles.
 En effet, pour répondre à $S_{1} \wedge S_{2} <: T_{1} \wedge T_{2}$, nous
 pouvons utiliser (<: AND), (AND-1-<:) ou (AND-2-<:).
 
-
-De plus l'ordre influence la réponse. Par exemple, prenons le cas où $S_{1} =
-T_{1} = \left\{ t : S .. T \right\}$ et $T_{1} = T_{2} = \left\{ a :
-  U\right\}$. La question  $S_{1} \wedge S_{2} <: T_{1} \wedge T_{2}$ est alors
-vraie par réflexivité ou encore par l'arbre de dérivation suivant :
+De plus, l'ordre dans le pattern matching influence la réponse. Par exemple,
+prenons le cas où $S_{1} = T_{1} = \left\{ A : S .. T \right\}$ et $T_{1} =
+T_{2} = \left\{ a : U\right\}$. La question $S_{1} \wedge S_{2} <: T_{1} \wedge
+T_{2}$ est alors vraie par réflexivité ou encore par l'arbre de dérivation
+suivant :
 
 \begin{mathpar}
   \inferrule
@@ -365,7 +365,8 @@ nous serions incapables d'arriver au résultat voulu.
 
 L'algorithme actuel a été implémenté de façon pragmatique, l'implémentation des
 règles théoriques n'étant pas simple comme peuvent le montrer
-\cite{tapl-metatheory-subtyping} et \cite{tapl-bounded-quantification-metatheory}.
+\cite{tapl-metatheory-subtyping} et
+\cite{tapl-bounded-quantification-metatheory} pour d'autres calculs.
 
 %Par exemple, pour répondre à la question
 %$x.A <: y.A$, nous pouvons soit utilisé (<: SEL) en premier et ensuite utilisé
@@ -373,8 +374,9 @@ règles théoriques n'étant pas simple comme peuvent le montrer
 %donne une réponse fausse alors que (SEL <:) donne une réponse vraie. TODO exemple.
 %Le même problème se pose avec les règles (AND), (AND-1) et (AND-2).
 
-L'algorithme travaille sur la structure de $S$ et $T$. Voici, dans l'ordre,
-comment l'algorithme gère les différents cas.
+Voici, dans l'ordre,
+comment l'algorithme gère les différents cas en fonction de la structure de $S$
+et $T$.
 
 \subsection*{$S <: Top$ ou $Bottom <: T$}
 
@@ -382,19 +384,26 @@ Nous appliquons (TOP) ou (BOTTOM) en fonction du cas. Ces règles peuvent
 s'appliquer directement dans l'arbre de dérivation donc nous pouvons les placer
 en premiers dans le pattern matching.
 
-\subsection*{$\left\{ a : L ... U \right\} <: \left\{ a : L' ... U' \right\}$}
+\subsection*{$\left\{ A : L ... U \right\} <: \left\{ A : L' ... U' \right\}$}
 
 Même cas que précedemment. Il suffit d'appeler récursivement l'algorithme avec L
 et L' ainsi que U et U'. Si les deux appels retournent vrais, nous retournons
 vrais. Nous utilisons la règle (TYP <: TYP).
 
+\subsection*{$\left\{ a : S' \right\} <: \left\{ a : T' \right\}$}
+
+Même cas que précedemment en utilisant la règle (FLD <: FLD). Il suffit
+d'appeler l'algorithme avec la question $S' :< T'$.
+
 \subsection*{$\forall(x : S_{1}) T_{1} <: \forall(x : S_{2}) T_{2}$}
 
-Même cas que précedemment en utilisant la règle (ALL <: ALL).
+Même cas que précedemment en utilisant la règle (ALL <: ALL). Lors de l'appel
+récursif sur la question $T_{1} <: T_{2}$, nous devons ajouter la variable $x$
+avec le type $S_{2}$ dans le contexte comme la règle (ALL <: ALL) le mentionne.
 
 \subsection*{$x.A <: y.A$}
 
-Les premiers cas posant difficultés sont ceux des types dépendants, par exemple
+Les premiers cas posant des difficultés sont ceux des types dépendants, par exemple
 $x.A$ et $y.A$. En effet, les règles (REFL), (SEL <:) et (<: SEL) peuvent être
 employées.
 
@@ -445,12 +454,11 @@ nous créons un nouvel atôme $x$ et renommons les variables internes $x_{1}$ et
 $x_{2}$ par celui-ci dans $S'$ et $T'$. Un appel récursif est alors effectué
 avec $S'$ et $T'$ après avoir étendu le contexte avec $x : S'$. Nous appelons
 cette règle (UN-REC).
-\item Si $S$ est de la forme $\nu(x : S')$ et $T$ quelconque (resp. $T$ de la forme
-  $\nu(x : T')$ et $S$ quelconque), nous ajoutons $x$ dans le contexte avec le type $S'$ (resp
-  $T'$) et nous effectuons un appel récursif avec $S'$ et $T$ (resp. $S$ et
-  $T'$). Etendre le contexte est nécessaire si $S'$ contient des champs
-  mutuellement dépendants. Nous appelons ces règles respectivement (UN-<: REC)
-  et (UN-REC <:).
+\item Si $S = \nu(x : S')$ et $T$ quelconque (resp. $T = \nu(x : T')$ et $S$
+  quelconque), nous ajoutons $x$ dans le contexte avec le type $S'$ (resp $T'$) et
+  nous effectuons un appel récursif avec $S'$ et $T$ (resp. $S$ et $T'$). Etendre
+  le contexte est nécessaire si $S'$ contient des champs mutuellement dépendants.
+  Nous appelons ces règles respectivement (UN-<: REC) et (UN-REC <:).
 \end{itemize}
 
 \begin{listing}
@@ -480,9 +488,10 @@ types récursifs dans l'un des membres.
 Premièrement, il est nécessaire de placer (<:AND) avant (AND-1-<:) et
 (AND-2-<:) pour pouvoir gérer le cas de la réflexivité comme nous l'avons vu ci-dessus.
 
-Ensuite, comme pour (SEL <:) et (<: SEL), nous ne pouvons uniquement tester
+Ensuite, comme pour (SEL <:) et (<: SEL), nous ne pouvons tester séparément
 (AND-1-<:) ou (AND-2-<:) car les règles peuvent être utilisées en même temps.
-Nous procédons donc de la même manière que pour (SEL <:) et (<: SEL).
+Nous procédons donc de la même manière que pour (SEL <:) et (<: SEL) en testant
+successivement (AND-1-<:) et (AND-2-<:)
 
 De plus, dans le cas (<: AND), nous devons gérer les types récursifs à cause de
 la règle (VAR-PACK). En effet, si nous avons la question $\mu(x : S_{1}) \wedge
@@ -503,7 +512,7 @@ en utilisant successivement (<: AND), (VAR-UNPACK), (AND-1-<:), (AND-2-<:) et
       \Gamma \vdash \mu(x : S_{1} \wedge S_{2}) <: T
     }
     {
-      \inferrule*[Left=($AND_{1}$<: et $AND_{2}$ <:)]
+      \inferrule*[Left=(AND-1-<: et AND-2-<:)]
       {\Gamma \vdash S_{1} \wedge S_{2} <: T}
       {
         \inferrule*[Left=(VAR-UNPACK)]
@@ -609,13 +618,17 @@ DOT.} est qu'il faut éviter de réaliser un binding local d'une variable car
 cela pourrait provoquer des problèmes d'échappement. Cela signifie que DOT n'est
 pas stable par insertion de let variable-variable.
 
+Pour résoudre ce problème, nous pourrions, dans le cas d'un binding local
+\verb|let x = y in u|, donner le type (= y) à la variable $x$. Lorsque nous
+rencontrons alors la variable $x$, nous utilisons le type de $y$.
+
 \begin{listing}
   \label{code:implementation-grammar-terms-examples}
   \inputminted{OCaml}{codes/terms_binding_variable.rml}
   \caption{Exemple où un binding local d'une variable ne doit pas être généré
     afin de ne pas provoquer un problème d'échappement. Si des bindings locaux
-    sont réalisées pour chaque variable, le code généré pour $f M$ est $let n =
-    M in f n$ dont le type est $n.t$.}
+    sont réalisés pour chaque terme, une liaison locale du module $M$ est
+    créée avec la variable $n$ par exemple et le type de l'expression est $n.t$.}
 \end{listing}
 
 \subsection*{Applications de fonctions à plusieurs paramètres}

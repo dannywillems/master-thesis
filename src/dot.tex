@@ -239,12 +239,12 @@ bindings locaux de variables.
   \inferrule
   {\Gamma \vdash T \wedge U <: T}
   {}
-  \quad (\textsc{$AND_{1}$ <:})
+  \quad (\textsc{AND-1-<:})
   \and
   \inferrule
   {\Gamma \vdash T \wedge U <: U}
   {}
-  \quad (\textsc{$AND_{2}$ <:})
+  \quad (\textsc{AND-2-<:})
   \and
   \inferrule
   {\Gamma \vdash S <: T \\ \Gamma \vdash S <: U}
@@ -275,7 +275,7 @@ unique champ.
 A travers (TYP<:TYP), les déclarations de type sont naturellement contravariants
 pour les bornes inférieures et covariants pour les bornes supérieures.
 
-Pour les intersections, les règles ($AND_{1}$ <:) et ($AND_{2}$ <:) nous donnent
+Pour les intersections, les règles (AND-1-<:) et (AND-2-<:) nous donnent
 l'équivalent de (S-RCD-WIDTH). Quant à (<:AND), cette dernière règle nous dit
 que si un même type est sous-type de deux types différents, alors il est
 également sous-type de leur intersection.
