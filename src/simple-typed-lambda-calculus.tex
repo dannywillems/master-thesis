@@ -43,7 +43,7 @@ Dans ce chapitre, nous allons travailler avec l'ensemble des types dit
 
 \begin{definition}
   \label{def:simply-typed-lambda-calculus-types}
-  Soit $B$ un ensemble de type appelé de \textbf{types de bases}.
+  Soit $B$ un ensemble de types appelés de \textbf{types de bases}.
   L'ensemble des \textbf{types simples} est défini par la grammaire suivante:
   \begin{align*}
     T ::= & \, & \text{types} \\
@@ -83,7 +83,7 @@ La syntaxe des termes devient alors:
         & \; \lambdaExpr{x : T}{t} & \text{abs}
 \end{align*}
 
-Avant de discuter des règles de typages, il convient de remarquer qu'il est
+Avant de discuter des règles de typage, il convient de remarquer qu'il est
 nécéssaire de connaitre certaines informations quand nous souhaitons typer des
 termes. En effet, si nous prenons le terme $\lambdaExpr{x : T} y$ et que nous
 souhaitons le typer, il est nécessaire de connaître le type de $y$. Cela nous
@@ -115,7 +115,7 @@ contexte, le terme et le type. Nous parlons alors de \textit{jugement de typage}
 
 \subsection*{Règle de typage et arbre de dérivation}
 
-Maintenant, nous avons les outils pour définir nos règles de typages,
+Maintenant, nous avons les outils pour définir nos règles de typage,
 c'est-à-dire comment nous assignons les types aux termes.
 
 \begin{definition} [Règles de typage]
@@ -128,7 +128,7 @@ c'est-à-dire comment nous assignons les types aux termes.
     \and
     \inferrule
       {\Gamma, x : T_{1} \vdash t : T_{2}}
-      {\Gamma, x : T_{1} \vdash \lambda (x : T_{1}) t : T_{1} \rightarrow T_{2}} \quad (\textsc{T-ABS})
+      {\Gamma, x : T_{1} \vdash \lambdaExpr{x : T_{1}}{t} : T_{1} \rightarrow T_{2}} \quad (\textsc{T-ABS})
     \and
     \inferrule
       {\Gamma \vdash u : T_{1} \rightarrow T_{2} \\ \Gamma \vdash v : T_{2}}
@@ -147,11 +147,11 @@ type que $u$ attend, c'est-à-dire $T_{1}$, l'application ayant le type $T_{2}$.
 
 Le typage d'un terme produit des \textit{arbres de dérivation de typage} (ou tout simplement
 \textit{une dérivation de typage}). Un arbre de dérivation de typage
-est un arbre dont les noeuds sont des jugements de typages, construits à partir
-des règles de typages et dont la racine est le jugement de typage du terme à
+est un arbre dont les noeuds sont des jugements de typage, construits à partir
+des règles de typage et dont la racine est le jugement de typage du terme à
 typer. La racine de l'arbre est également appelée \textit{conclusion}.
 La racine de l'arbre de dérivation est le jugement de typage le plus en bas. Les branches
-sont annotées par le nom des règles qui permet de déduire le type.
+sont annotées par le nom des règles qui permettent de déduire le type.
 
 Par exemple, $\lambdaExpr{x : T_{1} \rightarrow T_{2} }{\lambdaExpr{y : T_{1}} x
 \, y}$ est de type $(T_{1} \rightarrow T_{2}) \rightarrow T_{1} \rightarrow
