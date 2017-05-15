@@ -7,7 +7,7 @@ récursifs, c'est-à-dire des types qui peuvent faire référence à eux-mêmes,
 également définis. Un système de sous-typage pour ce calcul sera
 également présenté.
 Nous montrerons que DOT peut être vu comme une
-extension de System $F_{<:}$ bien que sa syntaxe soit différente et ne possède
+extension de Système $F_{<:}$ bien que sa syntaxe soit différente et ne possède
 pas de variables de type.
 
 Plusieurs définitions du calcul DOT existent et sont dispersées à travers
@@ -292,28 +292,28 @@ terme récursif mais peut être une abstraction. Bien que ça n'ait pas de sens,
 syntaxe le permet.
 La difficulté de DOT réside dans cette expressivité.
 
-\section{Encodage de System $F_{<:}$}
+\section{Encodage de Système $F_{<:}$}
 
-Bien que la syntaxe soit différente de System $F_{<:}$ et que DOT ne comporte
-pas de variables de type, nous allons montrer que DOT permet d'encoder System
+Bien que la syntaxe soit différente de Système $F_{<:}$ et que DOT ne comporte
+pas de variables de type, nous allons montrer que DOT permet d'encoder Système
 $F_{<:}$. De plus, les jugements de typage vrais pour le système de typage et de
-sous-typage de System $F_{<:}$ restent vrais pour le système de typage et de
+sous-typage de Système $F_{<:}$ restent vrais pour le système de typage et de
 sous-typage de DOT à travers cet encodage.
 
 Notons $\mathcal{V}_{DOT}$ l'ensemble des variables de DOT et $\mathcal{V}_{T,
-  F}$ l'ensemble des variables de type de System $F_{<:}$. Ces ensembles 
+  F}$ l'ensemble des variables de type de Système $F_{<:}$. Ces ensembles 
 étant infini dénombrables, il existe une fonction injective $f$ entre
 $\mathcal{V}_{T, F}$ et $\mathcal{V}_{DOT}$. Nous notons $x_{X} \in
 \mathcal{V}_{DOT}$ l'image de $X \in \mathcal{V}_{T, F}$ par la fonction $f$.
 
 Nous définissons alors la fonction ${}^{*}$ qui à chaque terme (resp. type) de
-System $F_{<:}$ associe un terme (resp. type) de DOT.
+Système $F_{<:}$ associe un terme (resp. type) de DOT.
 
 \begin{align*}
   X^{*} & = && x_{X}.A \\
   Top^{*} & = && Top \\
   (S \rightarrow T)^{*} & = && \forall(x : S^{*}) T^{*} \\
-  (\forall X <: S . \, T)^{*} & = && \forall(x : \mu(z : \left\{ A : Bottom .. S^{*} \right\})) T^{*} \\ \\
+  (\forall X <: S . \, T)^{*} & = && \forall(x_{X} : \mu(z : \left\{ A : Bottom .. S^{*} \right\})) T^{*} \\ \\
   x^{*} & = && x \\
   (\lambdaExpr{x : T}{t})^{*} & = && \lambdaExpr{x : T^{*}}{t^{*}} \\
   (\lambdaExprType{X <: S}t)^{*} & = && \lambdaExpr{x : \mu(y : \left\{ Bottom .. S^ {*} \right\})}{t^{*}} \\
@@ -331,13 +331,13 @@ inductivement par :
   (x : T)^{*} & = x : T^{*}
 \end{align*}
 
-Cependant, DOT est plus riche syntaxiquement que System $F_{<:}$ car, par
+Cependant, DOT est plus riche syntaxiquement que Système $F_{<:}$ car, par
 exemple, il n'est pas possible de donner une borne inférieure à la variable
 d'une abstraction alors que DOT le permet.
 
 
 Notons $\Gamma \vdash_{F} t : T$ (resp. $\Gamma \vdash_{D} t : T$) un jugement
-de typage pour le système de typage de System $F_{<:}$ (resp. DOT). Nous faisons
+de typage pour le système de typage de Système $F_{<:}$ (resp. DOT). Nous faisons
 de même pour $\Gamma \vdash_{F} S <: T$.
 
 Nous utilisons la même technique que précédemment, c'est-à-dire par induction

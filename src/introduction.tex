@@ -14,10 +14,10 @@ un type, appelé dans ce cas \textit{signature}.
 
 Bien que les modules soient bien intégrés dans OCaml, une
 distinction est faite entre le langage de base, contenant les types dits \og de
-bases \fg \, comme les entiers, les chaînes de caractères ou les fonctions, et le
+base \fg \, comme les entiers, les chaînes de caractères ou les fonctions, et le
 langage de modules. En particulier, le terme \textit{foncteur} est employé à la
 place de \textit{fonction} pour parler des fonctions prenant un module en
-paramètre et en retournant un autre. De plus, il n'est pas possible de définir
+paramètre et en renvoyant un autre. De plus, il n'est pas possible de définir
 des fonctions prenant un module et un type de base et retournant un module (ou un
 type de base).
 
@@ -27,13 +27,13 @@ type de base).
 \begin{listing}
   \inputminted{OCaml}{codes/intro_point2D.ml}
   \caption{Exemple d'un module nommé Point2D contenant un type t pour
-    réprésenter un point par ses coordonnées cartésiennes dans un enregistrement
+    représenter un point par ses coordonnées cartésiennes dans un enregistrement
     et d'une fonction add retournant un point dont les coordonnées sont
     la somme de deux points donnés en paramètres.}
 \end{listing}
 
 \begin{listing}
-  \caption{MakePoint2D est un foncteur qui permet de rendre polymorphique notre
+  \caption{MakePoint2D est un foncteur qui permet de rendre polymorphe notre
     module Point2D.}
   \inputminted{OCaml}{codes/intro_point2D_polymorphic.ml}
 \end{listing}
@@ -87,10 +87,10 @@ illustré avec les enregistrements.
 %nécessaire pour passer de la théorie à l'implémentation.
 Dans le chapitre 4, nous parlerons de
 \textit{polymorphisme paramétré} qui, combiné au $\lambda$-calcul simplement typé, forme
-le calcul appelé \textit{System F}.
+le calcul appelé \textit{Système F}.
 Le chapitre 5 se chargera de combiner ces deux notions de polymorphismes dans un
-calcul appelé \textit{System $F_{<:}$}.
-Une preuve des théorèmes de préservation et de progression seront donnés pour
+calcul appelé \textit{Système $F_{<:}$}.
+Une preuve des théorèmes de préservation et de progression sera donnée pour
 les calculs définis dans les chapitres 3 et 4.
 
 Ensuite, dans le chapitre 6, nous étudierons le calcul DOT en complétant les
@@ -113,5 +113,5 @@ n'est pas évident pour plusieurs raisons.
 
 La principale difficulté de ce travail se trouve dans l'étude des types
 chemins dépendants, sujet de recherche récent et moins bien compris que les
-calculs comme \textit{System $F$} ou \textit{System $F_{<:}$}, ainsi que
+calculs comme \textit{Système $F$} ou \textit{Système $F_{<:}$}, ainsi que
 la gestion de ceux-ci dans les algorithmes.

@@ -1,4 +1,4 @@
-\chapter{System F}
+\chapter{Système F}
 \label{chapter:system-f}
 
 Dans ce chapitre, nous allons introduire une autre de notion de polymorphisme
@@ -39,16 +39,16 @@ uniquement le champ $y$ ou le champ $z$ et ainsi de suite.
 
 Le polymorphisme paramétré résout ce problème en définissant de nouveaux termes
 et de nouvelles règles de typage et d'évaluation au $\lambda$-calcul simplement
-typé. Le calcul qui en résulte est appelé \textit{System F}.
+typé. Le calcul qui en résulte est appelé \textit{Système F}.
 
 \section{Syntaxe}
 
-La syntaxe de \textit{System F} est très proche de celle du $\lambda$-calcul
-simplement typé : nous ajoutons un terme qui permet de créer une application
+La syntaxe de \textit{Système F} est très proche de celle du $\lambda$-calcul
+simplement typé : nous ajoutons un terme qui permet de créer une fonction
 prenant un type et retournant un terme (l'équivalent de l'abstraction sur les
-termes) ainsi qu'un terme qui permet d'appliquer un type à un terme.
+termes) ainsi qu'un terme qui permet d'appliquer un terme à un type.
 
-Du coté des types, nous ajoutons des variables de type qui nous servent
+Du côté des types, nous ajoutons des variables de type qui nous servent
 dans les abstractions de type. Nous supposons, comme pour les variables de
 terme, qu'il existe un nombre dénombrable de variables de type.
 Nous ajoutons également un type pour les abstractions de type, appelé \textit{type universel}.
@@ -90,8 +90,8 @@ Nous étendons également de manière naturelle la notion de substitution aux
 nouveaux termes $t[T]$ et $\lambdaExprType{X}{t}$.
 
 \begin{align*}
-  [x \rightarrow s] \, (t[T]) & = ([x \rightarrow s]t)[T] \\
-  [x \rightarrow s] \, (\lambdaExprType{X}{t}) & = \lambdaExprType{X}([x \rightarrow s]t)
+  [x := s] \, (t[T]) & = ([x := s]t)[T] \\
+  [x := s] \, (\lambdaExprType{X}{t}) & = \lambdaExprType{X}([x := s]t)
 \end{align*}
 
 Nous définissons également une fonction de substitution de variable de type pour
@@ -186,7 +186,7 @@ $id_{poly}[\naturel]$ qui sont respectivement de types $\forall X . \, X
 \section{Sûreté}
 
 Les théorèmes de préservation et de progression peuvent également être démontrés
-pour System F. Comme nous avons pu le remarquer, System F est une extension
+pour Système F. Comme nous avons pu le remarquer, Système F est une extension
 relativement simple du $\lambda$-calcul simplement typé. Les nouvelles règles de typage
 et d'évaluation ont de l'influence uniquement sur les nouveaux termes et les
 nouveaux types. Les preuves des théorèmes sont donc très semblables. Comme pour
@@ -267,7 +267,7 @@ pour le $\lambda$-calcul avec sous-typage.
 %\end{proof}
 
 \begin{lemma} [de substitution de variable de type]
-  \label{thm:system-f-preservation-substitution-type}.
+  \label{thm:system-f-preservation-substitution-type}
   Soit $S$ un type.
 
   Si
@@ -335,7 +335,7 @@ pour le $\lambda$-calcul avec sous-typage.
 \end{proof}
 
 \begin{theorem} [de préservation du typage]
-  \label{thm:system-f-preservation}.
+  \label{thm:system-f-preservation}
   Soit $\Gamma \vdash t : T$ et $t \rightarrow t'$. Alors $\Gamma \vdash t' :
   T$.
 \end{theorem}

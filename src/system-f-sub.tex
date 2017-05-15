@@ -1,4 +1,4 @@
-\chapter{System $F_{<:}$}
+\chapter{Système $F_{<:}$}
 \label{chapter:system-f-sub}
 
 Dans les chapitres \ref{chapter:lambda-calculus-with-records} et
@@ -22,8 +22,8 @@ Les deux calculs permettent de résoudre deux problèmes différents :
 \end{enumerate}
 
 Dans ce chapitre, nous allons unifier ces deux notions en un langage appelé
-System $F_{<:}$\footnote{prononcé \og system F sub \fg}. L'idée principale de
-System $F_{<:}$ est d'élargir notre relation de sous-typage sur les variables de
+Système $F_{<:}$\footnote{prononcé \og system F sub \fg}. L'idée principale de
+Système $F_{<:}$ est d'élargir notre relation de sous-typage sur les variables de
 type pour les borner et ainsi restreindre les types qui peuvent être appliqués
 aux abstractions de type. De cette façon, une même abstraction de type dépendante d'une
 variable $X$, bornée supérieurement par $\real$, pourra accepter les types $\naturel$ et
@@ -42,7 +42,7 @@ Dans ce chapitre, nous considérons également le type \verb|Top|.
 
 \section{Syntaxe}
 
-La syntaxe de System $F_{<:}$ est celle de System $F$ à laquelle nous ajoutons
+La syntaxe de Système $F_{<:}$ est celle de Système $F$ à laquelle nous ajoutons
 une borne supérieure aux variables des abstractions de type.
 
 \begin{minipage}{0.45\textwidth}
@@ -76,7 +76,7 @@ Les valeurs restent les mêmes :
 
 \section{Sémantique}
 
-Au niveau de la sémantique, les règles restent les mêmes que System F.
+Au niveau de la sémantique, les règles restent les mêmes que Système F.
 
 \begin{mathpar}
   \inferrule
@@ -200,7 +200,7 @@ Remarquons que dans (S-ALL), la borne supérieur de la variable $X$ peut être d
 
 \section{Sûreté}
 
-Les théorèmes de préservation et de progression restent vrais pour System
+Les théorèmes de préservation et de progression restent vrais pour Système
 $F_{<:}$. Cependant, nous ne les démontrerons pas car ils nécessitent des lemmes
 techniques ainsi qu'une définition formelle de contexte bien formé et ce n'est
 pas le sujet principal de ce document. La structure
@@ -220,7 +220,7 @@ Il a été démontré qu'il n'existe pas d'algorithme de sous-typage donnant une
 réponse sur toute question $S <: T$. Plus d'informations peuvent être trouvées
 dans \cite{tapl-bounded-quantification-metatheory}.
 
-Le problème de l'indécidabilité du sous-typage de System $F_{<:}$ est important
+Le problème de l'indécidabilité du sous-typage de Système $F_{<:}$ est important
 quand nous considérons l'écriture d'un algorithme de sous-typage pour ce calcul.
 En effet, cela implique que sur certaines entrées, l'algorithme peut
 boucler\footnote{Si bien sûr nous ne définissons pas des règles pour l'arrêter

@@ -43,7 +43,7 @@ Dans ce chapitre, nous allons travailler avec l'ensemble des types dit
 
 \begin{definition}
   \label{def:simply-typed-lambda-calculus-types}
-  Soit $B$ un ensemble de types appelés de \textbf{types de bases}.
+  Soit $B$ un ensemble de types appelés de \textbf{types de base}.
   L'ensemble des \textbf{types simples} est défini par la grammaire suivante:
   \begin{align*}
     T ::= & \, & \text{types} \\
@@ -68,8 +68,8 @@ des types dit de bases ou primitifs.
 Nous avons déjà mentionné que, naturellement, les abstraction $\lambdaExpr{x}{t}$ ont le type
 flèche, par exemple $T_{1} \rightarrow T_{2}$. Cependant, comment pouvons nous
 connaître le type des arguments, c'est-à-dire le type du paramètre que la
-fonction attend ? Deux solutions sont couramment utilisées : soit ajouter le type
-dans le terme de l'abstraction soit étudier le type du corps de la fonction et
+fonction attend ? Deux solutions sont couramment utilisées : soit annoter la
+variable avec un type soit étudier le type du corps de la fonction et
 en déduire le type que le paramètre devrait avoir.
 Dans la suite, nous utiliserons la première solution. Le terme de l'abstraction
 se voit alors ajouter un type à son argument et devient $\lambdaExpr{x : T}{t}$.
@@ -84,14 +84,14 @@ La syntaxe des termes devient alors:
 \end{align*}
 
 Avant de discuter des règles de typage, il convient de remarquer qu'il est
-nécéssaire de connaitre certaines informations quand nous souhaitons typer des
+nécessaire de connaître certaines informations quand nous souhaitons typer des
 termes. En effet, si nous prenons le terme $\lambdaExpr{x : T} y$ et que nous
 souhaitons le typer, il est nécessaire de connaître le type de $y$. Cela nous
 amène à la notion de \textit{contexte de typage}.
 
 \begin{definition} [Contexte de typage]
   \label{def:simply-typed-lambda-calculus-context}
-  Un \textbf{contexte de typage}, noté $\Gamma$, est un ensemble fini de couple $(x_{i},
+  Un \textbf{contexte de typage}, noté $\Gamma$, est une suite finie de couples $(x_{i},
   T_{i})$ où $x_{i}$ est une variable et $T_{i}$ est un type. Chaque $x_{i}$ est différent.
   
   L'union d'un contexte de typage $\Gamma$ avec un couple $(x, T)$ est noté
@@ -116,7 +116,7 @@ contexte, le terme et le type. Nous parlons alors de \textit{jugement de typage}
 \subsection*{Règle de typage et arbre de dérivation}
 
 Maintenant, nous avons les outils pour définir nos règles de typage,
-c'est-à-dire comment nous assignons les types aux termes.
+c'est-à-dire comment nous attribuons les types aux termes.
 
 \begin{definition} [Règles de typage]
   \label{def:simply-typed-lambda-calculus-typing-rules}
@@ -138,7 +138,7 @@ c'est-à-dire comment nous assignons les types aux termes.
 
 La règle (T-VAR) est évidente : si $(x, T)$ est dans le contexte, alors
 $x$ est de type $T$ sous le contexte $\Gamma$.
-Quant à (T-ABS), elle affirme que si le terme $t$ de l'abstraction
+Quant à (T-ABS), elle affirme que si le corps $t$ de l'abstraction
 $\lambdaExpr{x : T_{1}}{t}$ est de type $T_{2}$, alors l'abstraction est de type
 $T_{1} \rightarrow T_{2}$.
 Pour finir, (T-APP) type les applications : dans le terme $u \, v$, $u$ doit
@@ -202,15 +202,15 @@ théorèmes, nous en déduisons le principe \og les
 programmes\footnote{Un programme est synonyme de terme.}
 bien typés ne bloquent pas \fg. Ne pas bloquer signifie que si le programme se
 termine (un programme bien typé peut contenir une boucle infinie), alors il
-s'évaluera en une valeur du type du programme.
+se réduira en une valeur du type du programme.
 
-Ces deux théorèmes unifient les deux relations précédemment définies : la
+Ces deux théorèmes relient les deux relations précédemment définies : la
 relation de typage et la relation de $\beta$-réduction.
 
 \begin{enumerate}
   \item Progression : si un terme est bien typé, alors soit c'est une
-    valeur, soit il s'évalue en un terme.
-    \item Préservation (du typage) : si un terme $t$ de type $T$ s'évalue en un terme $t'$,
+    valeur, soit il se réduit en un terme.
+    \item Préservation (du typage) : si un terme $t$ de type $T$ se réduit en un terme $t'$,
       alors $t'$ est de type $T$.
 \end{enumerate}
 
@@ -304,12 +304,12 @@ proposition n'est pas vraie dans tous les calculs.
       bien typé, nous avons le jugement de typage $\vdash u \, v : T$. Par le lemme
       d'inversion, $u : T_{1} \rightarrow T$ et $v : T_{1}$. Par induction,
       comme $u$ (resp. $v$) est bien typé, $u$ (resp. $v$) est soit une valeur,
-      soit s'évalue en un $u'$ (resp. $v'$).
+      soit se réduit en un $u'$ (resp. $v'$).
       \begin{itemize}
-        \item Si $u$ s'évalue en $u'$, alors (E-APP1) s'applique et $u \, v$
-          s'évalue en $u' \, v$.
-        \item Si $u$ est une valeur et $v$ s'évalue en $v'$, alors (E-APP2)
-          s'applique et $u \, v$ s'évalue en $u \, v'$.
+        \item Si $u$ se réduit en $u'$, alors (E-APP1) s'applique et $u \, v$
+          se réduit en $u' \, v$.
+        \item Si $u$ est une valeur et $v$ se réduit en $v'$, alors (E-APP2)
+          s'applique et $u \, v$ se réduit en $u \, v'$.
         \item Si $u$ et $v$ sont des valeurs, (E-APPABS) s'applique.
       \end{itemize}
   \end{itemize}
@@ -353,7 +353,8 @@ proposition n'est pas vraie dans tous les calculs.
   \label{thm:simply-typed-lambda-calculus-weakening}
   Soit $\Gamma \vdash t : T$ et $x \notin dom(\Gamma)$.
 
-  Alors $\Gamma, x : S \vdash t : T$.
+  Alors $\Gamma, x : S \vdash t : T$.\footnote{Nous pouvons généraliser le lemme
+  à un contexte $\Gamma'$ dont le domaine est distinct de celui de $\Gamma$.}
 \end{lemma}
 
 \begin{proof}
@@ -444,11 +445,11 @@ proposition n'est pas vraie dans tous les calculs.
   \item (T-APP). $t = u v$. Nous avons $\Gamma
     \vdash u : T_{1} \rightarrow T$ et $\Gamma \vdash v : T_{1}$. Plusieurs cas possibles:
     \begin{itemize}
-    \item $u$ s'évalue en $u'$. Alors, $t' = u' \, v$ par (E-APP1). Par hypothèse
+    \item $u$ se réduit en $u'$. Alors, $t' = u' \, v$ par (E-APP1). Par hypothèse
       de récurrence, nous
       obtenons $\Gamma \vdash u' : T_{1} \rightarrow T$. Par (T-APP),
       $\Gamma \vdash u' \, v : T$.
-    \item $v$ s'évalue en $v'$ et $u$ est une valeur. Alors, $t' = u \, v'$ par
+    \item $v$ se réduit en $v'$ et $u$ est une valeur. Alors, $t' = u \, v'$ par
       (E-APP2). Nous appliquons alors le même argument que pour le cas précedent.
     \item $u$ et $v$ sont des valeurs. Posons $u = \lambdaExpr{x : T_{1}} t_{2}$.
       Alors $t' = [x \rightarrow v]t_{2}$ et nous avons $\Gamma \vdash v :

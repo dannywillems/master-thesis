@@ -123,7 +123,7 @@ n'a pas le même sens que $\lambda x . y$. Cet exemple nous montre que nous
 devons faire attention lorsque la variable à substituer, dans ce cas $x$, est
 liée dans le terme où se passe la substitution (ici $\lambda x . y$).
 
-Un autre exemple où la substitution n'est pas évidente est la substition de la
+Un autre exemple où la substitution n'est pas évidente est la substitution de la
 variable $z$ du terme $\lambda x . z$ (la fonction constante en $z$) par le terme
 $\lambda y . x$ (la fonction constante en $x$). Après subtitution, nous nous
 retrouvons avec le terme $\lambda x . \lambda y . x$, c'est-à-dire la fonction
@@ -170,7 +170,7 @@ notre volonté d'égalité à renommage de variables près.
 
 Nous allons étendre cette relation à tous les termes, c'est-à-dire sur tout l'ensemble $\Lambda$.
 
-Nous notons $=_{\alpha}$ la plus petite relation comprenant $\alpha$ et tel que
+Nous notons $=_{\alpha}$ la plus petite relation comprenant $\alpha$ et telle que
 \begin{itemize}
   \item[$\bullet$] $=_{\alpha}$ est réflexive, symétrique et transitive
   \item[$\bullet$] $=_{\alpha}$ passe au contexte: si $u_{1} =_{\alpha} v_{1}$
@@ -205,9 +205,9 @@ discuter de la sémantique que nous lui associons, c'est-à-dire comment nous
 effectuons des calculs avec ce langage. Les calculs
 se définissent par des \textit{réductions}\footnote{On parle aussi de
 \textit{réécriture}.} de termes, et en particulier des applications. Par exemple,
-nous voudrions dire que $(\lambda x . x) y$, i.e. $y$ appliqué à la fonction
+nous voudrions dire que $(\lambda x . x) y$, i.e. $y$ appliquée à la fonction
 identité, se \textit{réduit} en $y$ ou encore que $(\lambda x . (\lambda y . x))
-z$, i.e. $z$ appliqué à la fonction qui retourne la fonction constante pour
+z$, i.e. $z$ appliquée à la fonction qui retourne la fonction constante pour
 toute variable, se réduit en $\lambda y . z$, i.e. la fonction
 constante en $z$. Nous parlons également \textit{d'étape de calcul}, une étape
 de calcul correspondant à une réduction effectuée.
@@ -218,7 +218,7 @@ Comme pour la relation $\alpha$, nous commençons par définir une relation
 $\beta$, et nous l'étendons au contexte.
 
 \begin{definition} [Relation de $\beta$-réduction]
-  Soit $\beta$ la relation sur $\Lambda$ tel que $(\lambda x . u) v \; \; \beta 
+  Soit $\beta$ la relation sur $\Lambda$ telle que $(\lambda x . u) v \; \; \beta 
   \; \; [x := v]u$.\footnote{Ne pas oublier que nous travaillons à
     $\alpha$-renommage près.}
   La relation de $\beta$-réduction, noté $\rightarrow_{\beta}$, ou simplement
@@ -306,7 +306,7 @@ Les redex de ce terme sont:
 
 Dans les exemples ci-dessous, le redex qui est réduit est souligné.
 
-\subsubsection*{Ordre normale}
+\subsubsection*{Ordre normal}
 
 Cette méthode réduit d'abord les redex à l'extérieur, les plus à gauche.
 La chaine de réduction de notre exemple est alors:

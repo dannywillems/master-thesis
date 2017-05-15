@@ -13,8 +13,7 @@ points-virgules. Par exemple, nous pouvons représenter un point d'un plan par
 ses coordonnées cartésiennes, nommées $x$ et $y$, et par les termes $t_{x}$ et
 $t_{y}$ pour la valeur des coordonnées. Nous notons ce terme $\left\{ x = t_{x}
 ; y = t_{y} \right\}$. Il est également intéressant de pouvoir récupérer une des
-coordonnées d'un point. Pour cette raison, nous ajoutons le terme $t.l$ qui permet de
-récupérer le label $l$ du terme $t$.
+coordonnées d'un point. Pour cette raison, nous ajoutons le terme $t.l$ qui permet d'accéder au label $l$ du terme $t$.
 
 Il nous faut également typer les enregistrements. Pour cela, nous ajoutons une
 nouvelle syntaxe dans les types, noté $\left\{l_{i} : T_{i}\right\}^{1 \leq i
@@ -78,9 +77,9 @@ d'évaluation définies dans les chapitres précédents.
 \begin{mathpar}
   \inferrule
   {t_{j} \rightarrow t'_{j}}
-  {\left\{ l_{1} = v_{1}; ... ; l_{j} = t_{j} ; ... ; l_{n} = v_{n} \right\}
+  {\left\{ l_{1} = v_{1}; ... ; l_{j} = t_{j} ; ... ; l_{n} = t_{n} \right\}
     \rightarrow \\\\ \left\{ l_{1} = v_{1}; ... ; l_{j} = t'_{j} ; ... ; l_{n} =
-      v_{n} \right\}} \quad (\textsc{E-RCD})
+      t_{n} \right\}} \quad (\textsc{E-RCD})
   \and
   \inferrule
   {t_{1} \rightarrow t'_{1}}
@@ -196,10 +195,10 @@ $y$. Nous résumons cela par les deux règles suivantes:
     \quad (\textsc{S-RCD-WIDTH})
   \and
   \inferrule
-  {\left\{ k_{j} : s_{j} \right\}^{1 \leq j \leq n} \text{ permutation de }
-    \left\{ l_{i} : t_{i} \right\} ^ {1 \leq i \leq n}}
-  { \left\{ k_{j} : s_{j} \right\} ^ {1 \leq j \leq n} <:
-    \left\{ l_{i} : t_{i} \right\} ^ {1 \leq i \leq n}}
+  {\left\{ k_{j} : S_{j} \right\}^{1 \leq j \leq n} \text{ permutation de }
+    \left\{ l_{i} : T_{i} \right\} ^ {1 \leq i \leq n}}
+  { \left\{ k_{j} : S_{j} \right\} ^ {1 \leq j \leq n} <:
+    \left\{ l_{i} : T_{i} \right\} ^ {1 \leq i \leq n}}
   \quad (\textsc{S-RCD-PERM})
 \end{mathpar}
 
@@ -456,7 +455,7 @@ aux enregistrements de manière naturelle.
       $S = S_{1} \rightarrow S_{2}$ avec $T_{1} <: S_{1}$ et $S_{2} <: T_{2}$.
       
       En utilisant l'hypothèse de récurrence sur $\vdash v : S_{1} \rightarrow
-      S_{2}$, nous avons $v$ qui est une abstraciton.
+      S_{2}$, nous avons $v$ qui est une abstraction.
     \end{itemize}
   \item $v$ est de type $\left\{ l_{i} : T_{i} \right\}^{1 \leq i \leq n}$. Les
     seules règles possibles sont (T-SUB) et (T-RCD). Le résultat est direct pour
