@@ -16,7 +16,7 @@ supplémentaires pour résoudre certains problèmes d'implémentation.
 %types et enfin \verb|ANSITerminal|\cite{ansiterminal} pour ajouter des couleurs
 %lors de l'affichage.
 
-Sur la page principale se trouve, en anglais, une description complète de la syntaxe de RML,
+Sur la page principale du projet se trouve, en anglais, une description complète de la syntaxe de RML,
 du but du langage ainsi que des exemples.
 %Cette documentation est plus orientée
 %pour les développeurs ayant une base en OCaml et les personnes souhaitant utiliser le langage pour
@@ -39,7 +39,7 @@ Les tableaux ci-dessous regroupent l'ensemble des correspondances \\ syntaxique 
 RML.
 
 \begin{center}
-$[\arraycolsep=1.0pt\def\arraystretch{1.5}
+$\arraycolsep=1.0pt\def\arraystretch{1.5}
 \begin{array}{|c|c|}
   \hline
   DOT & RML \\
@@ -47,6 +47,7 @@ $[\arraycolsep=1.0pt\def\arraystretch{1.5}
   \text{Bottom} & \text{Nothing} \\
   \text{Top} & \text{Any} \\
   \hline
+  \left\{ \text{A : Bottom .. Top} \right\} & \text{type a} \\
   \left\{ \text{A : S .. T} \right\} & \text{type a = S  .. T} \\
   \left\{ \text{A : S .. Top} \right\} & \text{type a $:>$ S} \\
   \left\{ \text{A : Bottom .. T} \right\} & \text{type a $<:$ T} \\
@@ -70,7 +71,7 @@ $
 \end{center}
 
 \begin{center}
-$[\arraycolsep=1.0pt\def\arraystretch{1.5}
+$\arraycolsep=1.0pt\def\arraystretch{1.5}
 \begin{array}{|c|c|}
   \hline
   DOT & RML \\
@@ -128,14 +129,14 @@ exemple :
   (types \verb|nominal_term|, \verb|nominal_typ| et \verb|nominal_decl|). Dans la
   représentation dite brute, les variables sont représentées par des chaines de
   caractères tandis que dans la représentation nominative, les variables sont
-  des atomes représentés par un type \verb|AlphaLib.Atom.t|, fourni par
+  des atômes représentés par un type \verb|AlphaLib.Atom.t|, fourni par
   AlphaLib. Cette dernière attribue à chaque nouvelle variable un entier
   unique pour obtenir une représentation unique.
 \item de passer d'une représentation à une autre. La représentation brute est
   utilisée par le parseur et la conversion vers la représentation nominative est
   réalisée directement après la lecture du parseur.
 \item de récupérer toutes les variables libres ou liées d'un terme.
-\item dans le cas de la représentation nominative, de générer des nouveaux atomes.
+\item dans le cas de la représentation nominative, de générer des nouveaux atômes.
 \item d'utiliser des types polymorphes prédéfinis comme \verb|abs| qui représentent de manière générale
   le comportement d'une abstraction. Lorsqu'un type \verb|abs|
   est rencontré, la variable de l'abstraction est automatiquement ajoutée dans
@@ -203,13 +204,13 @@ L'algorithme prend comme
 paramètres, en plus de la variable $x$, du type $T$ et du label $t$, un contexte
 $\Gamma$ et une direction. La direction est soit \verb|Lower| pour la
 plus grande borne inférieure soit \verb|Upper| pour la plus petite borne
-inférieure. L'algorithme travaille sur la structure de $T$ :
+supérieure. L'algorithme travaille sur la structure de $T$ :
 
 \begin{itemize}
 \item Si $T = Bottom$, nous retournons $Bottom$ pour la borne supérieure et
   $None$ pour la borne inférieure.
 \item Si $T = Top$, nous retournons $Top$ pour la borne inférieure et
-  $Top$ pour la borne supérieure.
+  $None$ pour la borne supérieure.
 \item Si $T = \forall(x : S_{1}) S_{2}$, nous retournons $None$ car nous
   ne pouvons pas comparer un enregistrement avec une fonction.
 \item Si $T = \mu(x : S^{x})$, nous appelons récursivement l'algorithme sur
@@ -219,7 +220,7 @@ inférieure. L'algorithme travaille sur la structure de $T$ :
   $T'_{1}$ et $T'_{2}$ les résultats. Plusieurs cas possibles :
   \begin{itemize}
   \item Si $T'_{1} = T'_{2} = None$\footnote{Cela peut se
-    passer si $T'_{1}$ et $T'_{2}$ sont des fonctions}, nous retournons $None$.
+    passer si $T'_{1}$ et $T'_{2}$ sont des fonctions.}, nous retournons $None$.
   \item Si $T'_{1} = None$ et $T'_{2} \neq None$, nous retournons $T'_{2}$.
   \item Si $T'_{2} = None$ et $T'_{1} \neq None$, nous retournons $T'_{1}$.
   \item Sinon, nous retournons $T'_{1} \wedge T'_{2}$.
@@ -234,7 +235,7 @@ inférieure. L'algorithme travaille sur la structure de $T$ :
   \item Si $S = None$, nous retournons $None$. Cela signifie qu'il n'y avait déjà
   pas de réponse pour $y$ (par exemple, si $y$ est de type fonction).
   \item Sinon, nous savons que $S$ est le plus petit $U$ tel que $T_{y} <: \left\{ t'
-    : L .. U \right\}$ où $T_{y}$ est le type de $y$. Nous savons alors que $U$
+    : L .. U \right\}$ où $T_{y}$ est le type de $y$. Nous savons alors que $S$
   est la plus petite borne supérieure de $T$, c'est-à-dire le plus petit super-type de $T$. Nous
   appelons alors récursivement l'algorithme en remplaçant $T$ par $S$.
   \end{itemize}
@@ -242,11 +243,12 @@ inférieure. L'algorithme travaille sur la structure de $T$ :
 
 L'algorithme actuel est satisfaisant sur différents exemples. Cependant, nous
 remarquons que le cas où $T = y.t'$ n'est pas très clair. Il serait nécessaire de
-montrer que la réponse pour $T$ est la même que pour $S$.\footnote{Plusieurs tentatives de démonstrations ont échoué, et la
-possibilité que l'assertion soit fausse a été envisagée car la relation de
-sous-typage n'est pas totale. Cependant, vu les bons résultats, nous acceptons
-l'algorithme actuel.} Nous pouvons seulement dire que
-la réponse actuelle est un candidat, mais non le meilleur.
+montrer que la réponse pour $T$ est la même que pour $S$.\footnote{Plusieurs
+tentatives de démonstrations ont échoué, et la possibilité que l'assertion soit
+fausse a été envisagée car la relation de sous-typage n'est pas totale.
+Cependant, vu les bons résultats, nous acceptons l'algorithme actuel.} Nous
+pouvons seulement dire que la réponse actuelle est un candidat, mais non le
+meilleur.
 
 L'implémentation OCaml est la fonction \verb|best_bound_of_recursive_type|.
 \verb|least_upper_bound_of_recursive_type| est l'algorithme pour la direction \\
@@ -256,8 +258,8 @@ la direction \verb|Lower|.
 Un algorithme semblable est implémenté pour le cas où nous cherchons le plus
 petit type fonction pour une variable donnée. Le retour de l'algorithme est
 différent pour le cas des fonctions et des déclarations de type et de champ. Le
-même argument est réalisé pour la forme $y.t'$ et l'intersection.
-L'implémentation OCaml est la fonciton \verb|least_upper_bound_of_dependent_function|.
+même argument est réalisé pour la forme $y.t'$.
+L'implémentation OCaml est la fonction \verb|least_upper_bound_of_dependent_function|.
 
 \section{Algorithme de typage}
 
@@ -275,6 +277,8 @@ fonctions \verb|least_upper_bound_of_dependent_function| et \\
 utilisées respectivement dans les règles (ALL-E) et (FLD-E). La règle (SUB) est
 utilisée dans (ALL-E) pour vérifier que l'argument est un sous-type que la
 fonction attend.
+
+TODO Décrire l'algorithme comme il a été fait pour best\_bound ??
 
 \subsection*{Typage des termes récursifs}
 
@@ -314,12 +318,50 @@ pouvons utiliser (<: AND), (AND-1-<:) ou (AND-2-<:).
 
 
 De plus l'ordre influence la réponse. Par exemple, prenons le cas où $S_{1} =
-T_{1} = \left\{ t : Nothing .. Any \right\}$ et $T_{1} = T_{2} = \left\{ a :
-  Nothing\right\}$. La question  $S_{1} \wedge S_{2} <: T_{1} \wedge T_{2}$ est alors
-vraie par réflexivité ou encore en utilisant (<:-AND) et ensuite (AND-1-<:) sur
-le membre de gauche et (AND-2-<:) sur le membre de droite. Cependant, en
-utilisant (AND-1-<:) (ou (AND-2-<:)) en premier, nous obtenons une réponse
-fausse.
+T_{1} = \left\{ t : S .. T \right\}$ et $T_{1} = T_{2} = \left\{ a :
+  U\right\}$. La question  $S_{1} \wedge S_{2} <: T_{1} \wedge T_{2}$ est alors
+vraie par réflexivité ou encore par l'arbre de dérivation suivant :
+
+\begin{mathpar}
+  \inferrule
+  {
+     \inferrule
+     {\Gamma \vdash
+       \left\{ A : S .. T \right\} <: 
+       \left\{ A : S .. T \right\}
+     }
+     {
+       \Gamma \vdash
+       \left\{ A : S .. T \right\}
+       \wedge
+       \left\{ a : U \right\}
+       <:
+       \left\{ A : S .. T \right\}
+     }
+     \inferrule
+     {\Gamma \vdash
+       \left\{ a : U \right\} <:
+       \left\{ a : U \right\}
+     }
+     {
+       \Gamma \vdash
+       \left\{ A : S .. T \right\}
+       \wedge
+       \left\{ a : U \right\}
+       <:
+       \left\{ a : U \right\}
+     }
+  }
+  {\Gamma \vdash
+     \left\{ A : S .. T \right\} \wedge \left\{ a : U \right\}
+     <:
+     \left\{ A : S .. T \right\} \wedge \left\{ a : U \right\}
+  }
+\end{mathpar}
+
+où (<:-AND) est utilisé en premier suivi de (AND-1-<:) et (AND-2-<:) sur chaque
+branche. Cependant, si nous utilisions (AND-1-<:) (ou (AND-2-<:)) en premier,
+nous serions incapables d'arriver au résultat voulu.
 
 L'algorithme actuel a été implémenté de façon pragmatique, l'implémentation des
 règles théoriques n'étant pas simple comme peuvent le montrer
@@ -331,7 +373,8 @@ règles théoriques n'étant pas simple comme peuvent le montrer
 %donne une réponse fausse alors que (SEL <:) donne une réponse vraie. TODO exemple.
 %Le même problème se pose avec les règles (AND), (AND-1) et (AND-2).
 
-Voici, dans l'ordre, comment l'algorithme gère les différents cas.
+L'algorithme travaille sur la structure de $S$ et $T$. Voici, dans l'ordre,
+comment l'algorithme gère les différents cas.
 
 \subsection*{$S <: Top$ ou $Bottom <: T$}
 
@@ -341,11 +384,13 @@ en premiers dans le pattern matching.
 
 \subsection*{$\left\{ a : L ... U \right\} <: \left\{ a : L' ... U' \right\}$}
 
-Même cas que précedemment. Utilisation de la règle (TYP <: TYP).
+Même cas que précedemment. Il suffit d'appeler récursivement l'algorithme avec L
+et L' ainsi que U et U'. Si les deux appels retournent vrais, nous retournons
+vrais. Nous utilisons la règle (TYP <: TYP).
 
 \subsection*{$\forall(x : S_{1}) T_{1} <: \forall(x : S_{2}) T_{2}$}
 
-Même cas que précedemment. Utilisation de la règle (ALL <: ALL).
+Même cas que précedemment en utilisant la règle (ALL <: ALL).
 
 \subsection*{$x.A <: y.A$}
 
@@ -358,21 +403,38 @@ L'algorithme procède par cas :
 \item Dans le cas de la réflexivité, cela signifie que $x$ et $y$ sont les mêmes
   atômes. Nous utilisons donc les fonctions fournies par \verb|AlphaLib| pour le
   vérifier. Nous appelons cette règle (UN-REFL-TYP).
-\item Sinon, nous testons en premier (SEL <:). Si nous avons réussi à
-  démontrer en utilisant (SEL <:), nous renvoyons cette solution. Sinon, nous
+\item Sinon, nous testons en premier (SEL <:). Nous ajoutons en plus (T-SUB) et
+  nous utilisons \verb|best_bound| pour trouver le type de $x$ et de $y$. La règle
+  \begin{mathpar}
+    \inferrule
+    {\Gamma \vdash x : \left\{ A : L .. U\right\}}
+    {\Gamma \vdash x.A <: U}
+  \end{mathpar}
+  devient alors
+  \begin{mathpar}
+    \inferrule
+    {\Gamma \vdash x : T \\ \Gamma \vdash T <: \left\{ A : L .. U\right\} \\ \Gamma \vdash U
+      <: U'}
+    {\Gamma \vdash x.A <: U'}
+  \end{mathpar}
+  Si nous avons réussi à démontrer en utilisant (SEL <:), nous renvoyons cette solution. Sinon, nous
   testons avec (<: SEL). Si cette dernière échoue, cela signifie qu'il
   n'existe pas de démonstration pour la question $x.A <: y.A$ : nous renvoyons
-  donc non.
-\end{itemize}
+  donc non. L'utilisation de \verb|best_bound| et (T-SUB) pour (SEL<:) nous donne
+  \begin{mathpar}
+    \inferrule
+    {\Gamma \vdash x : T \\ \Gamma \vdash \left\{ A : L' .. U\right\} <: T \\ \Gamma \vdash L
+      <: L'}
+    {\Gamma \vdash L <: x.A}
+  \end{mathpar}
 
-Dans le second cas, \verb|best_bound_of_recursive_type| est utilisé pour trouver
-le type $x$ et le type de $y$.
+\end{itemize}
 
 \subsection*{Types récursifs}
 
 Il est important de remarquer qu'il n'y a pas de règle de sous-typage pour les
 types récursifs. En effet, pour comparer deux types récursifs, ou au moins un
-type récursif, il est nécessaire de d'utiliser (VAR-UNPACK) ou (VAR-PACK).
+type récursif, il est nécessaire d'utiliser (VAR-UNPACK) ou (VAR-PACK).
 
 Du coté de l'implémentation, nous ajoutons, dans l'ordre, les deux cas
 particuliers suivants.
@@ -391,24 +453,24 @@ cette règle (UN-REC).
   et (UN-REC <:).
 \end{itemize}
 
-Le premier cas est nécessaire pour pouvoir comparer des types récursifs qui ne
-se différencient que par leur variable interne, voir \ref{example:rml-implementation-recursive-type-variable}.
-
-
 \begin{listing}
-  \label{example:rml-implementation-recursive-type-variable}
   \inputminted{OCaml}{codes/rml_implementation_recursive_type.rml}
   \caption{Ces deux signatures sont identiques à l'exception de la variable
     interne. Si nous ne donnons pas le même nom à la variable interne, la
     question $self.t <: self'.t$ va être posée. Comme ce ne sont pas les mêmes
     atômes, la question $Top <: Bottom$ sera posée que nous utilisions (SEL <:) ou
     (<: SEL).}
+  \label{example:rml-implementation-recursive-type-variable}
 \end{listing}
 
-\subsection*{$x.T <: T'$ ou $T' <: x.T$}
+Le premier cas est nécessaire pour pouvoir comparer des types récursifs qui ne
+se différencient que par leur variable interne, voir
+\ref{example:rml-implementation-recursive-type-variable}.
 
-Nous utilisons la version de \verb|best_bound_of_recursive_type| correspondante
-au cas et nous appelons récursivement l'algorithme.
+\subsection*{$x.A <: T$ ou $T <: x.A$}
+
+Comme pour le cas $x.A <: y.A$, nous modifions la règle de sous-typage en
+utilisant (T-SUB) et \verb|best_bound|.
 
 \subsection*{Intersections}
 
@@ -424,15 +486,38 @@ Nous procédons donc de la même manière que pour (SEL <:) et (<: SEL).
 
 De plus, dans le cas (<: AND), nous devons gérer les types récursifs à cause de
 la règle (VAR-PACK). En effet, si nous avons la question $\mu(x : S_{1}) \wedge
-\mu(x : S_{2}) <: \mu(x : S_{1} \wedge S_{2})$, nous pouvons utiliser
-successivement (VAR-UNPACK) à droite, puis (<:-AND) et (VAR-PACK) pour conclure
-avec (AND-1-<:) et (AND-2-<:).
+\mu(x : S_{2}) <: \mu(x : S_{1} \wedge S_{2})$, nous pouvons revenir à la
+question $\mu(x : S_{1} \wedge S_{2}) <: \mu(x : S_{1} \wedge S_{2})$.
 
 De manière générale, si nous avons $\mu(x : S_{1}) \wedge \mu(x : S_{2}) <: T$,
 une solution est de montrer $\mu(x : S_{1} \wedge S_{2}) <: T$. En effet,
-en utilisant successivement (<: AND), (VAR-PACK), (VAR-UNPACK), (AND-1-<:) et
-(AND-2-<:), nous montrons que $\mu(x : S_{1} \wedge S_{2}) <: T$ implique $\mu(x
+en utilisant successivement (<: AND), (VAR-UNPACK), (AND-1-<:), (AND-2-<:) et
+(VAR-PACK), nous montrons que $\mu(x : S_{1} \wedge S_{2}) <: T$ implique $\mu(x
 : S_{1}) \wedge \mu(x : S_{2}) <: T$.
+
+\begin{mathpar}
+  \inferrule*[Left=(<: AND)]
+  {
+    \inferrule*[Left=(VAR-PACK)]
+    {
+      \Gamma \vdash \mu(x : S_{1} \wedge S_{2}) <: T
+    }
+    {
+      \inferrule*[Left=($AND_{1}$<: et $AND_{2}$ <:)]
+      {\Gamma \vdash S_{1} \wedge S_{2} <: T}
+      {
+        \inferrule*[Left=(VAR-UNPACK)]
+        {\Gamma \vdash S_{1} <: T}
+        {\Gamma \vdash \mu(x : S_{1}) <: T}
+        \\
+        \inferrule*[Right=(VAR-UNPACK)]
+        {\Gamma \vdash S_{2} <: T}
+        {\Gamma \vdash \mu(x : S_{2}) <: T}
+      }
+    }
+  }
+  {\Gamma \vdash \mu(x : S_{1}) \wedge \mu(x : S_{2}) <: T}
+\end{mathpar}
 
 La méthode utilisée dans l'algorithme consiste à renommer la variable interne de
 $S_{1}$ et $S_{2}$ en utilisant un même atôme unique et d'appeler récursivement l'algorithme.
@@ -521,7 +606,8 @@ résume par la règle suivante
 
 Un point important\footnote{Et qui n'est pas mentionné dans les documents sur
 DOT.} est qu'il faut éviter de réaliser un binding local d'une variable car
-cela pourrait provoquer des problèmes d'échappement.
+cela pourrait provoquer des problèmes d'échappement. Cela signifie que DOT n'est
+pas stable par insertion de let variable-variable.
 
 \begin{listing}
   \label{code:implementation-grammar-terms-examples}
