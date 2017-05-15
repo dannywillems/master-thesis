@@ -368,6 +368,13 @@ règles théoriques n'étant pas simple comme peuvent le montrer
 \cite{tapl-metatheory-subtyping} et
 \cite{tapl-bounded-quantification-metatheory} pour d'autres calculs.
 
+Une difficulté supplémentaire de l'implémentation de DOT est que les règles de
+typage et de sous-typage sous mutuellement dépendantes. Il est naturel et
+courant d'avoir les règles de typage qui dépendent du sous-typage à travers
+(T-SUB), mais non l'inverse. Dans DOT, les règles de sous-typage dépendent du
+typage à travers (SEL <:) ainsi que (<: SEL) et demandent d'implémenter des
+algorithmes supplémentaires comme \verb|best_bound|.
+
 %Par exemple, pour répondre à la question
 %$x.A <: y.A$, nous pouvons soit utilisé (<: SEL) en premier et ensuite utilisé
 %(SEL <:) ou l'inverse. De plus, il est possible qu'appliquer (<: SEL) en premier
@@ -496,7 +503,8 @@ successivement (AND-1-<:) et (AND-2-<:)
 De plus, dans le cas (<: AND), nous devons gérer les types récursifs à cause de
 la règle (VAR-PACK). En effet, si nous avons la question $\mu(x : S_{1}) \wedge
 \mu(x : S_{2}) <: \mu(x : S_{1} \wedge S_{2})$, nous pouvons revenir à la
-question $\mu(x : S_{1} \wedge S_{2}) <: \mu(x : S_{1} \wedge S_{2})$.
+question $\mu(x : S_{1} \wedge S_{2}) <: \mu(x : S_{1} \wedge S_{2})$. Si nous
+utilisions directement (<: AND), nous n'arriverions pas à montrer que c'est vrai.
 
 De manière générale, si nous avons $\mu(x : S_{1}) \wedge \mu(x : S_{2}) <: T$,
 une solution est de montrer $\mu(x : S_{1} \wedge S_{2}) <: T$. En effet,
@@ -545,8 +553,9 @@ cette règle peut être dérivée d'autres règles.
     <: ALL).
   \item Si $S$ est de la forme $\nu(x : S')$, (UN-REC) est utilisée.
   \item Si $S$ est une intersection, nous pouvons utiliser (<: AND), puis
-    (AND-1-<:) sur le membre de gauche et (AND-2-<:) sur le membre de droite.
-  \item Si $S$ est de la forme $\left\{ t : L .. U \right\}$, (TYP <: TYP) est utilisée.
+    (AND-1-<:) sur le membre de gauche et (AND-2-<:) sur le membre de droite
+    comme nous l'avons montré plus haut.
+  \item Si $S$ est de la forme $\left\{ A : L .. U \right\}$, (TYP <: TYP) est utilisée.
   \item Si $S$ est de la forme $\left\{ a : T \right\}$, (FLD <: FLD) est utilisée.
 \end{itemize}
 
@@ -554,7 +563,9 @@ cette règle peut être dérivée d'autres règles.
 
 Actuellement, la transtivité n'est pas gérée. En effet, pour le gérer, il
 faudrait trouver un type $U$ tel que $S <: U$ et $T <: U$, ce qui n'est pas
-possible, ou au moins compliqué.
+possible, ou au moins compliqué. Pour contourner ce problème, il est
+nécessaire de reformuler les règles de sous-typage et d'y introduire
+explicitement (S-TRANS).
 
 \section{Arbre de dérivation}
 
