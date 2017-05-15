@@ -659,7 +659,7 @@ des bindings locaux. Voici quelques exemples :
 
 \subsection*{Termes unit et entiers}
 
-Des types basiques comme $Int.t$ et $Unit.t$ pour les entiers et le terme
+Des types basiques comme \verb|Int.t| et \verb|Unit.t| pour les entiers et le terme
 \verb|unit| sont implémentés. Il est possible d'utiliser des entiers comme en
 OCaml ou le terme \verb|()| pour le terme \verb|unit|.
 
@@ -696,7 +696,62 @@ typer le terme;
 
 \section{Exemples}
 
-TODO
+Reprenons l'exemple donné en introduction. En RML, le module \verb|Point2D| ave
+des entiers peut être défini de la manière suivante.
+
+\begin{listing}
+  \inputminted{OCaml}{codes/point2d.rml}
+  \caption{Point2D en RML.}
+\end{listing}
+
+Et nous pouvons définir le foncteur \verb|MakePoint2D| avec le terme \verb|fun|
+comme une autre fonction.
+
+\begin{listing}
+  \inputminted{OCaml}{codes/makepoint2d.rml}
+  \caption{MakePoint2D en RML.}
+  \label{code:rml-point2d}
+\end{listing}
+
+Et le type du foncteur est le même que celui d'une fonction qui prend un module
+en paramètre et retourne un module.
+
+\begin{listing}
+  \inputminted{OCaml}{codes/makepoint2d_sig.rml}
+  \caption{Signature de MakePoint2D en RML.}
+  \label{code:rml-makepoint2d}
+\end{listing}
+
+Nous pouvons également définir des listes polymorphes en utilisant un foncteur
+comme le montre \ref{code:rml-list-functor} et créer une liste d'entier en
+utilisant \verb|List Int|.
+
+\begin{listing}
+  \inputminted{OCaml}{codes/list_functor.rml}
+  \caption{Une implémentation de listes polymorphes en RML en utilisant un foncteur.}
+  \label{code:rml-list-functor}
+\end{listing}
+
+Cependant, cette implémentation de liste n'est pas très pratique car si nous
+voulons une liste d'entier, nous devons créer un module intermédiaire.
+\ref{code:rml-list-with} propose une autre implémentation de listes polymorphes
+qui de plus sont covariantes (grâce à \verb|type t <: self.t|). Le mot clef
+\verb|with| est utilisé pour créer une intersection\footnote{Comme en OCaml dans
+  les foncteurs.}. Nous pouvons alors utiliser \verb|List.list with type t = Int|
+pour obtenir une liste d'entiers. Malheureusement, l'algorithme actuel ne
+supporte pas cette implémentation et provoque un stack overflow car le champ
+\verb|tail| repose la question du sous-typage de la liste en
+boucle.\footnote{Une solution est en cours de développement pour supporter les
+  questions qui ont déjà été posées.}
+
+\begin{listing}
+  \inputminted{OCaml}{codes/list.rml}
+  \caption{Une implémentation de listes polymorphes en RML en utilisant le mot
+    clef with.}
+  \label{code:rml-list-with}
+\end{listing}
+
+Plus d'exemples peuvent être trouvés sur la page du projet.
 
 \section{Travail futur}
 
