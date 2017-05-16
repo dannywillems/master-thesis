@@ -374,16 +374,10 @@ sur les arbres de dérivation.
   Si $\Gamma \vdash_{F} t : T$, alors $\Gamma^{*} \vdash_{D} t^{*} : T^{*}$.
 \end{theorem}
 
-\begin{proof}
-  TODO: Démontrer ? Besoin de deux lemmes intermédiaires.
-  \begin{itemize}
-  \item (T-VAR) et (T-SUB). Direct.
-  \item (T-ABS).
-  \item (T-APP).
-  \item (T-T-ABS).
-  \item (T-T-APP).
-  \end{itemize}
-\end{proof}
+Nous acceptons ce théorème. Une preuve peut être trouvée dans
+\cite{WF-DOT-2016} et se fait par induction sur la dérivation $\Gamma \vdash_{F}
+t : T$. Celle-ci repose sur deux lemmes intermédiaires pour la
+substitution de types dépendants.
 
 Cette propriété de DOT implique que la question du sous-typage de DOT est
 indécidable.
