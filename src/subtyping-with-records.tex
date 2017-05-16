@@ -223,12 +223,9 @@ avec les mêmes labels,
 si les types des champs de $S$ sont tous sous-types des types des champs de $T$,
 alors $S$ est sous-type de $T$.
 
-Pour finir, nous aimerions dire que si nous avons une fonction $f$ qui attend un
-enregistrement avec un champ $x$, nous pouvons également passer en paramètre à
-$f$ un enregistrement avec deux champs $x$ et $y$, c'est-à-dire un sous-type.
-Nous disons que le type flèche est \textit{contravariant} pour les paramètres.
-Nous ajoutons en plus que le type de retour peut être un super-type. Nous disons
-alors que le type flèche est \textit{covariant} pour le type de retour.
+Pour finir, nous ajoutons une règle pour comparer deux types flèches.
+Nous disons que le type flèche est \textit{contravariant} pour les paramètres et
+\textit{covariant} pour le type de retour.
 
 \begin{mathpar}
   \inferrule
