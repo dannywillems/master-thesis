@@ -6,17 +6,16 @@ Dans les chapitres \ref{chapter:lambda-calculus-with-records} et
 polymorphisme par sous-typage à travers les enregistrements et le polymorphisme
 paramétré.
 
-Les deux calculs permettent de résoudre deux problèmes différents :
+Les deux mécanismes permettent de résoudre deux problèmes différents :
 \begin{enumerate}
   \item le sous-typage permet d'affiner notre relation de typage à travers la
     relation $<:$. Par exemple, il nous est permis de définir la fonction
     identité sur les réels ($\lambdaExpr{x : \real} x$) et de l'appliquer à un
     entier car $\naturel$ est un sous-type de $\real$.
   \item le polymorphisme paramétré permet de quantifier sur les types et de
-    créer des fonctions indépendamment du type grâce aux abstractions de type
-    pour ensuite les appliquer aux types souhaités. Par exemple, nous pouvons
+    créer des abstractions de type. Par exemple, nous pouvons
     définir la fonction identité polymorphe $\lambdaExprType{X}{\lambdaExpr{x :
-    X}{x}}$ et les appliquer aux types $\real$ et $\naturel$, mais également à
+    X}{x}}$ et l'appliquer aux types $\real$ et $\naturel$, mais également à
     n'importe quel autre type comme $\naturel \rightarrow \real$ ou encore $\real
     \rightarrow (\naturel \rightarrow \real)$.
 \end{enumerate}
@@ -37,6 +36,9 @@ obligeant le type appliqué à avoir certaines caractéristiques. Par exemple, l
 fonction $\lambdaExprType{X <: \left\{ z : \real \right\}}{\lambdaExpr{x :
     X}{\, x.z}}$ oblige, lors d'une application de type, de donner un type
 enregistrement avec au moins le champ $z$ qui est de type réel.
+
+Il est naturel de se demander pourquoi nous ne donner qu'une borne
+supérieure aux variables. Nous verrons que DOT attribue également une borne inférieure.
 
 Dans ce chapitre, nous considérons également le type \verb|Top|.
 
@@ -110,7 +112,7 @@ Il est nécessaire de faire attention à l'ordre d'apparition des variables. Par
 exemple, nous dirons que $X <: Y, Y <: Top$ est mal formé car $Y$
 apparaît comme borne avant sa définition ($Y <: Top$). Bien que ça soit une
 définition informelle, nous considérerons uniquement les contextes de typage
-tel qu'une variable $Y$ n'apparait jamais comme borne supérieure à gauche de sa
+tels qu'une variable $Y$ n'apparaît jamais comme borne supérieure à gauche de sa
 définition.
 
 La syntaxe du contexte de typage est donc :
@@ -123,7 +125,7 @@ La syntaxe du contexte de typage est donc :
 
 \section{Règles de typage et de sous-typage}
 
-Comme le contexte comporte des relations de sous-typage, nous ajoutons un
+Comme le contexte comporte des hypothèses de sous-typage, nous ajoutons un
 contexte $\Gamma$ dans les règles de sous-typage. Une affirmation $S <: T$
 devient $\Gamma \vdash S <: T$.
 

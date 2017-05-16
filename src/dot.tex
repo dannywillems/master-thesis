@@ -4,8 +4,7 @@ Dans ce chapitre, nous présentons DOT, un calcul développé récemment pour le
 langage Scala. Ce calcul ajoute les types, alors
 appelés types chemin dépendants, dans les enregistrements. Des types
 récursifs, c'est-à-dire des types qui peuvent faire référence à eux-mêmes, sont
-également définis. Un système de sous-typage pour ce calcul sera
-également présenté.
+également définis.
 Nous montrerons que DOT peut être vu comme une
 extension de Système $F_{<:}$ bien que sa syntaxe soit différente et ne possède
 pas de variables de type.
@@ -14,7 +13,8 @@ Plusieurs définitions du calcul DOT existent et sont dispersées à travers
 plusieurs documents comme \cite{nada-amin-thesis}, \cite{OOPSLA-DOT-2016},
 \cite{POPL-2017-DOT} ou encore \cite{WF-DOT-2016}. Dans ce document, nous avons
 fait le choix d'utiliser \cite{WF-DOT-2016} car la syntaxe et les règles sont
-proches des précédents calculs.
+proches des calculs présentés dans ce mémoire.
+% TODO. Toutefois, aucune variante ne semble satisfaisante.
 
 \section{Syntaxe}
 
@@ -26,7 +26,7 @@ La syntaxe des termes de DOT est définie par la grammaire suivante :
           & \; \lambdaExpr{x : T}{t} & \text{abs} \\
           & \; x \, y & \text{app} \\
           & \; \localLetBinding{x}{t}{t} & \text{let} \\
-          & \; \nu(x : T)d & \text{rec} \\
+          & \; \nu(x : T^{x})d & \text{rec} \\
           & \; x.a & \text{champ proj} \\
 \end{align*}
 \end{minipage}
@@ -45,20 +45,21 @@ et la syntaxe des types par la grammaire suivante :
   S, T ::= & \, & \text{type} \\
            & \; Top & \text{top} \\
            & \; Bottom & \text{bottom} \\
-           & \; \forall(x : S) T & \text{fonction} \\
+           & \; \forall(x : S) T^{x} & \text{fonction} \\
            & \; \left\{ A : S .. T \right\} & \text{type decl} \\
            & \; \left\{ a : T \right\} & \text{champ decl} \\
            & \; x.A & \text{type proj} \\
-           & \; \mu(x : T) & \text{rec} \\
+           & \; \mu(x : T^{x}) & \text{rec} \\
            & \; S \wedge T & \text{inter}
 \end{align*}
 
 Nous retrouvons (var) et (abs) pour les variables et les
 abstractions.
 A la différence des autres calculs, une application n'est pas constituée de deux
-termes mais de deux variables. Nous retrouvons la projection d'un champ avec
+termes mais de deux variables\footnote{Nous pouvons cependant utiliser (let)
+  pour retrouver des applications entre termes.}. Nous retrouvons la projection d'un champ avec
 (champ proj). Comme pour les applications, uniquement une variable peut être
-utilisée.
+utilisée\footnote{Même remarque que pour les applications.}
 
 (let) permet de créer des variables locales comme il est possible en OCaml.
 (let) est utilisé pour lier un terme à une variable et pouvoir utiliser cette
@@ -69,7 +70,7 @@ de définir des termes récursifs, c'est-à-dire des termes
 dont le corps peut faire référence à eux-mêmes à travers la variable $x$ qui
 doit obligatoirement être accompagnée d'un type. Le
 corps d'un terme récursif est une déclaration. Une déclaration est soit un
-couple $(a, t)$ où $a$ est un nom et $t$ un terme comme pour les
+couple $(a, t)$ où $a$ est un nom de champ et $t$ un terme comme pour les
 enregistrements, soit une déclaration de type représentée par un couple $(A,
 T)$ où $A$ est le nom de la déclaration et $T$ le type associé. Un enregistrement peut contenir plusieurs déclarations de champ et
 de type en utilisant (aggregation). Ces déclarations peuvent être mutuellement
@@ -79,7 +80,8 @@ labels.
 
 Quant aux types, nous retrouvons $Top$ et $Bottom$ comme décrits dans le
 chapitre \ref{chapter:lambda-calculus-with-records}. Le type fonction est
-également présent avec une syntaxe différente. (champ decl) est le type d'un
+également présent avec une syntaxe différente et il devient dépendant,
+c'est-à-dire que le type de retour peut dépenser du paramètre. (champ decl) est le type d'un
 champ d'un enregistrement. (type decl) est le type d'une déclaration d'un type
 dans un enregistrement et possède une borne inférieure $S$ et une borne
 supérieure $T$. (inter) permet de typer le corps d'un enregistrement contenant
@@ -88,11 +90,11 @@ types des déclarations peuvent être mutuellement dépendants grâce à la vari
 $x$ du type récursif.
 
 Enfin, les types dépendants (type proj), en parallèle de (champ proj),
-permettent de récupérer le type à l'intérieur d'un enregistrement.
+permettent d'accéder à un type interne d'un enregistrement.
 
 \section{Sémantique}
 
-La sémantique est laissée de coté actuellement.
+La sémantique est laissée de côté actuellement.
 
 \section{Règles de typage}
 
@@ -112,11 +114,11 @@ Les règles de typage pour les termes sont les suivantes :
   \and
   \inferrule
   {\Gamma, x : T \vdash t : U \\ x \notin FV(T)}
-  {\Gamma \vdash \lambdaExpr{x : T}{t} : \forall(x : T) U} \quad (\textsc{ALL-I})
+  {\Gamma \vdash \lambdaExpr{x : T}{t} : \forall(x : T) U^{x}} \quad (\textsc{ALL-I})
   \and
   \inferrule
-  {\Gamma \vdash x : \forall(z : S) T \\ \Gamma \vdash y : S}
-  {\Gamma \vdash x \; y : [z := y] T} \quad (\textsc{ALL-E})
+  {\Gamma \vdash x : \forall(z : S) T^{z} \\ \Gamma \vdash y : S}
+  {\Gamma \vdash x \; y : [z := y] T^{z}} \quad (\textsc{ALL-E})
   \and
   \inferrule
   {\Gamma \vdash t : T \\ \Gamma, x : T \vdash u : U \\ x \notin FV(U)}
@@ -129,7 +131,7 @@ Les règles de typage pour les termes sont les suivantes :
   \\
   \inferrule
   {\Gamma, x : T \vdash d : T}
-  {\Gamma \vdash \nu(x : T)d : \mu(x : T)} \quad (\textsc{$\left\{ \; \right\}$-I})
+  {\Gamma \vdash \nu(x : T^{x})d : \mu(x : T^{x})} \quad (\textsc{$\left\{ \; \right\}$-I})
   \and
   \inferrule
   {\Gamma \vdash x : T^{x}}
@@ -165,12 +167,12 @@ Nous retrouvons les règles (T-VAR) et (T-SUB) comme dans les précédents calcu
 (ALL-I) est l'équivalent de (T-ABS) et (ALL-E) est l'équivalent de (T-APP).
 (LET) nous dit que le terme $t$ et la variable $x$ à laquelle nous lions ce
 terme doivent avoir le même type, le type du terme en entier est celui de $u$.
-(AND-I) nous dit que si une variable a deux types $T$ et $U$, alors il a
+(AND-I) nous dit que si une variable a deux types $T$ et $U$, alors elle a
 également le type intersection $T \wedge U$. ($\left\{ \; \right\}$-I) type les termes
 récursifs et oblige que la variable du terme récursif ait le même type que la déclaration.
 (FLD-E) est l'équivalent de (T-PROJ) que nous avions défini pour les
 enregistrements.
-Pour finir, (VAR-PACK) nous dit que lorsque nous pouvons
+Pour finir, (VAR-PACK) nous dit que nous pouvons
 contruire un type récursif à partir de n'importe quel autre type. De l'autre
 coté, (VAR-UNPACK) nous dit qu'un terme ayant un type récursif possède également
 le type à l'intérieur de ce dernier.
@@ -191,8 +193,8 @@ Supposons que nous ayons un type $\real$ et les nombres et prenons l'exemple sui
 Le type de l'expression est $y.A$. Cependant, la variable $y$ n'existe pas en
 dehors du let car c'est une variable locale. C'est un exemple du
 \textit{problème d'échappement}\footnote{\og Avoidance problem \fg \; en
-anglais.}. Pour éviter cela, dans la règle (LET), une condition supplémentaire
-est ajoutée : $x \notin FV(U)$.
+anglais.}. C'est pour éviter cela que dans la règle (LET) la condition $x \notin
+FV(U)$ est présente.
 
 Nous verrons dans le chapitre \ref{chapter:rml} qu'il est nécessaire d'y faire
 attention lors de l'implémentation, en particulier lorsque nous faisons des
@@ -272,8 +274,8 @@ sous-type) de sa borne inférieure (resp. supérieure).
 (FLD <: FLD) est l'équivalent de (S-RCD-DEPTH) pour un enregistrement à un
 unique champ.
 
-A travers (TYP<:TYP), les déclarations de type sont naturellement contravariants
-pour les bornes inférieures et covariants pour les bornes supérieures.
+A travers (TYP<:TYP), les déclarations de type sont naturellement contravariantes
+pour les bornes inférieures et covariantes pour les bornes supérieures.
 
 Pour les intersections, les règles (AND-1-<:) et (AND-2-<:) nous donnent
 l'équivalent de (S-RCD-WIDTH). Quant à (<:AND), cette dernière règle nous dit
@@ -332,8 +334,8 @@ inductivement par :
 \end{align*}
 
 Cependant, DOT est plus riche syntaxiquement que Système $F_{<:}$ car, par
-exemple, il n'est pas possible de donner une borne inférieure à la variable
-d'une abstraction alors que DOT le permet.
+exemple, il n'est pas possible en $F_{<:}$ de donner une borne inférieure à la
+variable d'une abstraction alors que DOT le permet.
 
 
 Notons $\Gamma \vdash_{F} t : T$ (resp. $\Gamma \vdash_{D} t : T$) un jugement
