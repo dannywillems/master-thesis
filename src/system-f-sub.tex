@@ -216,8 +216,14 @@ Etant donnés deux types $S$ et $T$, la question $S <: T$ a-t-elle
 toujours une réponse ? En d'autres termes, la question du sous-typage est-elle
 décidable ?
 
-Il a été démontré qu'il n'existe pas d'algorithme de sous-typage donnant une
-réponse sur toute question $S <: T$. Plus d'informations peuvent être trouvées
+Il a été démontré qu'il n'existe pas d'algorithme correct et complet de sous-typage donnant une
+réponse sur toute question $S <: T$.
+Un algorithme $A(\Gamma, S, T)$ est \textit{correct} si lorsque $A(\Gamma, S,
+T)$ a comme sortie oui, $\Gamma \vdash S <: T$. Un algorithme est
+\textit{complet} si, lorsque $\Gamma \vdash S <: T$, la sortie de $A(\Gamma, S,
+T)$ est oui.
+
+Plus d'informations peuvent être trouvées
 dans \cite{tapl-bounded-quantification-metatheory}.
 
 Le problème de l'indécidabilité du sous-typage de Système $F_{<:}$ est important
