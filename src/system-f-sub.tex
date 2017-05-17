@@ -198,7 +198,9 @@ Quant aux règles de sous-typage, nous avons :
   \quad (\textsc{S-ALL})
 \end{mathpar}
 
-Remarquons que dans (S-ALL), la borne supérieur de la variable $X$ peut être différente.
+Remarquons que dans (S-ALL), la borne supérieur de la variable $X$ peut être
+différente.\footnote{Une variante, appelée Kernel $F_{<:}$, oblige la borne
+  supérieure à être la même. Nous ne discuterons pas de celle-ci dans ce document.}
 
 \section{Sûreté}
 
@@ -231,5 +233,5 @@ dans \cite{tapl-bounded-quantification-metatheory}.
 Le problème de l'indécidabilité du sous-typage de Système $F_{<:}$ est important
 quand nous considérons l'écriture d'un algorithme de sous-typage pour ce calcul.
 En effet, cela implique que sur certaines entrées, l'algorithme peut
-boucler\footnote{Si bien sûr nous ne définissons pas des règles pour l'arrêter
+diverger\footnote{Si bien sûr nous ne définissons pas des règles pour l'arrêter
   dans le cas où il n'y a pas de réponse.}.

@@ -4,7 +4,10 @@ Dans ce chapitre, nous présentons DOT, un calcul développé récemment pour le
 langage Scala. Ce calcul ajoute les types, alors
 appelés types chemin dépendants, dans les enregistrements. Des types
 récursifs, c'est-à-dire des types qui peuvent faire référence à eux-mêmes, sont
-également définis.
+également définis\footnote{Les types récursifs et leurs règles présents dans DOT ne sont pas
+  définis de manière habituelle. Plusieurs chapitres y sont consacrés dans
+  \cite{tapl-recursive-types}. Nous n'étudierons pas les différences dans ce document.
+}.
 Nous montrerons que DOT peut être vu comme une
 extension de Système $F_{<:}$ bien que sa syntaxe soit différente et ne possède
 pas de variables de type.
@@ -91,6 +94,8 @@ $x$ du type récursif.
 
 Enfin, les types dépendants (type proj), en parallèle de (champ proj),
 permettent d'accéder à un type interne d'un enregistrement.
+
+Des exemples concrets seront donnés dans le chapitre \ref{chapter:rml}.
 
 \section{Sémantique}
 
@@ -290,7 +295,8 @@ mais pour n'importe quel type. Cela signifie qu'il est autorisé d'écrire $\mu(
 : T) \wedge \left\{ a : S .. T \right\}$ ou encore $x.A \wedge \left\{ a : S ..
   T \right\} \wedge y.A \wedge \mu(x : U)$.
 De même, la variable $x$ dans un type dépendant n'est pas nécéssairement un
-terme récursif mais peut être une abstraction. Bien que ça n'ait pas de sens, la
+terme récursif mais peut être une abstraction. Par exemple, nous pouvons écrire
+$let \; y = \lambdaExpr{x : T}{t} \; in \; y.A$. Bien que ça n'ait pas de sens, la
 syntaxe le permet.
 La difficulté de DOT réside dans cette expressivité.
 
@@ -315,10 +321,10 @@ Système $F_{<:}$ associe un terme (resp. type) de DOT.
   X^{*} & = && x_{X}.A \\
   Top^{*} & = && Top \\
   (S \rightarrow T)^{*} & = && \forall(x : S^{*}) T^{*} \\
-  (\forall X <: S . \, T)^{*} & = && \forall(x_{X} : \mu(z : \left\{ A : Bottom .. S^{*} \right\})) T^{*} \\ \\
+  (\forall X <: S . \, T)^{*} & = && \forall(x_{X} : \left\{ A : Bottom .. S^{*} \right\}) T^{*} \\ \\
   x^{*} & = && x \\
   (\lambdaExpr{x : T}{t})^{*} & = && \lambdaExpr{x : T^{*}}{t^{*}} \\
-  (\lambdaExprType{X <: S}t)^{*} & = && \lambdaExpr{x : \mu(y : \left\{ Bottom .. S^ {*} \right\})}{t^{*}} \\
+  (\lambdaExprType{X <: S}t)^{*} & = && \lambdaExpr{x : \left\{ A : Bottom .. S^{*} \right\}}{t^{*}} \\
   (t \; u)^{*} & = && let \; x \; = \; t^{*} \; in \\
               &  && let \; y \; = \; u^{*} \; in \\
               &  && x \; y \\
