@@ -289,25 +289,52 @@ fonction attend.
 Dans la syntaxe des termes de DOT, un enregistrement récursif est toujours accompagné de
 son type. Lorsque nous écrivons des programmes, cela implique que lorsque nous
 définissons des modules, nous devons donner leur signature. Du
-coté développeur, cela n'est pas très pratique.
+coté développeur, cela n'est pas très pratique. Nous notons $\nu(x) d$
+l'enregistrement récursif $\nu(x : T) d$ quand $T$ n'est pas mentionné.
 
 Pour simplifier l'écriture de programmes, nous avons décidé d'ajouter un
 algorithme pour inférer le type d'une liste de
-declarations. Lorsqu'un enregistrement récursif $\nu(x : T) d$ est rencontré,
+declarations. Lorsqu'un enregistrement récursif $\nu(x) d$ est rencontré,
 nous commençons par ajouter dans le contexte $x$ avec le type \verb|Top|.
 Ensuite, nous allons parcourir la déclaration $d$ et affiner le type de $x$ en
 fonction de la forme de $d$.
 \begin{itemize}
-\item Si $d$ est une déclaration de type ou de champ, nous affirmons que le type de $x$ est
-  son type actuel intersecté avec la déclaration.
-\item Si $d$ est une intersection de déclaration, nous effectuons un premier
-  appel sur le membre de gauche de l'intersection et ensuite de droite.
+\item Si $d = \left\{ A = S \right\}$ et $x : T$, nous renvoyons $T \wedge
+  \left\{ A : S .. S \right\}$.
+\item Si $d = \left\{ a = t \right\}$ et $x : T$, nous utilisons l'algorithme de
+  typage sur $t$ et le contexte $\Gamma, x : T$ et notons $S$ le résultat. Nous
+  renvoyons $T \wedge \left\{ a : S \right\}$.
+\item Si $d = d_{1} \wedge d_{2}$ et $x : T$, nous appellons récursivement
+  l'algorithme sur $d_{1}$ avec $\Gamma, x : T$, et notons $T_{1}$ le résultat. Nous
+  effectuons alors un second appel sur $d_{2}$ avec $\Gamma, x : T \wedge T_{1}$.
 \end{itemize}
+Notons $T$ le type renvoyé par l'algorithme, le type de l'enregistrement $\nu(x)
+d$ est alors $\mu(x : T)$.
+
+La figure \ref{code:rml-typing-recursive-records} montre un exemple
+d'enregistrement récursif et le type inféré.
+
+\begin{listing}
+  \inputminted{OCaml}{codes/typing_recursive_records.rml}
+  \caption{Exemple de typage d'un terme récursif dont le type n'est pas
+    mentionné.}
+  \label{code:rml-typing-recursive-records}
+\end{listing}
 
 L'algorithme n'est pas parfait : il échouera par exemple si des champs sont
-mutuellement récursifs. 
+mutuellement récursifs ou si une déclaration dépend d'une autre définie plus haut. La figure \ref{code:rml-typing-recursive-records-fail}
+montre un exemple sur lequel l'algorithme échoue.
 Cependant, celui-ci est satisfaisant pour une partie des exemples et permet
 d'écrire de programmes DOT moins verbeux.
+
+\begin{listing}
+  \inputminted{OCaml}{codes/typing_recursive_records_fail.rml}
+  \caption{Exemple de typage d'un terme récursif sur lequel l'algorithme échoue.
+  L'algorithme va tenter de typer la fonction fail, mais elle a besoin du type
+  de la fonction plus, qui ne sera inféré que par après.}
+  \label{code:rml-typing-recursive-records-fail}
+\end{listing}
+
 
 \section{Algorithme de sous-typage}
 
@@ -614,7 +641,7 @@ Les enregistrements ont la même représentation interne que les modules,
 \verb|TermRecursiveRecord|. Dans le langage de surface, les enregistrements
 ainsi que le type enregistrement sont définis de la même manière qu'en OCaml.
 Afin d'éviter des références internes entre champs, la variable interne utilisée
-est \verb|'self|. Le nom des variables commençant par des simples guillemets
+est \verb|'self|. Les noms de variables commençant par des simples guillemets
 n'étant pas acceptés dans le lexeur, cela implique qu'il n'est pas possible
 d'avoir des champs mutuellement dépendants.
 

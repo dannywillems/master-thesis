@@ -307,12 +307,17 @@ borne supérieure. Cette liberté dans les types, bien qu'intéressante à premi
 vue, pose un problème dans le système de sous-typage.
 En effet, le type $\left\{ A : Top .. Bottom \right\}$ est autorisé. Cependant,
 si $x : \left\{ A : Top .. Bottom \right\}$, alors nous pouvons montrer que
-$Top <: Bottom$ en utilisant (SEL <:), (<: SEL) et la transitivité. Par
-transitivité, nous avons que tous les types sont sous-types l'un de l'autre.
-
-Divers articles sur DOT \cite{OOPSLA-DOT-2016} avancent que restreindre la
+$Top <: Bottom$ en utilisant (SEL <:), (<: SEL) et la transitivité. Nous avons
+alors $\Gamma, x : \left\{ A : Top .. Bottom \right\} \vdash S <: T$ pour tous
+$S$ et $T$.
+\footnote{Divers articles sur DOT \cite{OOPSLA-DOT-2016} avancent que restreindre la
 déclaration (type) $\left\{ A = T \right\}$ à une égalité permet d'éviter ce
-problème lors de l'exécution.
+problème lors de l'exécution.}
+
+Nous disons qu'un type est \textit{bien formé} s'il ne possède pas de mauvaises
+bornes, sinon nous disons qu'il est \textit{mal formé}. Nous disons qu'un
+contexte est \textit{bien formé} s'il ne contient que des variables dont les types
+sont bien formés. Sinon, le contexte est dit \textit{mal formé}.
 
 \section{Encodage de Système $F_{<:}$}
 
@@ -404,7 +409,7 @@ substitution des types dépendants.
 Cette propriété de DOT implique que la question du sous-typage de DOT est
 indécidable.
 
-%\section{Notion de bonne formation}
+%\section{Notion bonne formation}
 
 \section{Sûreté}
 

@@ -1,0 +1,15 @@
+let module Test = struct
+  type t = Int.t
+  type s = self.t
+  let plus = fun(x : self.t, y : self.s) -> Int.plus x y
+end;;
+
+(* Type inféré
+Test :
+sig(self)
+  type t = Int.t .. Int.t
+  type s = self.t .. self.t
+  val plus : forall(x : self.t) forall(y : self.s) Int.t
+end
+
+*)
