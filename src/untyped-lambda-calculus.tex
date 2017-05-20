@@ -48,7 +48,7 @@ utilisées pour définir ces ensembles. La dernière syntaxe sera celle que nous
 utiliserons tout le long de ce document car elle permet une visualisation simple
 de la syntaxe des termes et permet de nommer chaque forme facilement.
 
-Des exemples de $\lambda$-termes sont
+Des exemples de $\lambda$-termes sont :
 \begin{itemize}
   \item la fonction identité : $\lambdaExpr{x}{x}$
   \item la fonction constante en $y$: $\lambdaExpr{x}{y}$
@@ -74,7 +74,7 @@ Comme dans une formule mathématique, il est important de différencier les
 variables libres et les variables liées d'un $\lambda$-terme. Par exemple, dans
 le $\lambda$-terme $\lambdaExpr{x}{x}$ la variable $x$ est liée par un
 $\lambda$\footnote{on dit aussi qu'elle est \og sous \fg \, un $\lambda$.}
-tandis que dans l'expression $\lambdaExpr{x}{y}$ la variable $y$ est libre.
+tandis que dans l'expression $\lambdaExpr{x}{y}$, la variable $y$ est libre.
 Nous définissons récursivement l'ensemble des variables libres et l'ensemble des
 variables liées à partir des variables, des abstractions et des applications.
 
@@ -100,7 +100,7 @@ variables liées à partir des variables, des abstractions et des applications.
 
 Un terme qui ne comporte pas de variable libre est dit \textit{clos}.
 
-Il existe également des termes qui sont syntaxiquement différents, mais que nous
+Il existe également des termes qui sont syntaxiquement différents mais dont nous
 voudrions naturellement qu'ils soient les mêmes. Par exemple, nous voudrions que
 la fonction identité $\lambdaExpr{x}{x}$ ne dépende pas de la variable liée $x$,
 c'est-à-dire que les termes $\lambdaExpr{x}{x}$ et $\lambdaExpr{y}{y}$ soient un seul et
@@ -170,7 +170,7 @@ notre volonté d'égalité à renommage de variables près.
 
 Nous allons étendre cette relation à tous les termes, c'est-à-dire sur tout l'ensemble $\Lambda$.
 
-Nous notons $=_{\alpha}$ la plus petite relation comprenant $\alpha$ et telle que
+Nous notons $=_{\alpha}$ la plus petite relation comprenant $\alpha$ telle que :
 \begin{itemize}
   \item[$\bullet$] $=_{\alpha}$ est réflexive, symétrique et transitive
   \item[$\bullet$] $=_{\alpha}$ passe au contexte: si $u_{1} =_{\alpha} v_{1}$

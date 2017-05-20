@@ -58,13 +58,13 @@ et la syntaxe des types par la grammaire suivante :
 
 Nous retrouvons (var) et (abs) pour les variables et les
 abstractions.
-A la différence des autres calculs, une application n'est pas constituée de deux
+À la différence des autres calculs, une application n'est pas constituée de deux
 termes mais de deux variables\footnote{Nous pouvons cependant utiliser (let)
   pour retrouver des applications entre termes.}. Nous retrouvons la projection d'un champ avec
-(champ proj). Comme pour les applications, uniquement une variable peut être
+(champ proj). Comme pour les applications, seule une variable peut être
 utilisée\footnote{Même remarque que pour les applications.}
 
-(let) permet de créer des variables locales comme il est possible en OCaml.
+(let) permet de créer des variables locales comme il est possible de le faire en OCaml.
 (let) est utilisé pour lier un terme à une variable et pouvoir utiliser cette
 dernière dans un autre terme\footnote{On dit aussi que $x$ est est un binding local.}.
 
@@ -151,7 +151,7 @@ Les règles de typage pour les termes sont les suivantes :
   {\Gamma \vdash x.a : T} \quad (\textsc{FLD-E})
 \end{mathpar}
 
-Et les règles de typage pour les définitions sont :
+Les règles de typage pour les définitions sont :
 
 \begin{mathpar}
   \inferrule
@@ -174,7 +174,7 @@ Nous retrouvons les règles (T-VAR) et (T-SUB) comme dans les précédents calcu
 terme doivent avoir le même type, le type du terme en entier est celui de $u$.
 (AND-I) nous dit que si une variable a deux types $T$ et $U$, alors elle a
 également le type intersection $T \wedge U$. ($\left\{ \; \right\}$-I) type les termes
-récursifs et oblige que la variable du terme récursif ait le même type que la déclaration.
+récursifs et oblige la variable du terme récursif à avoir le même type que celui dans la déclaration.
 (FLD-E) est l'équivalent de (T-PROJ) que nous avions défini pour les
 enregistrements.
 Pour finir, (VAR-PACK) nous dit que nous pouvons
@@ -279,7 +279,7 @@ sous-type) de sa borne inférieure (resp. supérieure).
 (FLD <: FLD) est l'équivalent de (S-RCD-DEPTH) pour un enregistrement à un
 unique champ.
 
-A travers (TYP<:TYP), les déclarations de type sont naturellement contravariantes
+À travers (TYP<:TYP), les déclarations de type sont naturellement contravariantes
 pour les bornes inférieures et covariantes pour les bornes supérieures.
 
 Pour les intersections, les règles (AND-1-<:) et (AND-2-<:) nous donnent
@@ -288,13 +288,13 @@ que si un même type est sous-type de deux types différents, alors il est
 également sous-type de leur intersection.
 
 Bien que l'analogie avec les enregistrements et les règles de sous-typage du
-chapitre \ref{chapter:lambda-calculus-with-records} permet de comprendre
+chapitre \ref{chapter:lambda-calculus-with-records} permette de comprendre
 l'utilité des règles, il faut remarquer que ces dernières sont plus expressives. En
 effet, le type intersection n'est pas défini uniquement pour les déclarations,
 mais pour n'importe quel type. Cela signifie qu'il est autorisé d'écrire $\mu(x
 : T) \wedge \left\{ a : S .. T \right\}$ ou encore $x.A \wedge \left\{ a : S ..
   T \right\} \wedge y.A \wedge \mu(x : U)$.
-De même, la variable $x$ dans un type dépendant n'est pas nécéssairement un
+De même, la variable $x$ dans un type dépendant n'est pas nécessairement un
 terme récursif mais peut être une abstraction. Par exemple, nous pouvons écrire
 $let \; y = \lambdaExpr{x : T}{t} \; in \; y.A$. Bien que ça n'ait pas de sens, la
 syntaxe le permet.
@@ -329,7 +329,7 @@ sous-typage de DOT à travers cet encodage.
 
 Notons $\mathcal{V}_{DOT}$ l'ensemble des variables de DOT et $\mathcal{V}_{T,
   F}$ l'ensemble des variables de type de Système $F_{<:}$. Ces ensembles 
-étant infini dénombrables, il existe une fonction injective $f$ entre
+étant infinis dénombrables, il existe une fonction injective $f$ entre
 $\mathcal{V}_{T, F}$ et $\mathcal{V}_{OT}$. Nous notons $x_{X} \in
 \mathcal{V}_{DOT}$ l'image de $X \in \mathcal{V}_{T, F}$ par la fonction $f$.
 
@@ -367,7 +367,7 @@ Notons $\Gamma \vdash_{F} t : T$ (resp. $\Gamma \vdash_{D} t : T$) un jugement
 de typage pour le système de typage de Système $F_{<:}$ (resp. DOT). Nous faisons
 de même pour $\Gamma \vdash_{F} S <: T$.
 
-Nous utilisons la même technique que précédemment, c'est-à-dire par induction
+Nous utilisons la même technique que précédemment, c'est-à-dire l'induction
 sur les arbres de dérivation.
 \begin{theorem}
   Si $\Gamma \vdash_{F} S <: T$, alors $\Gamma^{*} \vdash_{D} S^{*} <: T^{*}$.

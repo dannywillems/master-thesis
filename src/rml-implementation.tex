@@ -220,7 +220,7 @@ supérieure. L'algorithme travaille sur la structure de $T$ :
   $T'_{1}$ et $T'_{2}$ les résultats. Plusieurs cas possibles :
   \begin{itemize}
   \item Si $T'_{1} = T'_{2} = None$\footnote{Cela peut se
-    passer si $T'_{1}$ et $T'_{2}$ sont des fonctions.}, nous renvoons $None$.
+    passer si $T'_{1}$ et $T'_{2}$ sont des fonctions.}, nous renvoyons $None$.
   \item Si $T'_{1} = None$ et $T'_{2} \neq None$, nous renvoyons $T'_{2}$.
   \item Si $T'_{2} = None$ et $T'_{1} \neq None$, nous renvoyons $T'_{1}$.
   \item Sinon, nous renvoyons $T'_{1} \wedge T'_{2}$.
@@ -294,7 +294,7 @@ l'enregistrement récursif $\nu(x : T) d$ quand $T$ n'est pas mentionné.
 
 Pour simplifier l'écriture de programmes, nous avons décidé d'ajouter un
 algorithme pour inférer le type d'une liste de
-declarations. Lorsqu'un enregistrement récursif $\nu(x) d$ est rencontré,
+déclarations. Lorsqu'un enregistrement récursif $\nu(x) d$ est rencontré,
 nous commençons par ajouter dans le contexte $x$ avec le type \verb|Top|.
 Ensuite, nous allons parcourir la déclaration $d$ et affiner le type de $x$ en
 fonction de la forme de $d$.
@@ -304,7 +304,7 @@ fonction de la forme de $d$.
 \item Si $d = \left\{ a = t \right\}$ et $x : T$, nous utilisons l'algorithme de
   typage sur $t$ et le contexte $\Gamma, x : T$ et notons $S$ le résultat. Nous
   renvoyons $T \wedge \left\{ a : S \right\}$.
-\item Si $d = d_{1} \wedge d_{2}$ et $x : T$, nous appellons récursivement
+\item Si $d = d_{1} \wedge d_{2}$ et $x : T$, nous appelons récursivement
   l'algorithme sur $d_{1}$ avec $\Gamma, x : T$, et notons $T_{1}$ le résultat. Nous
   effectuons alors un second appel sur $d_{2}$ avec $\Gamma, x : T \wedge T_{1}$.
 \end{itemize}
@@ -341,7 +341,7 @@ d'écrire de programmes DOT moins verbeux.
 L'algorithme de sous-typage se trouve dans le fichier \verb|subtype.ml| du dossier
 \verb|typing| et travaille essentiellement sur la structure des deux types
 donnés grâce à un pattern matching. Le but de cet algorithme est, étant donnés
-deux types $S$ et $T$, de retourner oui si $S$ est un sous-type de $T$ et non sinon.
+deux types $S$ et $T$, de déterminer si $S$ est un sous-type de $T$.
 
 Remarquons que pour une question posée, il est possible
 d'utiliser plusieurs règles.
@@ -494,8 +494,8 @@ $x_{2}$ par celui-ci dans $S'$ et $T'$. Un appel récursif est alors effectué
 avec $S'$ et $T'$ après avoir étendu le contexte avec $x : S'$. Nous appelons
 cette règle (UN-REC).
 \item Si $S = \nu(x : S')$ et $T$ quelconque (resp. $T = \nu(x : T')$ et $S$
-  quelconque), nous ajoutons $x$ dans le contexte avec le type $S'$ (resp $T'$) et
-  nous effectuons un appel récursif avec $S'$ et $T$ (resp. $S$ et $T'$). Etendre
+  quelconque), nous ajoutons $x$ dans le contexte avec le type $S'$ (resp. $T'$) et
+  nous effectuons un appel récursif avec $S'$ et $T$ (resp. $S$ et $T'$). Étendre
   le contexte est nécessaire si $S'$ contient des champs mutuellement dépendants.
   Nous appelons ces règles respectivement (UN-<: REC) et (UN-REC <:).
 \end{itemize}
@@ -593,9 +593,9 @@ cette règle peut être dérivée d'autres règles.
 
 \subsection*{Transitivité}
 
-Actuellement, la transtivité n'est pas gérée. En effet, pour le gérer, il
+Actuellement, la transitivité n'est pas gérée. En effet, pour la gérer, il
 faudrait trouver un type $U$ tel que $S <: U$ et $T <: U$, ce qui n'est pas
-possible, ou au moins compliqué. Pour contourner ce problème, il est
+possible, ou du moins compliqué. Pour contourner ce problème, il est
 nécessaire de reformuler les règles de sous-typage et d'y introduire
 explicitement (S-TRANS).
 
@@ -603,7 +603,7 @@ explicitement (S-TRANS).
 
 Les algorithmes de typage et de sous-typage nécessitent un paramètre
 supplémentaire \verb|history| qui permet de se souvenir des règles
-utilisées et de pouvoir ainsi reconstruire l'arbre de dérvation. Cet arbre de
+utilisées et de pouvoir ainsi reconstruire l'arbre de dérivation. Cet arbre de
 dérivation peut être affiché pour une expression en utilisant l'annotation
 \verb|[@show_derivation_tree]| à la fin des expressions. Par défaut, l'arbre
 affiche également le contexte. Comme celui-ci peut être grand pour les
@@ -612,7 +612,7 @@ affiche l'arbre de dérivation sans le contexte.
 
 \section{Sucres syntaxiques}
 
-La syntaxe de base de DOT n'est pas très élégante et très pratique à utiliser.
+La syntaxe de base de DOT n'est pas très élégante ni très pratique à utiliser.
 En effet, il n'est par exemple pas possible de définir des fonctions à plusieurs
 variables, de passer des termes en paramètre d'une fonction ou encore d'utiliser
 un terme dans une sélection.
@@ -620,7 +620,7 @@ un terme dans une sélection.
 Pour ces raisons, des sucres syntaxiques au niveau des parseurs sont implémentés
 dans le langage de surface de RML.
 
-\subsection*{Currification des fonctions}
+\subsection*{Curryfication des fonctions}
 
 Dans RML, il est possible de définir des fonctions à plusieurs variables en les
 séparant par une virgule.
@@ -650,13 +650,13 @@ d'avoir des champs mutuellement dépendants.
 Une fonctionnalité intéressante et pratique est l'utilisation de
 termes pour les paramètres ainsi que pour les fonctions. Ceci
 est géré dans le parseur et ce dernier génère des bindings locaux. Cela se
-résume par la règle suivante
+résume par la règle suivante :
 
 \begin{center}
   x t $\rightarrow$ let y = t in x y
 \end{center}
 
-Un point important\footnote{Et qui n'est pas mentionné dans les documents sur
+Un point important\footnote{Ce n'est pas mentionné dans les documents sur
 DOT.} est qu'il faut éviter de réaliser un binding local d'une variable car
 cela pourrait provoquer des problèmes d'échappement. Cela signifie que DOT n'est
 pas stable par insertion de let variable-variable. Un exemple concret est donné
@@ -732,15 +732,15 @@ typer le terme.
 \section{Exemples}
 
 Reprenons l'exemple donné en introduction. En RML, le module \verb|Point2D| avec
-des entiers peut être défini de la manière suivante.
+des entiers peut être défini de la manière suivante :
 
 \begin{listing}
   \inputminted{OCaml}{codes/point2d.rml}
   \caption{Point2D en RML.}
 \end{listing}
 
-Et nous pouvons définir le foncteur \verb|MakePoint2D| avec le terme \verb|fun|
-comme une autre fonction.
+Nous pouvons définir le foncteur \verb|MakePoint2D| avec le terme \verb|fun|
+comme une autre fonction :
 
 \begin{listing}
   \inputminted{OCaml}{codes/makepoint2d.rml}
@@ -749,8 +749,8 @@ comme une autre fonction.
   \label{code:rml-point2d}
 \end{listing}
 
-Et le type du foncteur est le même que celui d'une fonction qui prend un module
-en paramètre et retourne un module.
+Le type du foncteur est le même que celui d'une fonction qui prend un module
+en paramètre et retourne un module :
 
 \begin{listing}
   \inputminted{OCaml}{codes/makepoint2d_sig.rml}
@@ -760,7 +760,7 @@ en paramètre et retourne un module.
 
 Nous pouvons également définir des listes paramétrées par un type en utilisant un foncteur
 comme le montre la figure \ref{code:rml-list-functor} et créer une liste d'entier en
-utilisant \verb|List Int|.
+utilisant \verb|List Int| :
 
 \begin{listing}
   \inputminted{OCaml}{codes/list_functor.rml}
@@ -773,7 +773,7 @@ utilisant \verb|List Int|.
 \end{listing}
 
 Cependant, cette implémentation de liste n'est pas très pratique car si nous
-voulons une liste d'entier, nous devons créer un module intermédiaire. La figure
+voulons une liste d'entiers, nous devons créer un module intermédiaire. La figure
 \ref{code:rml-list-with} propose une autre implémentation de listes polymorphes
 qui de plus sont covariantes (grâce à \verb|type t <: self.t|). Le mot clef
 \verb|with| dénote une intersection\footnote{Comme en OCaml dans
@@ -799,8 +799,8 @@ Plus d'exemples peuvent être trouvés sur la page du projet.
 
 Bien que l'implémentation actuelle donne des résultats satisfaisants sur
 différents cas, diverses améliorations peuvent être effectuées. Une liste \\
-non-exhaustive peut être trouvée, en anglais, sur la page du
-projet\cite{rml-github-issues}. Voici quelques exemples.
+non exhaustive peut être trouvée, en anglais, sur la page du
+projet\cite{rml-github-issues}. En voici quelques exemples :
 
 \begin{itemize}
   \item L'algorithme de sous-typage provoque sur certains cas des stack

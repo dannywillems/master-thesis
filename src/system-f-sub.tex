@@ -38,14 +38,14 @@ fonction $\lambdaExprType{X <: \left\{ z : \real \right\}}{\lambdaExpr{x :
 enregistrement avec au moins le champ $z$ qui est de type réel.
 
 Il est naturel de se demander pourquoi nous ne donner qu'une borne
-supérieure aux variables. Nous verrons que DOT attribue également une borne inférieure.
+supérieure aux variables. Nous verrons que DOT leur attribue également une borne inférieure.
 
 Dans ce chapitre, nous considérons également le type \verb|Top|.
 
 \section{Syntaxe}
 
 La syntaxe de Système $F_{<:}$ est celle de Système $F$ à laquelle nous ajoutons
-une borne supérieure aux variables des abstractions de type.
+une borne supérieure aux variables des abstractions de type :
 
 \begin{minipage}{0.45\textwidth}
   \begin{align*}
@@ -78,7 +78,7 @@ Les valeurs restent les mêmes :
 
 \section{Sémantique}
 
-Au niveau de la sémantique, les règles restent les mêmes que Système F.
+Au niveau de la sémantique, les règles restent les mêmes que pour Système F :
 
 \begin{mathpar}
   \inferrule
@@ -216,7 +216,7 @@ Des preuves des théorèmes peuvent être trouvées dans
 
 \section{Indécidabilité du sous-typage}
 
-Etant donnés deux types $S$ et $T$, la question $S <: T$ a-t-elle
+Étant donnés deux types $S$ et $T$, la question $S <: T$ a-t-elle
 toujours une réponse ? En d'autres termes, la question du sous-typage est-elle
 décidable ?
 

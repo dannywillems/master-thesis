@@ -3,7 +3,7 @@
 
 Les termes ainsi que les types d'un langage sont définis de manière inductive.
 Par exemple, pour le $\lambda$-calcul simplement typé, la grammaire des termes
-est définie par
+est définie par :
 \begin{align*}
   t ::= & \, & \text{terme} \\
         & \; x & \text{var} \\
@@ -11,8 +11,8 @@ est définie par
         & \; \lambdaExpr{x : T}{t} & \text{abs}
 \end{align*}
 
-et la grammaire des types, en supposant que nous avons uniquement \verb|Bool|
-(pour les booléens) comme type de base, est définie par
+La grammaire des types, en supposant que nous avons uniquement \verb|Bool|
+(pour les booléens) comme type de base, est définie par :
 \begin{align*}
   T ::= & \, & \text{types} \\
         & \; Bool & \text{type des booléens} \\
@@ -22,7 +22,7 @@ et la grammaire des types, en supposant que nous avons uniquement \verb|Bool|
 Ces définitions récursives sur les termes et les types nous permettent de
 définir récursivement des fonctions agissant sur les termes et les types. Par
 exemple, nous pouvons définir de manière inductive une fonction
-\verb|size| sur les termes et les types de la manière suivante.
+\verb|size| sur les termes et les types de la manière suivante :
 
 \begin{align*}
   size(x) & = 1 \\
@@ -43,7 +43,7 @@ les naturels, comme le montre la preuve d'unicité de type pour le
 $\lambda$-calcul simplement typé.
 
 Nous supposons pour la plupart des grammaires que nous disposons d'une telle
-fonction qui permette de raisonner inductivement sur la structure des
+fonction qui permet de raisonner inductivement sur la structure des
 programmes ou des types, la fonction \verb|size| étant souvent facile à définir.
 
 %Certaines preuves nécessitent une induction sur deux paramètres naturels comme celles

@@ -87,7 +87,7 @@ qui renvoie la fonction identité pour ce type:
 \end{equation*}
 
 Nous étendons également de manière naturelle la notion de substitution aux
-nouveaux termes $t[T]$ et $\lambdaExprType{X}{t}$.
+nouveaux termes $t[T]$ et $\lambdaExprType{X}{t}$ :
 
 \begin{align*}
   [x := s] \, (t[T]) & = ([x := s]t)[T] \\
@@ -167,7 +167,7 @@ n'est pas valable, mais $X, x : X$ l'est.
 \section{Règles de typage}
 
 Enfin, nous ajoutons des règles de typage pour les nouveaux termes
-$\lambdaExprType{X}{T}$ et $t[T]$.
+$\lambdaExprType{X}{T}$ et $t[T]$ :
 
 \begin{mathpar}
   \inferrule* [Left=(T-T-ABS)]
@@ -188,7 +188,7 @@ $id_{poly}[\naturel]$ qui sont respectivement de types $\forall X . \, X
 Les théorèmes de préservation et de progression peuvent également être démontrés
 pour Système F. Comme nous avons pu le remarquer, Système F est une extension
 relativement simple du $\lambda$-calcul simplement typé. Les nouvelles règles de typage
-et d'évaluation ont de l'influence uniquement sur les nouveaux termes et les
+et d'évaluation influencent uniquement les nouveaux termes et les
 nouveaux types. Les preuves des théorèmes sont donc très semblables. Comme pour
 le chapitre précédent, les preuves seront moins détaillées.
 
@@ -280,7 +280,7 @@ pour le $\lambda$-calcul avec sous-typage.
     \Gamma, [X \rightarrow S]\Delta \vdash [X \rightarrow S]t : [X \rightarrow S] T 
   \end{equation*}
   où $[X \rightarrow S]\Delta$ signifie que nous remplaçons toutes les
-  occurences de $X$ par $S$ dans le contexte $\Delta$.
+  occurrences de $X$ par $S$ dans le contexte $\Delta$.
 \end{lemma}
 
 \begin{proof}
