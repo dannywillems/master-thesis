@@ -1,4 +1,4 @@
-let module ListWith = struct(sci)
+let module List = struct(sci)
   type list = sig
     type t
     val is_empty : Bool.t
@@ -11,13 +11,13 @@ let module ListWith = struct(sci)
     let head = Unimplemented
     let tail = Unimplemented
   end
-  let cons = fun(typ : sig
+  let cons = fun(elem : sig
       type t
     end,
-    head : typ.t,
-    tail : sci.list with type t <: typ.t) ->
+    head : elem.t,
+    tail : sci.list with type t <: elem.t) ->
   struct
-    type t = typ.t
+    type t = elem.t
     let is_empty = Bool.false
     let head = head
     let tail = tail

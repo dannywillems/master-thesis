@@ -84,7 +84,7 @@ labels.
 Quant aux types, nous retrouvons $Top$ et $Bottom$ comme décrits dans le
 chapitre \ref{chapter:lambda-calculus-with-records}. Le type fonction est
 également présent avec une syntaxe différente et il devient dépendant,
-c'est-à-dire que le type de retour peut dépenser du paramètre. (champ decl) est le type d'un
+c'est-à-dire que le type de retour peut dépendre du paramètre. (champ decl) est le type d'un
 champ d'un enregistrement. (type decl) est le type d'une déclaration d'un type
 dans un enregistrement et possède une borne inférieure $S$ et une borne
 supérieure $T$. (inter) permet de typer le corps d'un enregistrement contenant
@@ -300,6 +300,20 @@ $let \; y = \lambdaExpr{x : T}{t} \; in \; y.A$. Bien que ça n'ait pas de sens,
 syntaxe le permet.
 La difficulté de DOT réside dans cette expressivité.
 
+\section{Problème de mauvaises bornes}
+
+DOT permet de définir des déclarations de types avec une borne inférieure et une
+borne supérieure. Cette liberté dans les types, bien qu'intéressante à première
+vue, pose un problème dans le système de sous-typage.
+En effet, le type $\left\{ A : Top .. Bottom \right\}$ est autorisé. Cependant,
+si $x : \left\{ A : Top .. Bottom \right\}$, alors nous pouvons montrer que
+$Top <: Bottom$ en utilisant (SEL <:), (<: SEL) et la transitivité. Par
+transitivité, nous avons que tous les types sont sous-types l'un de l'autre.
+
+Divers articles sur DOT \cite{OOPSLA-DOT-2016} avancent que restreindre la
+déclaration (type) $\left\{ A = T \right\}$ à une égalité permet d'éviter ce
+problème lors de l'exécution.
+
 \section{Encodage de Système $F_{<:}$}
 
 Bien que la syntaxe soit différente de Système $F_{<:}$ et que DOT ne comporte
@@ -311,7 +325,7 @@ sous-typage de DOT à travers cet encodage.
 Notons $\mathcal{V}_{DOT}$ l'ensemble des variables de DOT et $\mathcal{V}_{T,
   F}$ l'ensemble des variables de type de Système $F_{<:}$. Ces ensembles 
 étant infini dénombrables, il existe une fonction injective $f$ entre
-$\mathcal{V}_{T, F}$ et $\mathcal{V}_{DOT}$. Nous notons $x_{X} \in
+$\mathcal{V}_{T, F}$ et $\mathcal{V}_{OT}$. Nous notons $x_{X} \in
 \mathcal{V}_{DOT}$ l'image de $X \in \mathcal{V}_{T, F}$ par la fonction $f$.
 
 Nous définissons alors la fonction ${}^{*}$ qui à chaque terme (resp. type) de
@@ -385,7 +399,7 @@ sur les arbres de dérivation.
 Nous acceptons ce théorème. Une preuve peut être trouvée dans
 \cite{WF-DOT-2016} et se fait par induction sur la dérivation $\Gamma \vdash_{F}
 t : T$. Celle-ci repose sur deux lemmes intermédiaires pour la
-substitution de types dépendants.
+substitution des types dépendants.
 
 Cette propriété de DOT implique que la question du sous-typage de DOT est
 indécidable.
