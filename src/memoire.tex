@@ -1,13 +1,26 @@
-\documentclass[12pt,a4paper]{memoire-umons}
+\documentclass[10pt,a4paper]{memoire-umons}
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[francais]{babel}
 \usepackage{amssymb,amsmath,amsthm}
+\usepackage{fancyvrb}
+\usepackage{caption}
+%\usepackage{algorithm}
+%\usepackage{algorithmic}
+
+% Pour la coloration du code. Le dossier de sortie doit être ajouté car un
+% fichier pyg est créé pendant la compilation et est nécéssaire pour la suite de
+% la compilation.
+\usepackage[outputdir=_build]{minted}
 
 %Pour les règles d'inférence.
 \usepackage{mathpartir}
 
+% Used for tree representation.
+\usepackage{qtree}
+
+\usepackage{url}
 
 \usepackage{hyperref}% hyperliens dans le PDF, pas pour impression
 
@@ -16,10 +29,10 @@
 \date{2016--2017}
 \directeur{François Pottier}
 \codirecteurs{Christophe Troestler}
-\service{Service d'Analyse Numérique}
-\rapporteurs{
-  Christophe Troestler
-}
+\service{Equipe Gallium (INRIA Paris)}
+%\rapporteurs{
+%  Christophe Troestler
+%}
 \discipline{Mathématiques}
 
 % Compile uniquement certains morceaux sans perdre les références
@@ -30,17 +43,24 @@
 \input{latex-macros-math/macros_math}
 
 \begin{document}
+
+\newcommand{\localLetBinding}[3]{let \; #1 \; = \; #2 \; in \; #3}
+
+\input{remerciements}
+
 \tableofcontents
 
 \input{introduction}
 \input{untyped-lambda-calculus}
 \input{simple-typed-lambda-calculus}
-\input{simple-typed-lambda-calculus-with-recursive-type}
 \input{subtyping-with-records}
 \input{system-f}
 \input{system-f-sub}
 \input{dot}
+\input{rml-implementation}
 \input{conclusion}
+
+%\input{appendices}
 
 \bibliographystyle{acm}
 \bibliography{memoire}% si le fichier BibTeX est memoire.bib

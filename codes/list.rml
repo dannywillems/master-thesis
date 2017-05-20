@@ -1,0 +1,25 @@
+let module List = struct(sci)
+  type list = sig
+    type t
+    val is_empty : Bool.t
+    val head : self.t
+    val tail : sci.list with type t <: self.t
+  end
+  let nil : sci.list with type t = Nothing = struct
+    type t = Nothing
+    let is_empty = Bool.true
+    let head = Unimplemented
+    let tail = Unimplemented
+  end
+  let cons = fun(elem : sig
+      type t
+    end,
+    head : elem.t,
+    tail : sci.list with type t <: elem.t) ->
+  struct
+    type t = elem.t
+    let is_empty = Bool.false
+    let head = head
+    let tail = tail
+  end
+end;;

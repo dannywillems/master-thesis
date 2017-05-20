@@ -1,11 +1,534 @@
 \chapter{$\lambda$-calcul avec sous-typage et enregistrements.}
+\label{chapter:lambda-calculus-with-records}
 
-Remarquons que de l'information sur le type du retour est perdue dans certains
-cas. Par exemple, prenons l'expression
+La syntaxe des termes du $\lambda$-calcul simplement typé est pauvre : nous ne pouvons définir que des
+variables, des fonctions et appliquer des termes entre eux.
+La plupart des langages de programmation fournissent diverses structures de
+données comme les paires, les tuples, ou encore les enregistrements.
 
-let f = lambda(x : Any) x in
-let g = lambda(y : Nothing) y in
-f g
+Un enregistrement est ensemble fini de couples $(l_{i}, t_{i})$, noté $\left\{
+  l_{i} = t_{i} \right\}^{1 \leq i \leq n}$ où $l_{i}$ est
+un label pour le terme $t_{i}$, les couples étant séparés par des
+points-virgules. Par exemple, nous pouvons représenter un point d'un plan par
+ses coordonnées cartésiennes, nommées $x$ et $y$, et par les termes $t_{x}$ et
+$t_{y}$ pour la valeur des coordonnées. Nous notons ce terme $\left\{ x = t_{x}
+; y = t_{y} \right\}$. Il est également intéressant de pouvoir récupérer une des
+coordonnées d'un point. Pour cette raison, nous ajoutons le terme $t.l$ qui permet d'accéder au label $l$ du terme $t$.
+
+Il nous faut également typer les enregistrements. Pour cela, nous ajoutons une
+nouvelle syntaxe dans les types, noté $\left\{l_{i} : T_{i}\right\}^{1 \leq i
+  \leq n}$ où $l_{i}$
+est un label de l'enregistrement et $T_{i}$ le type du terme référencé par le
+label $l_{i}$. Pour l'exemple du point dans le plan réel, si nous supposons avoir un
+type $\real$ pour les réels, notre point serait de type $\left\{ x : \real ; y : \real
+\right\}$. Pour le typage des projections, il est naturel de dire que le type de
+$t.l_{i}$ soit le type du terme $t_{i}$ de l'enregistrement $t$.
+
+Dans ce chapitre, nous allons étendre notre ensemble de termes avec les
+enregistrements ainsi que définir les règles d'évaluation et de typage pour ces
+nouveaux termes pour enfin introduire dans un second temps la notion de
+sous-typage qui définit le principe du \textit{polymorphisme par sous-typage}.
+
+\section{$\lambda$-calcul simplement typé avec enregistrements}
+
+\section*{Syntaxe}
+
+Formellement, la syntaxe des termes et la syntaxe des types sont définies par
+les grammaires suivantes :
+
+\begin{minipage}{0.45\textwidth}
+  \begin{align*}
+    t ::= & \, & \text{terme} \\
+          & \; x & \text{var} \\
+          & \; t \, t & \text{app} \\
+          & \; \lambdaExpr{x : T}{t} & \text{abs} \\
+          & \; \left\{ l_{i} = t_{i} \right\}^{1 \leq i \leq n} & \text{enreg} \\
+          & \; t.l & \text{proj}
+  \end{align*}
+\end{minipage}
+\label{syntax-terms:lambda-calculus-with-records}
+\begin{minipage}{0.45\textwidth}
+  \begin{align*}
+    T ::= & \, & \text{type} \\
+          & \; T \rightarrow T & \text{fonction} \\
+          & \; \left\{ l_{i} : T_{i} \right\}^{1 \leq i \leq n} & \text{enreg}
+  \end{align*}
+\end{minipage}
+\label{syntax-types:lambda-calculus-with-records}
+\\
+\\
+\\
+Nous allons également ajouter les enregistrements dont tous les termes sont des
+valeurs comme valeurs de notre langage. Nous obtenons alors la grammaire
+suivante :
+\label{syntax-values:lambda-calculus-with-records}
+\begin{align*}
+  v ::= & \, & \text{valeur} \\
+        & \; \lambdaExpr{x : T}{t} & \text{abs} \\
+          & \; \left\{ l_{i} = v_{i} \right\}^{1 \leq i \leq n} & \text{enreg} \\
+\end{align*}
+
+\section*{Sémantique}
+
+Il nous faut également définir comment nous réduisons nos
+enregistrements. Nous ajoutons les règles d'évaluation suivantes aux règles
+d'évaluation définies dans les chapitres précédents.
+
+\begin{mathpar}
+  \inferrule
+  {t_{j} \rightarrow t'_{j}}
+  {\left\{ l_{1} = v_{1}; ... ; l_{j} = t_{j} ; ... ; l_{n} = t_{n} \right\}
+    \rightarrow \\\\ \left\{ l_{1} = v_{1}; ... ; l_{j} = t'_{j} ; ... ; l_{n} =
+      t_{n} \right\}} \quad (\textsc{E-RCD})
+  \and
+  \inferrule
+  {t_{1} \rightarrow t'_{1}}
+  {t_{1}.l \rightarrow t'_{1}.l} \quad (\textsc{E-PROJ})
+  \and
+  \inferrule
+    {\left\{l_{i} = v_{i} \right\}^{1 \leq i \leq n}.l_{j} \rightarrow v_{j}}
+    {} \quad (\textsc{E-PROJ-RCD})
+\end{mathpar}
+\label{semantics:lambda-calculus-with-records}
+
+La règle (E-RCD) nous dit comment les termes à l'intérieur d'un enregistrement sont
+évalués. Quant à (E-PROJ-RCD)\footnote{Nous supposons que $j \in \GSset{1, ...,
+n}$.}, elle nous dit que nous pouvons évaluer une projection uniquement si les
+termes de l'enregistrement ont tous été réduits à des valeurs. Pour finir,
+(E-PROJ) nous dit comment nous simplifions le terme dans une projection.
+
+\section*{Règles de typage}
+
+En plus des règles de typage du $\lambda$-calcul simplement typé, la relation
+de typage comprend les règles suivantes :
+
+\begin{mathpar}
+  \inferrule
+  {\forall i \in \left\{1, ..., n \right\}, \Gamma \vdash t_{i} : T_{i}}
+  {\Gamma \vdash \left\{ l_{i} = t_{i} \right\}^{1 \leq i \leq n} : \left\{ l_{i} : T_{i}
+    \right\}^{1 \leq i \leq n}}
+  \quad (\textsc{T-RCD})
+  \and
+  \inferrule
+  {\Gamma \vdash t_{1} : \left\{ l_{i} : T_{i} \right\}^{1 \leq i \leq n}}
+  {\Gamma \vdash t_{1}.l_{j} : T_{j} } 
+  \quad (\textsc{T-PROJ})
+\end{mathpar}
+\label{typing:lambda-calculus-with-records}
+
+La règle (T-RCD) nous dit comment introduire un type enregistrement tandis que
+(T-PROJ) nous dit comment typer une projection.
+
+\section{Sous-typage}
+
+Maintenant que nous avons défini la syntaxe, la sémantique et les règles de
+typage de notre langage comprenant les enregistrements, nous allons définir la
+notion de sous-typage ainsi que les règles pour ce langage.
+
+Le sous-typage est une forme de polymorphisme, c'est-à-dire une possibilité
+d'attribuer plusieurs types à un terme. Le polymorphisme est très courant dans
+les langages orientés objets et permet, par exemple, d'élargir le champ
+d'application des fonctions.
+De manière plus concrète, supposons que nous ayons défini un type $\real$
+pour l'ensemble des réels et définissons le point $(5, 5)$ du plan $\real^{2}$ par
+$\left\{ x = 5 ; y = 5 \right\}$\footnote{En supposant que 5 fasse partie de
+  notre syntaxe et que son type soit $\real$.}.
+Nous pouvons définir la fonction de projection sur l'axe des abscisses avec
+\begin{equation*}
+  \lambdaExpr{p : \left\{ x : \real ; y : \real \right\}}{p.x}.
+\end{equation*}
+Maintenant, nous souhaitons faire de même pour le point $(5, 5, 5)$ de $\real^{3}$,
+représenté par $\left\{ x = 5 ; y = 5 ; z = 5 \right\}$.
+Nous ne pouvons pas utiliser la fonction de projection définie pour $\real^{2}$
+parce que le paramètre de la fonction est un enregistrement ne contenant que les
+champs $x$ et $y$. Nous devons donc créer une nouvelle fonction, par exemple 
+\begin{equation*}
+  \lambdaExpr{p : \left\{ x : \real ; y : \real ; z : \real \right\}}{p.x}.
+\end{equation*}
+Et si nous voulions continuer pour $\real^{4}$, $\real^{5}$, etc, nous devrions à chaque
+fois redéfinir une nouvelle fonction. Cependant, nous remarquons que le corps de
+la fonction est toujours le même et qu'il n'a besoin que d'un enregistrement
+avec au moins un champ $x$, les autres champs étant inutiles.
 
 
-\section{Sureté}
+C'est dans ce cas que le sous-typage intervient : nous allons définir une
+relation entre les types qui permet d'affiner les règles de typage. Nous dirons que
+\textbf{$S$ est un sous-type de $T$} ou encore \textbf{$T$ est un supertype de $S$}, noté $S <: T$.
+
+Pour lier la relation de typage à la relation de sous-typage, nous ajoutons une
+nouvelle règle de typage
+
+\begin{mathpar}
+  \inferrule
+  {\Gamma \vdash t : S \\ S <: T}
+  {\Gamma \vdash t : T} \quad (\textsc{T-SUB})
+\end{mathpar}
+
+Cette dernière permet d'affirmer que si dans un contexte donné, un terme $t$ a le
+type $S$ et que le type $S$ est un sous-type de $T$, alors dans le même
+contexte, $t$ a le type $T$.
+
+\subsection*{Règles de sous-typage}
+
+Passons à la définition de la relation de sous-typage. La toute première chose
+est que nous voulons que cette relation soit réflexive et transitive comme c'est
+le cas dans la plupart des langages:
+
+\begin{mathpar}
+  \inferrule
+  {S <: S}{} \quad (\textsc{S-REFL})
+  \and
+  \inferrule
+  {S <: T \\ T <: U}{S <: U} \quad (\textsc{S-TRANS})
+\end{mathpar}
+
+Ensuite, nous aimerions que la relation résolve notre problème, c'est-à-dire que
+nous devons pouvoir affirmer qu'un type ayant les champs $x, y, z$
+est un sous-type du type ayant uniquement le champ $x$ ou uniquement le champ
+$y$. Nous résumons cela par les deux règles suivantes:
+
+\begin{mathpar}
+  \inferrule
+  {\left\{ l_{i} : T_{i} \right\}^{1 \leq i \leq n + k} <: \left\{ l_{i} :
+      T_{i} \right\}^{1 \leq i \leq n}}
+  {}
+    \quad (\textsc{S-RCD-WIDTH})
+  \and
+  \inferrule
+  {\left\{ k_{j} : S_{j} \right\}^{1 \leq j \leq n} \text{ permutation de }
+    \left\{ l_{i} : T_{i} \right\} ^ {1 \leq i \leq n}}
+  { \left\{ k_{j} : S_{j} \right\} ^ {1 \leq j \leq n} <:
+    \left\{ l_{i} : T_{i} \right\} ^ {1 \leq i \leq n}}
+  \quad (\textsc{S-RCD-PERM})
+\end{mathpar}
+
+(S-RCD-WIDTH) nous permet de \og laisser de coté \fg \, certain champ tandis que
+(S-RCD-PERM) nous dit que l'ordre des champs dans un enregistrement n'a pas d'importance.
+
+Nous souhaitons également prendre en
+compte les types dans les enregistrements et leur relation de sous-typage entre
+eux. Par exemple, nous aimerions qu'un point du plan $\naturel^{2}$ soit
+également un point du plan $\real^{2}$.
+
+\begin{mathpar}
+  \inferrule
+  {\forall i \in \GSset{1, ..., n}, S_{i} <: T_{i}}
+  {\left\{ l_{i} : S_{i} \right\}^{1 \leq i \leq n} <: \left\{ l_{i} : T_{i}
+    \right\}^{1 \leq i \leq n}}
+  \quad (\textsc{S-RCD-DEPTH})
+\end{mathpar}
+
+(S-RCD-DEPTH) nous dit que, étant donnés deux types enregistrements $S$ et $T$
+avec les mêmes labels,
+si les types des champs de $S$ sont tous sous-types des types des champs de $T$,
+alors $S$ est sous-type de $T$.
+
+Pour finir, nous ajoutons une règle pour comparer deux types flèches.
+Nous disons que le type flèche est \textit{contravariant} pour les paramètres et
+\textit{covariant} pour le type de retour.
+
+\begin{mathpar}
+  \inferrule
+  {T_{1} <: S_{1} \\ S_{2} <: T_{2}}
+  {S_{1} \rightarrow S_{2} <: T_{1} \rightarrow T_{2} }
+  \quad (\textsc{S-ARROW})
+\end{mathpar}
+
+Nous avons maintenant toutes les propriétés nécessaires pour résoudre notre
+problème. En effet, voici un arbre de dérivation qui permet de montrer
+$(\lambdaExpr{p : \left\{ x : \real \right\}}{p.x}) \left\{ x = 5 ; y =
+  5 \right\} : \real$.
+
+\begin{mathpar}
+\inferrule* [Left=(T-APP)]
+{\Gamma \vdash \lambdaExpr{p : \left\{ x : \real \right\}}{p.x} : \left\{ x : \real
+  \right\} \rightarrow \real
+  \\
+  \inferrule* [Right=(T-SUB)]
+  {\Gamma \vdash \left\{ x = 5 ; y = 5 \right\} : \left\{ x : \real ; y : \real \right\}
+    \\\\
+    \left\{ x : \real ; y : \real \right\} <: \left\{ x : \real \right\}
+  }
+  {\Gamma \vdash \left\{ x = 5 ; y = 5 \right\} : \left\{ x : \real \right\}}
+}
+{\Gamma \vdash (\lambdaExpr{p : \left\{ x : \real \right\}}{p.x}) \left\{ x = 5 ; y =
+  5 \right\} : \real}
+\end{mathpar}
+
+L'affirmation \inferrule{\left\{ x : \real ; y : \real \right\} <: \left\{ x : \real
+  \right\}}{} est inférée grâce à (S-RCD-WIDTH).
+
+\section{Sûreté}
+
+Nous allons montrer que les théorèmes de préservation et de progression
+démontrés pour le $\lambda$-calcul simplement typé restent vrais en présence
+d'enregistrements et du sous-typage.
+
+Les techniques de preuves utilisées et leur structure ne sont pas très
+différentes de celles employées dans le chapitre précédent. Pour ces raisons,
+les preuves seront moins détaillées.
+
+\subsection*{Préservation}
+
+\begin{lemma} [Inversion de la règle de sous-typage]
+  \label{lemma:record-subtyping-inversion-subtyping-rules}
+  \begin{enumerate}
+    \item Si $S <: T_{1} \rightarrow T_{2}$, alors $S$ est de la forme $S_{1}
+      \rightarrow S_{2}$ avec $T_{1} <: S_{1}$ et $S_{2} <: T_{2}$.
+    \item Si $S <: \left\{ l_{i} : T_{i} \right\}^{1 \leq i \leq n}$, alors $S$
+      est de la forme $\left\{ k_{i} : S_{i} \right\}^{1 \leq i \leq m}$ tel que
+      $(k_{i})_{1 \leq i \leq m} \subseteq (l_{i})_{1 \leq i \leq n}$ et $S_{i}
+      <: T_{i}$ pour chaque $i$ tel que $l_{i} = k_{i}$.
+  \end{enumerate}
+\end{lemma}
+
+\begin{proof}
+  La technique de preuve reste identique : pour chaque affirmation, nous
+  cherchons quelle règle peut y avoir mené et nous montrons cas par cas, en
+  utilisant le principe d'induction sur l'arbre de dérivation. Seul le
+  premier point est démontré, le second étant identique. Pour le premier point,
+  seules les règles (S-REFL), (S-ARROW) et (S-TRANS) sont possibles.
+
+  \begin{itemize}
+  \item (S-REFL). Le résultat est direct car $S = T_{1} \rightarrow T_{2}$.
+  \item (S-ARROW). Le résultat est également direct.
+  \item (S-TRANS). Nous avons donc l'arbre de dérivation suivant:
+    \begin{mathpar}
+      \inferrule
+      {S <: T \\ T <: T_{1} \rightarrow T_{2}}
+      {S <: T_{1} \rightarrow T_{2}}
+    \end{mathpar}
+    Nous appliquons d'abord l'hypothèse de récurrence sur l'affirmation $T <:
+    T_{1} \rightarrow T_{2}$ et ensuite sur l'affirmation $S <: T$. Nous
+    concluons en utilisant (S-TRANS).
+  \end{itemize}
+\end{proof}
+
+Nous montrons également un lemme d'inversion des règles de typage comme il a été
+démontré pour le $\lambda$-calcul simplementé typé.
+
+\begin{lemma} [d'inversion des règles de typage]
+  \label{lemma:subtyping-record-inversion-typing-rules}
+  \begin{enumerate}
+    \item Si $\Gamma \vdash \lambdaExpr{x : S_{1}} s_{2} : T_{1} \rightarrow
+    T_{2}$, alors $T_{1} <: S_{1}$ et $\Gamma, x : S_{1} \vdash s_{2} : T_{2}$.
+    \item Si $\Gamma \vdash \left\{ k_{i} = s_{i} \right\}^{1 \leq i \leq n} :
+      \left\{ l_{i} : T_{i} \right\}^{1 \leq i \leq m}$, alors $(l_{i})^{1 \leq
+        i \leq m} \subseteq (k_{i})^{1 \leq i \leq n}$ et $\Gamma \vdash s_{i} :
+      T_{i}$ pour $k_{i} = l_{i}$.
+  \end{enumerate}
+\end{lemma}
+
+\begin{proof}
+  Par induction sur l'arbre de typage de $\Gamma \vdash t : T$.
+  Encore une fois, nous ne montrons que pour le premier cas, les arguments étant
+  sensiblement les mêmes pour le second.
+
+  Les seuls règles possibles sont (T-SUB) ou (T-ABS).
+
+  \begin{enumerate}
+    \item (T-SUB). Nous avons donc l'arbre de dérivation suivant:
+      \begin{mathpar}
+        \inferrule* [Left=(T-SUB)]
+        {\Gamma \vdash \lambdaExpr{x : S_{1}}{s_{2}} : T \\ T <: T_{1}
+          \rightarrow T_{2}}
+        {\Gamma \vdash \lambdaExpr{x : S_{1}}{s_{2}} : T_{1} \rightarrow T_{2}}
+      \end{mathpar}
+      En appliquant le lemme \ref{lemma:record-subtyping-inversion-subtyping-rules}
+      sur l'affirmation $T <: T_{1} \rightarrow T_{2}$, nous obtenons $T =
+      \tilde{S_{1}} \rightarrow \tilde{S_{2}}$ avec $T_{1} <: \tilde{S_{1}}$ et $\tilde{S_{2}} <: T_{2}$.
+      L'affirmation de gauche devient donc
+      \begin{mathpar}
+        \inferrule
+        {\Gamma \vdash \lambdaExpr{x : S_{1}}{s_{2}} : \tilde{S_{1}} \rightarrow \tilde{S_{2}}}
+        {}
+      \end{mathpar}
+      En appliquant l'hypothèse de récurrence sur ce jugement de typage, nous
+      obtenons $\tilde{S_{1}} <: S_{1}$ et $\Gamma, x : S_{1} \vdash s_{2} :
+      \tilde{S_{2}}$.
+      
+      En utilisant (S-TRANS) avec $T_{1} <: \tilde{S_{1}}$ et $\tilde{S_{1}} <:
+      S_{1}$, nous concluons avec $T_{1} <: S_{1}$. Pour finir, en utilisant (T-SUB)
+      avec $\Gamma, x : S_{1} \vdash s_{2} : \tilde{S_{2}}$ et $\tilde{S_{2}} <:
+      T_{2}$, nous obtenons $\Gamma, x : S_{1} \vdash s_{2} : T_{2}$.
+      \item (T-ABS). Le résultat est direct et $T_{1} = S_{1}$.
+  \end{enumerate}
+\end{proof}
+
+Nous pouvons maintenant démontrer le même lemme de substitution défini dans le
+chapitre précédent. La fonction de substitution est étendue aux projections et
+aux enregistrements de manière naturelle.
+
+\begin{lemma} [de préservation de typage par substitution]
+  \label{lemma:subtyping-record-substitution}
+  Soit $\Gamma, x : S \vdash t : T$ et $\Gamma \vdash s : S$.
+
+  Alors $\Gamma \vdash [x \rightarrow s] t : T$
+\end{lemma}
+
+\begin{proof}
+  Même technique de preuve que dans le chapitre précédent. Il suffit d'ajouter 
+  des cas pour les enregistrements et les projections en utilisant
+  respectivement (T-RCD) et (T-PROJ) et de manière générale pour (T-SUB). Pour
+  (T-SUB), nous utilisons l'hypothèse de récurrence sur le jugement de gauche et
+(T-SUB) pour conclure.
+\end{proof}
+
+\begin{theorem} [de préservation du typage]
+  Soit $\Gamma \vdash t : T$ et soit $t'$ tel que $t \rightarrow t'$. Alors,
+  $\Gamma \vdash t' : T$.
+\end{theorem}
+
+\begin{proof}
+  Nous procédons de la même manière que pour le cas du $\lambda$-calcul
+  simplement typé, c'est-à-dire sur le jugement $\Gamma \vdash t : T$.
+  \begin{enumerate}
+    \item (T-VAR). Nous avons alors $t = x$ : pas possible car il n'y a pas de
+      réduction pour les variables.
+      \item (T-ABS). $t = \lambdaExpr{x : T_{1}}{t_{12}}$ : déjà une valeur.
+      \item (T-APP). $t = t_{1} \, t_{2}$. Nous avons
+          $\Gamma \vdash t_{1} : T_{1} \rightarrow T$, $\Gamma \vdash t_{2}
+          : T_{1}$.
+          Les possibles règles d'évaluation
+          sont (E-APP1), (E-APP2) et (E-APPABS). Pour (E-APP1) et (E-APP2), même
+          raisonnement que pour le $\lambda$-calcul simplement typé.
+
+          Quant à (E-APPABS), posons $t_{1} = \lambdaExpr{x : S_{1}}{t_{12}}$
+          et $t_{2} = v$. En utilisant
+          \ref{lemma:subtyping-record-substitution}, nous déduisons $T_{1} <:
+          S_{1}$ et $\Gamma, x : S \vdash t_{12} : T$. Nous concluons avec le lemme de
+          substitution qui donne $\Gamma, x : S \vdash [x \rightarrow v]t_{12} :
+          T$.
+
+       \item (T-RCD). La seule règle d'évaluation est (E-RCD) qui réduit un des
+         termes de l'enregistrement. Il suffit d'appliquer l'hypothèse de
+         récurrence sur ce terme et d'utiliser (T-RCD) pour conclure.
+
+       \item (T-PROJ). Nous obtenons $t = t_{1}.l_{j}$, $\Gamma \vdash t_{1}
+         : \left\{ l_{i} : T_{i} \right\}^{1 \leq i \leq n}$ et $T = T_{j}$.
+         Deux règles d'évaluation sont possibles : (E-PROJ) ou (E-PROJ-RCD). Si
+         c'est (E-PROJ), nous appliquons l'hypothèse de récurrence. Sinon,
+         (E-PROJ-RCD) nous dit que $t_{1} = \left\{ k_{i} = v_{i} \right\}^{1
+           \leq i \leq m}$ et par le lemme
+         \ref{lemma:record-subtyping-inversion-subtyping-rules}, nous avons
+         $(l_{i})_{1 \leq i \leq n} \subseteq (k_{i})_{1 \leq i \leq m}$ et
+         $\Gamma \vdash v_{i} : T_{i}$ pour $k_{i} = l_{i}$. Nous concluons
+         que $\Gamma \vdash v_{j} : T_{j}$.
+
+       \item (T-SUB). Par hypothèse de récurrence et en utilisant (T-SUB).
+  \end{enumerate}
+\end{proof}
+
+\subsection*{Progression}
+
+\begin{lemma} [des formes canoniques]
+  Soit $v$ une valeur sans variable libre.
+  \begin{enumerate}
+  \item Si $v$ est de type $T_{1} \rightarrow T_{2}$, alors $v$ est de la forme $\lambdaExpr{x : S_{1}}{t}$.
+    \item Si $v$ est de type $\left\{ l_{i} : T_{i} \right\}^{1 \leq i \leq n}$,
+      alors $v$ est de la forme $\left\{ k_{i} = v_{i} \right\}^{1 \leq i \leq
+        m}$ où $(l_{i})_{1 \leq i \leq n} \subseteq
+      (k_{i})_{1 \leq i \leq m}$.
+  \end{enumerate}
+\end{lemma}
+
+\begin{proof}
+  Une valeur ne peut être que de deux formes : $\lambdaExpr{x : S_{1}}t_{1}$ ou
+  $\left\{ k_{i} = v_{i} \right\}^{1 \leq i \leq m}$.
+  \begin{itemize}
+  \item $v$ est de type $T_{1} \rightarrow T_{2}$. Les seules règles permettant
+    de montrer $\vdash v : T_{1} \rightarrow T_{2}$ sont (T-SUB) et (T-ARROW).
+
+    \begin{itemize}
+    \item (T-ARROW). Le résultat est direct.
+    \item (T-SUB). Nous avons alors :
+
+      \begin{mathpar}
+        \inferrule
+        {\vdash v : S \\ S <: T_{1} \rightarrow T_{2}}
+        {\vdash v : T_{1} \rightarrow T_{2}}
+      \end{mathpar}
+      En utilisant le lemme d'inversion des règles de sous-typage, nous obtenons
+      $S = S_{1} \rightarrow S_{2}$ avec $T_{1} <: S_{1}$ et $S_{2} <: T_{2}$.
+      
+      En utilisant l'hypothèse de récurrence sur $\vdash v : S_{1} \rightarrow
+      S_{2}$, nous avons $v$ qui est une abstraction.
+    \end{itemize}
+  \item $v$ est de type $\left\{ l_{i} : T_{i} \right\}^{1 \leq i \leq n}$. Les
+    seules règles possibles sont (T-SUB) et (T-RCD). Le résultat est direct pour
+    (T-RCD). Quant à (T-SUB), nous utilisons les mêmes arguments que 
+    précédemment.
+  \end{itemize}
+\end{proof}
+
+Et nous concluons avec le théorème de progression.
+
+\begin{theorem} [de progression] 
+  Si $t$ est un terme bien typé sans variable libre, alors soit $t$ est une
+  valeur, soit il existe $t'$ tel que $t \rightarrow t'$.
+\end{theorem}
+
+\begin{proof}
+  Par induction sur l'arbre de dérivation de typage de $t$.
+  $t$ ne peut pas être une variable car $t$ est clos et si $t = \lambdaExpr{x :
+    S_{1}}{t_{1}}$, le résultat est direct car les abstractions sont des valeurs.
+  \begin{itemize}
+  \item (T-APP). Alors $t = t_{1}t_{2}$, $\vdash : t_{1} : T_{1} \rightarrow
+    t_{2}$ et $\vdash t_{2} : T_{1}$. Plusieurs cas sont possibles.
+    \begin{itemize}
+    \item Si $t_{1}$ n'est pas une valeur, (E-APP1) peut s'appliquer.
+    \item Si $t_{1}$ est une valeur et $t_{2}$ non, (E-APP2) s'applique.
+    \item Si $t_{1}$ et $t_{2}$ sont des valeurs, par le lemme des formes
+      canoniques, comme $\vdash t_{1} : T_{1} \rightarrow T_{2}$ et $t_{1}$ n'a
+      pas de variable libre, $t_{1} = \lambdaExpr{x : S_{1}}{t_{12}}$ et (E-APPABS) s'applique.
+    \end{itemize}
+  \item (T-RCD). Alors $t = \left\{ l_{i} = t_{i} \right\}^{1 \leq i \leq n}$ et
+    $\vdash t : \left\{ l_{i} : T_{i} \right\}^{1 \leq i \leq n}$. Plusieurs cas
+    sont possibles :
+    \begin{itemize}
+    \item si chaque $t_{i}$ est une valeur, alors le résultat est direct car $t$
+      est une valeur.
+    \item s'il existe $i$ tel que $t_{i}$ n'est pas une valeur, alors nous
+      utilisons l'hypothèse de récurrence sur $t_{i}$ et (E-RCD) s'applique.
+    \end{itemize}
+  \item (T-PROJ). Nous avons alors
+    $t = t_{1}.l_{j}$ et $\vdash t_{1} : T$ où $T = \left\{ l_{i} : T_{i}
+    \right\}^{1 \leq i \leq n}$.
+
+  Par hypothèse de récurrence sur $\vdash t_{1} : T$, $t_{1}$ est soit une
+  valeur, soit il existe $t_{1}'$ tel que $t_{1} \rightarrow t_{1}'$. Si $t_{1}$
+  est une valeur, nous utilisons le lemme
+  des formes canoniques
+  et (E-PROJ-RCD) s'applique. Sinon, (E-PROJ) s'applique.
+  \item (T-SUB). Il suffit d'appliquer l'hypothèse de récurrence.
+  \end{itemize}
+\end{proof}
+
+
+\section{Type Top et type Bottom}
+
+Finalement, il
+est courant d'ajouter dans les types un type qui est super-type de tous les
+autres types, souvent appelé \verb|Top| ainsi qu'un type qui est sous-type de
+tous les autres types, souvent appelé \verb|Bottom|.
+
+La syntaxe des types est donc finalement
+
+\begin{align*}
+  T ::= & \, & \text{type} \\
+        & \; b & \text{type de base} \\
+        & \; t \rightarrow t & \text{fonction} \\
+        & \; \left\{ l_{i} : t_{i} \right\}^{1 \leq i \leq n} & \text{enreg} \\
+        & \; Top & \text{Top} \\
+        & \; Bottom & \text{Bottom} \\
+\end{align*}
+
+et nous ajoutons les règles de typage suivantes.
+
+\begin{mathpar}
+  \inferrule* [Left=(S-TOP)] {T <: Top}{}
+  \and
+  \inferrule* [Right=(S-BOTTOM)] {Bottom <: T}{}
+\end{mathpar}
+
+Nous utiliserons ceux-ci dans DOT.

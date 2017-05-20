@@ -119,7 +119,7 @@
   }{% Default language assumed to be French
     \def\memoire@directeur{Directeur}
     \def\memoire@directeurs{Directeurs}
-    \def\memoire@codirecteurs{Co-directeurs}
+    \def\memoire@codirecteurs{Co-directeur}
     \def\memoire@rapporteurs{Rapporteurs}
     \def\memoire@service{Service}
     \def\memoire@services{Services}
@@ -184,7 +184,7 @@
 \renewcommand{\maketitle}{%
   % Checks:
   \umons@notempty{\@directeur}{directeur}{\directeur}%
-  \umons@notempty{\@rapporteurs}{rapporteurs}{\rapporteurs}%
+  %\umons@notempty{\@rapporteurs}{rapporteurs}{\rapporteurs}%
   \umons@notempty{\umons@service}{service}{\service}%
   \umons@notempty{\@date}{d'annee academique}{\date}%
   \begin{titlepage}

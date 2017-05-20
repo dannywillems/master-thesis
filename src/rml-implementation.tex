@@ -1,0 +1,826 @@
+\chapter{RML}
+\label{chapter:rml}
+
+Dans ce chapitre, nous proposons un algorithme de typage et de sous-typage ainsi
+qu'un langage de surface pour DOT. Une implémentation en OCaml du langage et des
+algorithmes sont disponibles sur Github\cite{rml-github} sous le nom de RML.
+
+Nous parlerons également des difficultés rencontrées lors de l'implémentation
+d'un calcul théorique et nous remarquerons que DOT nécessite des règles et des termes
+supplémentaires pour résoudre certains problèmes d'implémentation.
+
+%Plusieurs dépendances comme
+%\verb|ocamllex| comme lexeur, \verb|menhir|\cite{menhir} pour la
+%génération du parseur, \verb|AlphaLib|\cite{alphalib} pour la gestion des
+%variables, \verb|PPrint|\cite{pprint} pour pouvoir afficher plus clairement les termes et les
+%types et enfin \verb|ANSITerminal|\cite{ansiterminal} pour ajouter des couleurs
+%lors de l'affichage.
+
+Sur la page principale du projet se trouve, en anglais, une description complète de la syntaxe de RML,
+du but du langage ainsi que des exemples.
+%Cette documentation est plus orientée
+%pour les développeurs ayant une base en OCaml et les personnes souhaitant utiliser le langage pour
+%écrire des programmes ; les concepts théoriques sont donc omis.
+La structure du projet, la méthode de compilation et l'exécution des
+algorithmes sont clairement expliquées sur la page du projet. Pour ces raisons,
+ces détails ne seront pas dupliqués dans ce document.
+Il est fortement conseillé au lecteur de lire la page principale pour avoir une
+idée générale avant de continuer.
+
+\section{Langage de surface}
+
+Par langage de surface, nous désignons une syntaxe plus simple et plus pratique
+à utiliser pour écrire des programmes d'un calcul. Pour RML, une syntaxe proche
+de celle d'OCaml est utilisée. En particulier, la syntaxe des modules OCaml est utilisée pour les
+enregistrements récursifs $\nu(x : T)d$ ou encore la syntaxe des types récursifs $\mu(x :
+T)$ est remplacée par la syntaxe des signatures des modules en OCaml.
+
+Les tableaux ci-dessous regroupent l'ensemble des correspondances \\ syntaxiques entre DOT et
+RML.
+
+\begin{center}
+$\arraycolsep=1.0pt\def\arraystretch{1.5}
+\begin{array}{|c|c|}
+  \hline
+  DOT & RML \\
+  \hline \hline
+  \text{Bottom} & \text{Nothing} \\
+  \text{Top} & \text{Any} \\
+  \hline
+  \left\{ \text{A : Bottom .. Top} \right\} & \text{type a} \\
+  \left\{ \text{A : S .. T} \right\} & \text{type a = S  .. T} \\
+  \left\{ \text{A : S .. Top} \right\} & \text{type a $:>$ S} \\
+  \left\{ \text{A : Bottom .. T} \right\} & \text{type a $<:$ T} \\
+  \left\{ \text{a : T} \right\} & \text{val a : T} \\
+  d_{1} \wedge d_{2} & d_{1} \; d_{2} \\
+  \hline
+  \mu(x : T) & \text{sig(x) T end} \\
+  \mu(self : T) & \text{sig T end} \\
+  \hline
+  \forall(x : S) T & S \rightarrow T \text{ (si $x \notin T$)}\\
+  \forall(x : S) T & \text{forall(x : S) T} \\
+  \hline
+  T_{1} \wedge T_{2} & T_{1} \text{ \& } T_{2} \\
+  T \wedge \left\{ \text{A : S .. T } \right\} & \text{T with type a = S .. T} \\
+  T \wedge \left\{ \text{A : S .. T } \right\} \wedge \left\{ \text{A' : S' ..
+  T' } \right\} & \text{T with type a = S .. T and a' = S' .. T'} \\
+  \hline
+\end{array}
+$
+\captionof{table}{Correspondance entre DOT et RML pour la syntaxe des types}
+\end{center}
+
+\begin{center}
+$\arraycolsep=1.0pt\def\arraystretch{1.5}
+\begin{array}{|c|c|}
+  \hline
+  DOT & RML \\
+  \hline \hline
+  \lambdaExpr{x : T} t & fun(x : T) \rightarrow t \\
+  \hline
+  \left\{ \text{A = T} \right\} & \text{type a = T} \\
+  \left\{ \text{a = t} \right\} & \text{let a = t} \\
+  \hline
+  \nu(x : T) d & \text{sig(x) T end : struct(x) d end } \\
+  \nu(self : T) d & \text{sig T end : struct d end } \\
+  \hline
+\end{array}
+$
+\captionof{table}{Correspondance entre DOT et RML pour la syntaxe des termes}
+\end{center}
+
+% TODO Ajouter un tableau
+
+Le langage de surface est entièrement décrit sur la page du
+projet\cite{rml-github}. Dans la suite, nous
+utiliserons aussi bien la syntaxe du langage de surface que la syntaxe de DOT
+selon le besoin et la facilité d'écriture.
+
+\section{Implémentation des ASTs}
+
+Les grammaires des termes, des types et des déclarations, définies dans le
+fichier \verb|grammar/grammar.cppo.ml|, sont implémentées par des types sommes
+appelés respectivement \verb|term|, \verb|typ| et \verb|decl|. Chaque type est
+paramétré par deux types \verb|'bn| et \verb|'fn| qui représentent
+respectivement le type des variables liées et le type des variables libres.
+
+\subsection*{Gestion des variables}
+
+La gestion des variables liées et des variables libres est l'une des tâches les plus
+fastidieuses lors de l'implémentation d'un langage. En effet, il
+est nécessaire de gérer l'unicité des variables, le renommage ou encore l'environnement
+pour se souvenir des variables déjà utilisées, ce dernier grandissant quand nous
+rentrons dans un lambda et se réduisant quand nous en sortons. De plus,
+cette tâche n'est pas très intéressante au niveau algorithmique, implique très
+souvent des erreurs d'inattention et il existe diverses méthodes pour
+représenter et gérer les variables.
+
+% TODO Préciser que j'ai tenté d'implémenter la gestion ?
+AlphaLib\cite{alphalib} est une librairie basée sur
+visitors\cite{visitors} qui fournit des macros\footnote{en utilisant
+  cppo, d'où l'extension cppo.ml pour le fichier définissant la grammaire.}
+générant des fonctions pour gérer les variables. Ces macros permettent par
+exemple :
+
+\begin{enumerate}
+  \item de définir plusieurs représentations des variables. Dans RML, nous utilisons deux
+  représentations : \textit{brute} (types \verb|raw_term|,
+  \verb|raw_typ| et \verb|raw_decl|) et \textit{nominative}
+  (types \verb|nominal_term|, \verb|nominal_typ| et \verb|nominal_decl|). Dans la
+  représentation dite brute, les variables sont représentées par des chaînes de
+  caractères tandis que dans la représentation nominative, les variables sont
+  des atomes représentés par un type \verb|AlphaLib.Atom.t|, fourni par
+  AlphaLib. Cette dernière attribue à chaque nouvelle variable un entier
+  unique pour obtenir une représentation unique.
+\item de passer d'une représentation à une autre. La représentation brute est
+  utilisée par le parseur et la conversion vers la représentation nominative est
+  réalisée directement après la lecture du parseur.
+\item d'obtenir toutes les variables libres ou liées d'un terme.
+\item dans le cas de la représentation nominative, de générer des nouveaux atomes.
+\item d'utiliser des types polymorphes prédéfinis comme \verb|abs| qui représentent de manière générale
+  le comportement d'une abstraction. Lorsqu'un type \verb|abs|
+  est rencontré, la variable de l'abstraction est automatiquement ajoutée dans
+  l'environnement. \verb|abs| est utilisé dans RML pour les types récursifs,
+  les abstractions et la gestion des fonctions dépendantes.
+\end{enumerate}
+
+\begin{listing}
+  \inputminted{OCaml}{codes/grammar.ml}
+  \caption{Implémentation de la grammaire des termes officiels de DOT en
+    utilisant AlphaLib. field\_label est un alias de type pour string.}
+  \label{lst:implementation-grammar-terms-examples}
+\end{listing}
+
+La figure \ref{lst:implementation-grammar-terms-examples} montre l'implémentation
+de la syntaxe abstraite des termes.
+
+Plus d'informations et d'explications sur AlphaLib et son fonctionnement peuvent
+être trouvées dans \cite{alphalib-paper}.
+
+\section{Contexte de typage}
+
+Un contexte est implémenté comme un dictionnaire dont les clefs sont des atomes
+et les valeurs sont les types nominatifs de ces atomes. Cette implémentation se
+trouve dans le fichier \verb|typing/contextType.ml| et contient également
+des fonctions pour afficher un contexte donné.
+
+%TODO Gestion d'un environnement non vide, avec une librairie standard. On regarde
+%alors maintenant les termes top level qui sont composés soit d'un let top level
+%(sans in), soit d'un terme. Les termes top level sont là pour étendre
+%l'environnement tandis que les termes usuels non. Dans l'implémentation, cela se
+%traduit par un type somme Grammar.TopLevelTerm. Lorsque nous rencontrons un
+%terme top level qui est un let, nous appelons la fonction \verb|$read_top_level_term|
+%qui se charge de...
+
+%\section{Complexité des algorithmes}
+%
+%\begin{itemize}
+%  \item Donner un détail sur la complexité des algorithmes de sous-typages et de
+%  typages. %\end{itemize}
+
+\section{Meilleures bornes d'un type dépendant}
+
+Un problème qui se pose lors de l'écriture des algorithmes, est : étant donnés une variable
+$x$ et un contexte, quelle est la borne inférieure ou la borne supérieure du
+type dépendant $x.A$ ? La question se pose, par exemple, quand nous devons
+comparer deux types dépendants $x.A$ et $y.A$.
+
+En d'autres termes, pour la borne supérieure, pour une variable $x$ de type $T$ et
+un champ $A$, quel est le plus petit type $U$ tel que $T <: \left\{ A : L .. U
+\right\}$ ?
+
+Remarquons d'abord que la question n'a pas toujours de réponse. En effet, si $x$
+est de type \verb|Top|\footnote{Bien que la question n'ait pas de sens, nous
+  pouvons la poser car les règles ne l'empêchent pas.}, le seul super-type de
+$T$ est \verb|Top|. En OCaml, nous représentons le résultat de l'algorithme par un
+type \verb|option| où \verb|None| est renvoyé si la question n'a pas de réponse
+et \verb|Some(T)| si la réponse est $T$. Nous omettons le \verb|Some| pour la
+description ci-dessous.
+
+Cet algorithme n'est jamais discuté ni décrit dans les différents
+documents au sujet de DOT.
+
+L'algorithme prend comme
+paramètres, en plus de la variable $x$, du type $T$ et du label $A$, un contexte
+$\Gamma$ et une direction. La direction est soit \verb|Lower| pour la
+plus grande borne inférieure soit \verb|Upper| pour la plus petite borne
+supérieure. L'algorithme travaille sur la structure de $T$ :
+
+\begin{itemize}
+\item Si $T = Bottom$, nous renvoyons $Bottom$ pour la borne supérieure et
+  $None$ pour la borne inférieure.
+\item Si $T = Top$, nous renvoyons $Top$ pour la borne inférieure et
+  $None$ pour la borne supérieure.
+\item Si $T = \forall(x : S_{1}) S_{2}$, nous renvoyons $None$ car nous
+  ne pouvons pas comparer un enregistrement avec une fonction.
+\item Si $T = \mu(x : S^{x})$, nous appelons récursivement l'algorithme sur
+  $S^{x}$ et renvoyons ce résultat.
+\item Si $T = T_{1} \wedge T_{2}$, nous
+  appliquons l'algorithme récursivement sur $T_{1}$ et sur $T_{2}$. Notons
+  $T'_{1}$ et $T'_{2}$ les résultats. Plusieurs cas possibles :
+  \begin{itemize}
+  \item Si $T'_{1} = T'_{2} = None$\footnote{Cela peut se
+    passer si $T'_{1}$ et $T'_{2}$ sont des fonctions.}, nous renvoons $None$.
+  \item Si $T'_{1} = None$ et $T'_{2} \neq None$, nous renvoyons $T'_{2}$.
+  \item Si $T'_{2} = None$ et $T'_{1} \neq None$, nous renvoyons $T'_{1}$.
+  \item Sinon, nous renvoyons $T'_{1} \wedge T'_{2}$.
+  \end{itemize}
+\item Si $T = \left\{ A : L .. U \right\}$, nous renvoyons $U$ pour la borne
+  supérieure et $L$ pour la borne inférieure.
+\item Si $T = \left\{ a : U \right\}$, nous renvoyons $U$.
+\item Si $T = y.A'$, nous appelons récursivement l'algorithme avec les paramètres
+  $y$, le type de $y$, le label $A'$, le contexte $\Gamma$ et la direction et
+  nous notons $S$ la réponse.
+  \begin{itemize}
+  \item Si $S = None$, nous renvoyons $None$. Cela signifie qu'il n'y avait déjà
+  pas de réponse pour $y$ (par exemple, si $y$ est de type fonction).
+  \item Sinon, nous savons que $S$ est le plus petit $U$ tel que $T_{y} <:
+    \left\{ A' 
+    : L .. U \right\}$ où $T_{y}$ est le type de $y$. Nous savons alors que $S$
+  est la plus petite borne supérieure de $T$, c'est-à-dire le plus petit super-type de $T$. Nous
+  appelons alors récursivement l'algorithme en remplaçant $T$ par $S$.
+  \end{itemize}
+\end{itemize}
+
+L'algorithme actuel est satisfaisant sur différents exemples. Cependant, nous
+remarquons que le cas où $T = y.A'$ n'est pas entièrement satisfaisant. Il serait nécessaire de
+montrer que la réponse pour $T$ est la même que pour $S$.\footnote{Plusieurs
+tentatives de démonstrations ont échoué, et la possibilité que la complétude soit
+fausse a été envisagée.
+Cependant, vu les bons résultats, nous acceptons l'algorithme actuel.} Nous
+pouvons seulement dire que la réponse actuelle est un candidat, mais non le
+meilleur. Concernant la terminaison de l'algorithme, les appels récursifs
+éliminent les types dépendants, les intersections et les types récursifs,
+c'est-à-dire les cas impliquant un appel récursif pour se ramener aux cas de
+base. Nous pouvons donc affirmer que l'algorithme se termine toujours.
+
+L'implémentation OCaml est la fonction \verb|best_bound_of_recursive_type|.
+\verb|least_upper_bound_of_recursive_type| est l'algorithme pour la direction \\
+\verb|Upper| tandis que \verb|greatest_lower_bound_of_recursive_type| est pour
+la direction \verb|Lower|.
+
+Un algorithme semblable est implémenté pour le cas où nous cherchons le plus
+petit type fonction pour une variable donnée. Le retour de l'algorithme est
+différent pour le cas des fonctions et des déclarations de type et de champ. Le
+même argument est réalisé pour la forme $y.A'$.
+L'implémentation OCaml est la fonction \verb|least_upper_bound_of_dependent_function|.
+
+\section{Algorithme de typage}
+
+L'algorithme de typage se trouve dans le fichier \verb|typer.ml| du dossier \verb|typing|.
+L'implémentation est relativement fidèle aux règles de typage.
+La fonction principale est \verb|typ_of_internal| qui prend en paramètre un
+contexte et un terme. 
+
+Cette fonction contient essentiellement un pattern matching sur la structure des
+termes et applique la règle de typage appropriée selon la forme. Le problème
+d'échappement est traité dans le cas de la règle (LET) à travers la
+fonction \verb|check_avoidance_problem| du module \verb|CheckUtils|. Les
+fonctions \verb|least_upper_bound_of_dependent_function| et \\
+\verb|least_upper_bound_of_recursive_type|, expliquées précédemment, sont
+utilisées respectivement dans les règles (ALL-E) et (FLD-E). La règle (SUB) est
+utilisée dans (ALL-E) pour vérifier que l'argument est un sous-type que la
+fonction attend.
+
+% TODO Décrire l'algorithme comme il a été fait pour best\_bound ??
+
+\subsection*{Typage des enregistrements récursifs}
+
+Dans la syntaxe des termes de DOT, un enregistrement récursif est toujours accompagné de
+son type. Lorsque nous écrivons des programmes, cela implique que lorsque nous
+définissons des modules, nous devons donner leur signature. Du
+coté développeur, cela n'est pas très pratique. Nous notons $\nu(x) d$
+l'enregistrement récursif $\nu(x : T) d$ quand $T$ n'est pas mentionné.
+
+Pour simplifier l'écriture de programmes, nous avons décidé d'ajouter un
+algorithme pour inférer le type d'une liste de
+declarations. Lorsqu'un enregistrement récursif $\nu(x) d$ est rencontré,
+nous commençons par ajouter dans le contexte $x$ avec le type \verb|Top|.
+Ensuite, nous allons parcourir la déclaration $d$ et affiner le type de $x$ en
+fonction de la forme de $d$.
+\begin{itemize}
+\item Si $d = \left\{ A = S \right\}$ et $x : T$, nous renvoyons $T \wedge
+  \left\{ A : S .. S \right\}$.
+\item Si $d = \left\{ a = t \right\}$ et $x : T$, nous utilisons l'algorithme de
+  typage sur $t$ et le contexte $\Gamma, x : T$ et notons $S$ le résultat. Nous
+  renvoyons $T \wedge \left\{ a : S \right\}$.
+\item Si $d = d_{1} \wedge d_{2}$ et $x : T$, nous appellons récursivement
+  l'algorithme sur $d_{1}$ avec $\Gamma, x : T$, et notons $T_{1}$ le résultat. Nous
+  effectuons alors un second appel sur $d_{2}$ avec $\Gamma, x : T \wedge T_{1}$.
+\end{itemize}
+Notons $T$ le type renvoyé par l'algorithme, le type de l'enregistrement $\nu(x)
+d$ est alors $\mu(x : T)$.
+
+La figure \ref{code:rml-typing-recursive-records} montre un exemple
+d'enregistrement récursif et le type inféré.
+
+\begin{listing}
+  \inputminted{OCaml}{codes/typing_recursive_records.rml}
+  \caption{Exemple de typage d'un terme récursif dont le type n'est pas
+    mentionné.}
+  \label{code:rml-typing-recursive-records}
+\end{listing}
+
+L'algorithme n'est pas parfait : il échouera par exemple si des champs sont
+mutuellement récursifs ou si une déclaration dépend d'une autre définie plus haut. La figure \ref{code:rml-typing-recursive-records-fail}
+montre un exemple sur lequel l'algorithme échoue.
+Cependant, celui-ci est satisfaisant pour une partie des exemples et permet
+d'écrire de programmes DOT moins verbeux.
+
+\begin{listing}
+  \inputminted{OCaml}{codes/typing_recursive_records_fail.rml}
+  \caption{Exemple de typage d'un terme récursif sur lequel l'algorithme échoue.
+  L'algorithme va tenter de typer la fonction fail, mais elle a besoin du type
+  de la fonction plus, qui ne sera inféré que par après.}
+  \label{code:rml-typing-recursive-records-fail}
+\end{listing}
+
+
+\section{Algorithme de sous-typage}
+
+L'algorithme de sous-typage se trouve dans le fichier \verb|subtype.ml| du dossier
+\verb|typing| et travaille essentiellement sur la structure des deux types
+donnés grâce à un pattern matching. Le but de cet algorithme est, étant donnés
+deux types $S$ et $T$, de retourner oui si $S$ est un sous-type de $T$ et non sinon.
+
+Remarquons que pour une question posée, il est possible
+d'utiliser plusieurs règles.
+En effet, pour répondre à $S_{1} \wedge S_{2} <: T_{1} \wedge T_{2}$, nous
+pouvons utiliser (<: AND), (AND-1-<:) ou (AND-2-<:).
+
+De plus, l'ordre dans le pattern matching influence la réponse. Par exemple,
+prenons le cas où $S_{1} = T_{1} = \left\{ A : S .. T \right\}$ et $T_{1} =
+T_{2} = \left\{ a : U\right\}$. La question $S_{1} \wedge S_{2} <: T_{1} \wedge
+T_{2}$ est alors vraie par réflexivité ou encore par l'arbre de dérivation
+suivant :
+
+\begin{mathpar}
+  \inferrule
+  {
+     \inferrule
+     {\Gamma \vdash
+       \left\{ A : S .. T \right\} <: 
+       \left\{ A : S .. T \right\}
+     }
+     {
+       \Gamma \vdash
+       \left\{ A : S .. T \right\}
+       \wedge
+       \left\{ a : U \right\}
+       <:
+       \left\{ A : S .. T \right\}
+     }
+     \inferrule
+     {\Gamma \vdash
+       \left\{ a : U \right\} <:
+       \left\{ a : U \right\}
+     }
+     {
+       \Gamma \vdash
+       \left\{ A : S .. T \right\}
+       \wedge
+       \left\{ a : U \right\}
+       <:
+       \left\{ a : U \right\}
+     }
+  }
+  {\Gamma \vdash
+     \left\{ A : S .. T \right\} \wedge \left\{ a : U \right\}
+     <:
+     \left\{ A : S .. T \right\} \wedge \left\{ a : U \right\}
+  }
+\end{mathpar}
+
+où (<:-AND) est utilisé en premier suivi de (AND-1-<:) et (AND-2-<:) sur chaque
+branche. Cependant, si nous utilisions (AND-1-<:) (ou (AND-2-<:)) en premier,
+nous serions incapables d'arriver au résultat voulu.
+
+L'algorithme actuel a été implémenté de façon pragmatique, l'implémentation des
+règles théoriques n'étant pas simple comme peuvent le montrer
+\cite{tapl-metatheory-subtyping} et
+\cite{tapl-bounded-quantification-metatheory} pour d'autres calculs.
+
+Une difficulté supplémentaire de l'implémentation de DOT est que les règles de
+typage et de sous-typage sous mutuellement dépendantes. Il est naturel et
+courant d'avoir les règles de typage qui dépendent du sous-typage à travers
+(T-SUB), mais non l'inverse. Dans DOT, les règles de sous-typage dépendent du
+typage des variables à travers (SEL <:) ainsi que (<: SEL) et demandent
+d'implémenter des algorithmes supplémentaires comme \verb|best_bound|.
+
+%Par exemple, pour répondre à la question
+%$x.A <: y.A$, nous pouvons soit utilisé (<: SEL) en premier et ensuite utilisé
+%(SEL <:) ou l'inverse. De plus, il est possible qu'appliquer (<: SEL) en premier
+%donne une réponse fausse alors que (SEL <:) donne une réponse vraie. TODO exemple.
+%Le même problème se pose avec les règles (AND), (AND-1) et (AND-2).
+
+Voici, dans l'ordre,
+comment l'algorithme gère les différents cas en fonction de la structure de $S$
+et $T$.
+
+\subsection*{$S <: Top$ ou $Bottom <: T$}
+
+Nous appliquons (TOP) ou (BOTTOM) en fonction du cas. Ces règles peuvent
+s'appliquer directement dans l'arbre de dérivation donc nous pouvons les placer
+en premiers dans le pattern matching.
+
+\subsection*{$\left\{ A : L ... U \right\} <: \left\{ A : L' ... U' \right\}$}
+
+Même cas que précédemment. Il suffit d'appeler récursivement l'algorithme avec L
+et L' ainsi que U et U'. Si les deux appels renvoient vrais, nous renvoyons
+vrai. Nous utilisons la règle (TYP <: TYP).
+
+\subsection*{$\left\{ a : S' \right\} <: \left\{ a : T' \right\}$}
+
+Même cas que précédemment en utilisant la règle (FLD <: FLD). Il suffit
+d'appeler l'algorithme avec la question $S' :< T'$.
+
+\subsection*{$\forall(x : S_{1}) T_{1} <: \forall(x : S_{2}) T_{2}$}
+
+Même cas que précédemment en utilisant la règle (ALL <: ALL). Lors de l'appel
+récursif sur la question $T_{1} <: T_{2}$, nous devons ajouter la variable $x$
+avec le type $S_{2}$ dans le contexte comme la règle (ALL <: ALL) le mentionne.
+
+\subsection*{$x.A <: y.A$}
+
+Les premiers cas posant des difficultés sont ceux des types dépendants, par exemple
+$x.A$ et $y.A$\footnote{Les cas $x.A <: U$ et $y.A$ sont traités ci-dessous.}. En effet, les règles (REFL), (SEL <:) et (<: SEL) peuvent être
+employées.
+
+L'algorithme procède par cas :
+\begin{itemize}
+\item Dans le cas de la réflexivité, cela signifie que $x$ et $y$ sont les mêmes
+  atomes. Nous utilisons donc les fonctions fournies par \verb|AlphaLib| pour le
+  vérifier. Nous appelons cette règle (UN-REFL-TYP).
+\item Sinon, nous testons en premier (SEL <:). Nous ajoutons en plus (T-SUB) et
+  nous utilisons \verb|best_bound| pour trouver le type de $x$ et de $y$. La règle
+  \begin{mathpar}
+    \inferrule
+    {\Gamma \vdash x : \left\{ A : L .. U\right\}}
+    {\Gamma \vdash x.A <: U}
+  \end{mathpar}
+  devient alors
+  \begin{mathpar}
+    \inferrule
+    {\Gamma \vdash x : T \\ \Gamma \vdash T <: \left\{ A : L .. U\right\} \\ \Gamma \vdash U
+      <: U'}
+    {\Gamma \vdash x.A <: U'}
+  \end{mathpar}
+  Si nous avons réussi à montrer en utilisant (SEL <:), nous renvoyons cette solution. Sinon, nous
+  essayons (<: SEL). Si cette dernière échoue, cela signifie que $x.A <: y.A$
+  est faux : nous renvoyons
+  donc non. L'utilisation de \verb|best_bound| et (T-SUB) pour (SEL<:) nous donne
+  \begin{mathpar}
+    \inferrule
+    {\Gamma \vdash x : T \\ \Gamma \vdash \left\{ A : L' .. U\right\} <: T \\ \Gamma \vdash L
+      <: L'}
+    {\Gamma \vdash L <: x.A}
+  \end{mathpar}
+
+\end{itemize}
+
+\subsection*{Types récursifs}
+
+Il est important de remarquer qu'il n'y a pas de règle de sous-typage pour les
+types récursifs. En effet, pour comparer deux types récursifs, ou au moins un
+type récursif, il est nécessaire d'utiliser (VAR-UNPACK) ou (VAR-PACK).
+
+Du coté de l'implémentation, nous ajoutons, dans l'ordre, les deux cas
+particuliers suivants.
+
+\begin{itemize}
+\item Si nous avons deux types récursifs $\nu(x_{1} : S')$ et $\nu(x_{2} : T')$,
+nous créons un nouvel atome $x$ et renommons les variables internes $x_{1}$ et
+$x_{2}$ par celui-ci dans $S'$ et $T'$. Un appel récursif est alors effectué
+avec $S'$ et $T'$ après avoir étendu le contexte avec $x : S'$. Nous appelons
+cette règle (UN-REC).
+\item Si $S = \nu(x : S')$ et $T$ quelconque (resp. $T = \nu(x : T')$ et $S$
+  quelconque), nous ajoutons $x$ dans le contexte avec le type $S'$ (resp $T'$) et
+  nous effectuons un appel récursif avec $S'$ et $T$ (resp. $S$ et $T'$). Etendre
+  le contexte est nécessaire si $S'$ contient des champs mutuellement dépendants.
+  Nous appelons ces règles respectivement (UN-<: REC) et (UN-REC <:).
+\end{itemize}
+
+\begin{listing}
+  \inputminted{OCaml}{codes/rml_implementation_recursive_type.rml}
+  \caption{Ces deux signatures sont identiques à l'exception de la variable
+    interne. Si nous ne donnons pas le même nom à la variable interne, la
+    question $self.t <: self'.t$ va être posée. Comme ce ne sont pas les mêmes
+    atomes, la question $Top <: Bottom$ sera posée que nous utilisions (SEL <:) ou
+    (<: SEL).}
+  \label{example:rml-implementation-recursive-type-variable}
+\end{listing}
+
+Le premier cas est nécessaire pour pouvoir comparer des types récursifs qui ne
+se différencient que par leur variable interne, voir la figure
+\ref{example:rml-implementation-recursive-type-variable}.
+
+\subsection*{$x.A <: T$ ou $T <: x.A$}
+
+Comme pour le cas $x.A <: y.A$, nous modifions la règle de sous-typage en
+utilisant (T-SUB) et \verb|best_bound|.
+
+\subsection*{Intersections}
+
+L'ordre est également important pour les intersections et surtout en présence de
+types récursifs dans l'un des membres.
+
+Premièrement, il est nécessaire de placer (<:AND) avant (AND-1-<:) et
+(AND-2-<:) pour pouvoir gérer le cas de la réflexivité comme nous l'avons vu ci-dessus.
+
+Ensuite, comme pour (SEL <:) et (<: SEL), nous ne pouvons tester séparément
+(AND-1-<:) ou (AND-2-<:) car les règles peuvent être utilisées en même temps.
+Nous procédons donc de la même manière que pour (SEL <:) et (<: SEL) en testant
+successivement (AND-1-<:) et (AND-2-<:)
+
+De plus, dans le cas (<: AND), nous devons gérer les types récursifs à cause de
+la règle (VAR-PACK). En effet, si nous avons la question $\mu(x : S_{1}) \wedge
+\mu(x : S_{2}) <: \mu(x : S_{1} \wedge S_{2})$, nous pouvons revenir à la
+question $\mu(x : S_{1} \wedge S_{2}) <: \mu(x : S_{1} \wedge S_{2})$. Si nous
+utilisions directement (<: AND), nous n'arriverions pas à montrer que c'est vrai.
+
+De manière générale, si nous avons $\mu(x : S_{1}) \wedge \mu(x : S_{2}) <: T$,
+une solution est de montrer $\mu(x : S_{1} \wedge S_{2}) <: T$. En effet,
+en utilisant successivement (<: AND), (VAR-UNPACK), (AND-1-<:), (AND-2-<:) et
+(VAR-PACK), nous montrons que $\mu(x : S_{1} \wedge S_{2}) <: T$ implique $\mu(x
+: S_{1}) \wedge \mu(x : S_{2}) <: T$.
+
+\begin{mathpar}
+  \inferrule*[Left=(<: AND)]
+  {
+    \inferrule*[Left=(VAR-PACK)]
+    {
+      \Gamma \vdash \mu(x : S_{1} \wedge S_{2}) <: T
+    }
+    {
+      \inferrule*[Left=(AND-1-<: et AND-2-<:)]
+      {\Gamma \vdash S_{1} \wedge S_{2} <: T}
+      {
+        \inferrule*[Left=(VAR-UNPACK)]
+        {\Gamma \vdash S_{1} <: T}
+        {\Gamma \vdash \mu(x : S_{1}) <: T}
+        \\
+        \inferrule*[Right=(VAR-UNPACK)]
+        {\Gamma \vdash S_{2} <: T}
+        {\Gamma \vdash \mu(x : S_{2}) <: T}
+      }
+    }
+  }
+  {\Gamma \vdash \mu(x : S_{1}) \wedge \mu(x : S_{2}) <: T}
+\end{mathpar}
+
+La méthode utilisée dans l'algorithme consiste à renommer la variable interne de
+$S_{1}$ et $S_{2}$ en utilisant un même atome unique et d'appeler récursivement l'algorithme.
+
+Une méthode similaire est utilisée pour les cas $\mu(x : S_{1}) \wedge S_{2} <:
+T$ et $S_{1} \wedge \mu(x : S_{2}) <: T$.
+
+\subsection*{Réflexivité}
+
+La régle de réflexivité (REFL) n'est pas implémentée directement. En effet,
+cette règle peut être dérivée d'autres règles.
+
+\begin{itemize}
+  \item Si $S$ est de la forme $x.A$, (UN-REFL-TYP) est utilisée.
+  \item Si $S$ est de la forme $\forall(x : S') T'$, nous pouvons utiliser (ALL
+    <: ALL).
+  \item Si $S$ est de la forme $\nu(x : S')$, (UN-REC) est utilisée.
+  \item Si $S$ est une intersection, nous pouvons utiliser (<: AND), puis
+    (AND-1-<:) sur le membre de gauche et (AND-2-<:) sur le membre de droite
+    comme nous l'avons montré plus haut.
+  \item Si $S$ est de la forme $\left\{ A : L .. U \right\}$, (TYP <: TYP) est utilisée.
+  \item Si $S$ est de la forme $\left\{ a : T \right\}$, (FLD <: FLD) est utilisée.
+\end{itemize}
+
+\subsection*{Transitivité}
+
+Actuellement, la transtivité n'est pas gérée. En effet, pour le gérer, il
+faudrait trouver un type $U$ tel que $S <: U$ et $T <: U$, ce qui n'est pas
+possible, ou au moins compliqué. Pour contourner ce problème, il est
+nécessaire de reformuler les règles de sous-typage et d'y introduire
+explicitement (S-TRANS).
+
+\section{Arbre de dérivation}
+
+Les algorithmes de typage et de sous-typage nécessitent un paramètre
+supplémentaire \verb|history| qui permet de se souvenir des règles
+utilisées et de pouvoir ainsi reconstruire l'arbre de dérvation. Cet arbre de
+dérivation peut être affiché pour une expression en utilisant l'annotation
+\verb|[@show_derivation_tree]| à la fin des expressions. Par défaut, l'arbre
+affiche également le contexte. Comme celui-ci peut être grand pour les
+longs programmes, l'annotation \\ \verb|[@show_derivation_tree, no_context]|
+affiche l'arbre de dérivation sans le contexte.
+
+\section{Sucres syntaxiques}
+
+La syntaxe de base de DOT n'est pas très élégante et très pratique à utiliser.
+En effet, il n'est par exemple pas possible de définir des fonctions à plusieurs
+variables, de passer des termes en paramètre d'une fonction ou encore d'utiliser
+un terme dans une sélection.
+
+Pour ces raisons, des sucres syntaxiques au niveau des parseurs sont implémentés
+dans le langage de surface de RML.
+
+\subsection*{Currification des fonctions}
+
+Dans RML, il est possible de définir des fonctions à plusieurs variables en les
+séparant par une virgule.
+Par exemple, \verb|fun(x : Int.t, y : Int.t) -> t| est équivalent à
+\verb|fun(x : Int.t) -> fun(y : Int.t)|. Le parseur se charge de créer l'arbre de
+syntaxe correspondant.
+
+\subsection*{Variable interne par défaut}
+
+DOT nécessite une variable interne lors de la définition d'un module afin de
+pouvoir faire référence aux champs et types. Une variable par défaut,
+\verb|self|, est utilisée dans le parseur afin d'alléger l'écriture de programme
+si le nom de la variable interne n'est pas importante.
+
+\subsection*{Enregistrement}
+
+Les enregistrements ont la même représentation interne que les modules,
+\verb|TermRecursiveRecord|. Dans le langage de surface, les enregistrements
+ainsi que le type enregistrement sont définis de la même manière qu'en OCaml.
+Afin d'éviter des références internes entre champs, la variable interne utilisée
+est \verb|'self|. Les noms de variables commençant par des simples guillemets
+n'étant pas acceptés dans le lexeur, cela implique qu'il n'est pas possible
+d'avoir des champs mutuellement dépendants.
+
+\subsection*{Termes comme paramètres et fonctions}
+
+Une fonctionnalité intéressante et pratique est l'utilisation de
+termes pour les paramètres ainsi que pour les fonctions. Ceci
+est géré dans le parseur et ce dernier génère des bindings locaux. Cela se
+résume par la règle suivante
+
+\begin{center}
+  x t $\rightarrow$ let y = t in x y
+\end{center}
+
+Un point important\footnote{Et qui n'est pas mentionné dans les documents sur
+DOT.} est qu'il faut éviter de réaliser un binding local d'une variable car
+cela pourrait provoquer des problèmes d'échappement. Cela signifie que DOT n'est
+pas stable par insertion de let variable-variable. Un exemple concret est donné
+par la figure \ref{code:implementation-grammar-terms-examples}.
+
+Pour résoudre ce problème, nous pourrions, dans le cas d'un binding local
+\verb|let x = y in u|, donner le type (= y) à la variable $x$. Lorsque nous
+rencontrons alors la variable $x$, nous utilisons le type de $y$. Cette méthode
+est utilisée dans le langage Mezzo\cite{} avec le type singleton.
+
+\begin{listing}
+  \label{code:implementation-grammar-terms-examples}
+  \inputminted{OCaml}{codes/terms_binding_variable.rml}
+  \caption{Exemple où un binding local d'une variable ne doit pas être généré
+    afin de ne pas provoquer un problème d'échappement. Si des bindings locaux
+    sont réalisés pour chaque terme, une liaison locale du module $M$ est
+    créée avec la variable $n$ par exemple et le type de l'expression est $n.t$.}
+\end{listing}
+
+\subsection*{Applications de fonctions à plusieurs paramètres}
+
+Une autre fonctionnalité importante est la possibilité d'appliquer une fonction plusieurs
+paramètres. C'est aussi le parseur qui s'en occupe en générant
+des bindings locaux. Voici quelques exemples :
+
+\begin{itemize}
+\item $f \; x \; y$ est interprété comme $let \; f_{x} \; = \; (f \; x) \; in \;
+  (f_{x} \; y)$.
+\item $f \,  x \, y \, z$ est interprété comme $let \; f_{x} \; = \; (f \; x) \;
+  in \; let \; f_{y} \; = \; (f_{x} \; y) \; in \; (f_{y} \; z)$.
+\end{itemize}
+
+\section{Termes ajoutés}
+
+\subsection*{Termes unit et entiers}
+
+Des types basiques comme \verb|Int.t| et \verb|Unit.t| pour les entiers et le terme
+\verb|unit| sont implémentés. Il est possible d'utiliser des entiers comme en
+OCaml ou le terme \verb|()| pour le terme \verb|unit|.
+
+\subsection*{Unimplemented}
+
+L'implémentation ne se focalisant pas sur l'évaluation, la sémantique des termes
+peut être laissée de coté. Pour cela, un terme \verb|Unimplemented| est présent
+et de type \verb|Bottom|.
+
+\subsection*{TermAscription}
+
+Comme dans la plupart des langages, RML autorise l'ascription de termes,
+c'est-à-dire forcer le type d'un terme. En particulier, cela permet de donner le
+type voulu au terme \verb|Unimplemented|. La syntaxe est $t : T$. Dans
+l'implémentation, nous vérifions que le type de $t$ est sous-type de $T$.
+
+\subsection*{TermRecursiveRecordUntyped}
+
+Un terme est ajouté dans la grammaire pour les modules définis sans type,
+l'algorithme de typage sur les modules décrit précédemment étant utilisé pour
+typer le terme.
+
+%\section{Types de bases}
+
+%\section{Principal}
+%
+%Le fichier principal est \verb|main.ml|. Celui-ci ...
+%
+%\begin{itemize}
+%  \item Donner les mêmes exemples qu'au début, mais cette fois-ci avec RML.
+%  \item Montrer ce qui est possible en RML et ce qui ne l'est pas en OCaml.
+%\end{itemize}
+%
+%\section{Exécution des algorithmes}
+
+\section{Exemples}
+
+Reprenons l'exemple donné en introduction. En RML, le module \verb|Point2D| avec
+des entiers peut être défini de la manière suivante.
+
+\begin{listing}
+  \inputminted{OCaml}{codes/point2d.rml}
+  \caption{Point2D en RML.}
+\end{listing}
+
+Et nous pouvons définir le foncteur \verb|MakePoint2D| avec le terme \verb|fun|
+comme une autre fonction.
+
+\begin{listing}
+  \inputminted{OCaml}{codes/makepoint2d.rml}
+  \caption{MakePoint2D en RML. Le paramètre de la fonction est un module qui
+    contient au moins un champ t et une fonction add.}
+  \label{code:rml-point2d}
+\end{listing}
+
+Et le type du foncteur est le même que celui d'une fonction qui prend un module
+en paramètre et retourne un module.
+
+\begin{listing}
+  \inputminted{OCaml}{codes/makepoint2d_sig.rml}
+  \caption{Signature de MakePoint2D en RML.}
+  \label{code:rml-makepoint2d}
+\end{listing}
+
+Nous pouvons également définir des listes paramétrées par un type en utilisant un foncteur
+comme le montre la figure \ref{code:rml-list-functor} et créer une liste d'entier en
+utilisant \verb|List Int|.
+
+\begin{listing}
+  \inputminted{OCaml}{codes/list_functor.rml}
+  \caption{Une implémentation de listes polymorphes en RML en utilisant un
+    foncteur. Le type t représente le type liste. Le module elem
+    est le type des éléments de la liste. Remarquons que dans cette
+    implémentation, une liste ne peut contenir que des éléments du même type, ce
+    dernier étant fixé par le paramètre du foncteur.}
+  \label{code:rml-list-functor}
+\end{listing}
+
+Cependant, cette implémentation de liste n'est pas très pratique car si nous
+voulons une liste d'entier, nous devons créer un module intermédiaire. La figure
+\ref{code:rml-list-with} propose une autre implémentation de listes polymorphes
+qui de plus sont covariantes (grâce à \verb|type t <: self.t|). Le mot clef
+\verb|with| dénote une intersection\footnote{Comme en OCaml dans
+  les foncteurs.}. Nous pouvons alors utiliser \verb|List.list with type t = Int|
+pour obtenir une liste d'entiers. Malheureusement, l'algorithme actuel ne
+supporte pas cette implémentation et provoque un stack overflow car le champ
+\verb|tail| repose la question du sous-typage de la liste en
+boucle.\footnote{Une solution est en cours de développement pour supporter les
+  questions qui ont déjà été posées.}
+
+\begin{listing}
+  \inputminted{OCaml}{codes/list.rml}
+  \caption{Une implémentation de listes polymorphes en RML en utilisant le mot
+    clef with. Contrairement à l'implémentation de la figure
+    \ref{code:rml-list-functor}, les éléments de la liste peuvent avoir un type
+  différent.}
+  \label{code:rml-list-with}
+\end{listing}
+
+Plus d'exemples peuvent être trouvés sur la page du projet.
+
+\section{Travail futur}
+
+Bien que l'implémentation actuelle donne des résultats satisfaisants sur
+différents cas, diverses améliorations peuvent être effectuées. Une liste \\
+non-exhaustive peut être trouvée, en anglais, sur la page du
+projet\cite{rml-github-issues}. Voici quelques exemples.
+
+\begin{itemize}
+  \item L'algorithme de sous-typage provoque sur certains cas des stack
+    overflow. Ceci n'est pas très surprenant. En effet, à cause
+    du type récursif, un arbre de dérivation n'est pas nécessairement de taille finie car
+    il est possible que l'algorithme doive répondre à la même question dans un
+    sous-arbre. De plus, comme le problème du sous-typage est indécidable, il
+    existe des questions qui ne disposent pas de réponse.
+  \item Nous nous sommes focalisés essentiellement sur l'implémentation des
+    algorithmes de typage et de sous-typage, et non sur l'évaluation des termes.
+    Un évaluateur pourrait être implémenté en se basant sur \cite{WF-DOT-2016}.
+  \item Un interpréteur interactif.
+  \item Améliorer l'algorithme d'inférence de type pour les modules. En effet,
+      comme nous l'avons vu, celui-ci est relativement naïf et ne permet pas par
+      exemple de gérer un module contenant des champs mutuellement dépendants.
+  \item Améliorer et prouver ensuite que les algorithmes de sous-typage et de
+      typage définissent bien les relations de typage et de sous-typage.
+  \item Pour l'instant, il est nécessaire de donner un type lorsque nous
+    utilisons un match sur une option (voir fichier \verb|stdlib/option_church.rml|), ce qui
+    n'est pas courant en OCaml car le type est inféré. Cette inférence de type
+    passe par la résolution d'équations et nécessite de travailler avec deux
+    arbres différents.
+\end{itemize}

@@ -1,3 +1,364 @@
-\chapter{System F}
+\chapter{Système F}
+\label{chapter:system-f}
 
-\section{Sureté de System F}
+Dans ce chapitre, nous allons introduire une autre de notion de polymorphisme
+appelée le \textit{polymorphisme paramétré}\footnote{Plus d'informations peuvent
+être trouvées dans \cite{tapl-system-f}}
+
+Nous avons vu dans le chapitre précédent que le polymorphisme par sous-typage
+nous permet de rendre notre relation de typage plus flexible en donnant la
+possibilité d'attribuer plusieurs types à un terme grâce à la règle T-SUB. Cette
+méthode nous permet alors d'éviter
+d'écrire plusieurs fonctions qui ont le même corps mais qui différent uniquement
+par le type du paramètre.
+
+Supposons que nous ayons $\naturel$ et $\real$ comme types dans notre langage et
+prenons l'exemple de la fonction identité sur les réels
+\begin{equation*}
+  id_{1} = \lambdaExpr{x : \real}{x}
+\end{equation*}
+
+Le polymorphisme avec sous-typage nous permet de passer en paramètre un
+naturel
+car $\naturel <: \real$. Dans tous les cas, la fonction $id_{1}$ étant de type
+$\real \rightarrow \real$, le type de la valeur de retour sera $\real$, et non
+$\naturel$ si nous passons un naturel à la fonction.
+Dans le cas des enregistrements, cela implique que nous perdons des
+champs de l'enregistrement passé en paramètre.
+
+De plus, il n'est pas autorisé de passer un
+enregistrement ayant un champ $x$ de type $\naturel$ car $\real$ n'est pas
+un sous-type de $\left\{ x : \naturel \right\}$. Nous devons alors définir une
+nouvelle fonction pour l'identité:
+\begin{equation*}
+  id_{2} = \lambdaExpr{x : \left\{ x : \naturel \right\}}{x}
+\end{equation*}
+
+Et nous pouvons continuer de la sorte avec les enregistrements qui ont
+uniquement le champ $y$ ou le champ $z$ et ainsi de suite.
+
+Le polymorphisme paramétré résout ce problème en définissant de nouveaux termes
+et de nouvelles règles de typage et d'évaluation au $\lambda$-calcul simplement
+typé. Le calcul qui en résulte est appelé \textit{Système F}.
+
+\section{Syntaxe}
+
+La syntaxe de \textit{Système F} est très proche de celle du $\lambda$-calcul
+simplement typé : nous ajoutons un terme qui permet de créer une fonction
+prenant un type et retournant un terme (l'équivalent de l'abstraction sur les
+termes) ainsi qu'un terme qui permet d'appliquer un terme à un type.
+
+Du côté des types, nous ajoutons des variables de type qui nous servent
+dans les abstractions de type. Nous supposons, comme pour les variables de
+terme, qu'il existe un nombre dénombrable de variables de type.
+Nous ajoutons également un type pour les abstractions de type, appelé \textit{type universel}.
+
+Arbitrairement, nous ajoutons aussi les abstractions de type comme valeurs.
+
+\begin{minipage}{0.45\textwidth}
+  \begin{align*}
+    t ::= & \, & \text{terme} \\
+          & \; x & \text{var} \\
+          & \; t \, t & \text{app} \\
+          & \; \lambdaExpr{x : T}{t} & \text{abs} \\
+          & \; \lambdaExprType{X}{t} & \text{type abs} \\
+          & \; t[T] & \text{type app}
+  \end{align*}
+\end{minipage}
+\begin{minipage}{0.45\textwidth}
+  \begin{align*}
+    T ::= & \, & \text{type} \\
+          & \; X & \text{type var} \\
+          & \; T \rightarrow T & \text{fonction} \\
+          & \; \forall X . \, T & \text{universel}
+  \end{align*}
+\end{minipage}
+\begin{align*}
+  v ::= & \, & \text{valeur} \\
+        & \; \lambdaExpr{x : T}{t} & \text{abs} \\
+        & \; \lambdaExprType{X}{t} & \text{type abs}
+\end{align*}
+
+Par exemple, nous pouvons définir une fonction qui prend un type en paramètre et
+qui renvoie la fonction identité pour ce type:
+
+\begin{equation*}
+  id_{poly} = \lambdaExprType{X}{(\lambdaExpr{x : X}{x})}
+\end{equation*}
+
+Nous étendons également de manière naturelle la notion de substitution aux
+nouveaux termes $t[T]$ et $\lambdaExprType{X}{t}$.
+
+\begin{align*}
+  [x := s] \, (t[T]) & = ([x := s]t)[T] \\
+  [x := s] \, (\lambdaExprType{X}{t}) & = \lambdaExprType{X}([x := s]t)
+\end{align*}
+
+Nous définissons également une fonction de substitution de variable de type pour
+un type donné, notée $[X \rightarrow S]$. Comme les types peuvent apparaître
+aussi bien dans les termes que dans les types, cette fonction est définie sur
+ces deux ensembles.
+
+\begin{definition}
+  Soit $X$ une variable de type et $S$ un type. On définit la fonction de
+  substitution de $X$ par $S$, noté $[X \rightarrow S]$, sur les termes et types
+  de la manière suivante :
+
+  \begin{align*}
+    [X \rightarrow S]x & = x \\
+    [X \rightarrow S]\lambdaExpr{x : T} t & = \lambdaExpr{x : [X \rightarrow S]T}{[X \rightarrow S]t} \\
+    [X \rightarrow S](t_{1} \; t_{2}) & = ([X \rightarrow S]t_{1}) \; ([X \rightarrow S]t_{2}) \\
+    [X \rightarrow S](\lambdaExprType{Y} t) & = \lambdaExprType{Y}([X \rightarrow S] t) \\
+    [X \rightarrow S](t[T]) & = ([X \rightarrow S] t)[[X \rightarrow S] T] \\
+    \\
+    [X \rightarrow S]X & = S \\
+    [X \rightarrow S]Y & = Y \\
+    [X \rightarrow S](T_{1} \rightarrow T_{2}) & = ([X \rightarrow S]T_{1}) \rightarrow ([X \rightarrow S] T_{2}) \\
+    [X \rightarrow S](\forall Y .\, T) & = \forall Y . \, [X \rightarrow S]T
+  \end{align*}
+\end{definition}
+\section{Sémantique}
+
+Nous ajoutons également des règles d'évaluation pour les nouveaux termes
+définis. Celles-ci sont très semblables à (E-APPABS) et (E-APP).
+
+\begin{mathpar}
+  \inferrule*[Left=(E-T-APP)]
+  {t \rightarrow t'}
+  {t[T] \rightarrow t'[T]}
+  \and
+  \inferrule*[Right=(E-T-ABS)]
+  {(\lambdaExprType{X}{t})[T] \rightarrow [X \rightarrow T]t}
+  {}
+\end{mathpar}
+
+(E-T-APP) est l'équivalent de (E-APP1) pour les applications de types tandis que
+(E-T-ABS) nous dit comment les abstractions de types sont évaluées.
+
+Par exemple, nous pouvons utiliser $id_{poly}$ et les types $\real$ et
+$\naturel$ pour obtenir la fonction identité sur les réels et les naturels.
+
+\begin{mathpar}
+  \inferrule
+  {id_{poly}[\naturel] \rightarrow \lambdaExpr{x : \naturel} x}
+  {}
+  \and
+  \inferrule
+  {id_{poly}[\real] \rightarrow \lambdaExpr{x : \real} x}
+  {}
+\end{mathpar}
+
+\section{Contexte de typage}
+
+Avant de donner les règles de typage, il est important de remarquer que nous
+devons également changer notre définition du contexte. En effet, le but initial
+du contexte est de contenir les variables libres d'un terme. Cependant, des
+variables de type sont également définies et peuvent être également libres dans des
+termes comme dans $\lambdaExpr{z : \left\{ x : X ; y : X \right\}}{z}$.
+Cela nous amène à ajouter les variables dans le contexte afin de garder une
+trace de leur définition. Le contexte de typage
+est donc défini comme une liste contenant des couples $(x : T)$ et des variables
+de type $X$.
+
+Nous supposons que si une variable $X$ est dans le contexte, alors elle ne peut
+pas apparaître à la gauche de sa définition. Par exemple, le contexte $x : X, X$
+n'est pas valable, mais $X, x : X$ l'est.
+
+\section{Règles de typage}
+
+Enfin, nous ajoutons des règles de typage pour les nouveaux termes
+$\lambdaExprType{X}{T}$ et $t[T]$.
+
+\begin{mathpar}
+  \inferrule* [Left=(T-T-ABS)]
+  {\Gamma, X \vdash t : T}
+  {\Gamma \vdash \lambdaExprType{X}{t} : \forall X . \, T}
+  \and
+  \inferrule* [Right=(T-T-APP)]
+  {\Gamma \vdash t_{1} : \forall X . \, T}
+  {\Gamma \vdash t_{1}[T'] : [X \rightarrow T']T}
+\end{mathpar}
+
+Ces règles nous permettent de typer nos termes $id_{poly}$, $id_{poly}[\real]$ et
+$id_{poly}[\naturel]$ qui sont respectivement de types $\forall X . \, X
+\rightarrow X$, $\real \rightarrow \real$ et $\naturel \rightarrow \naturel$.
+
+\section{Sûreté}
+
+Les théorèmes de préservation et de progression peuvent également être démontrés
+pour Système F. Comme nous avons pu le remarquer, Système F est une extension
+relativement simple du $\lambda$-calcul simplement typé. Les nouvelles règles de typage
+et d'évaluation ont de l'influence uniquement sur les nouveaux termes et les
+nouveaux types. Les preuves des théorèmes sont donc très semblables. Comme pour
+le chapitre précédent, les preuves seront moins détaillées.
+
+\subsection*{Progression}
+
+Nous commençons par ajouter de nouveaux cas dans le lemme d'inversion des règles
+de typage \ref{lemma:simply-typed-lambda-calculus-inversion}, les cas du
+$\lambda$-calcul simplement typé restant vrais.
+
+\begin{lemma} [d'inversion des règles de typage]
+  \begin{enumerate}
+    \item Si $\Gamma \vdash \lambdaExprType{X}{t} : \forall X . \, T$, alors
+      $\Gamma, X \vdash t : T$.
+    \item Si $\Gamma \vdash t[T_{1}] : T_{2}$, alors $\Gamma \vdash t : \forall X .
+      \, T$ où $T_{2} = [X \rightarrow T_{1}] T$.
+  \end{enumerate}
+\end{lemma}
+  
+\begin{proof}
+  Direct vu les règles de typage.
+\end{proof}
+
+Nous montrons également un lemme des formes canoniques comme nous l'avons fait
+pour le $\lambda$-calcul avec sous-typage.
+
+\begin{lemma} [des formes canoniques]
+  \begin{enumerate}
+  \item Si $\Gamma \vdash v : \forall X . \, T$, alors $v =
+    \lambdaExprType{X}{t}$ et $\Gamma, X \vdash t : T$.
+  \item Si $\Gamma \vdash v : T_{1} \rightarrow T_{2}$, alors $v =
+    \lambdaExpr{x : T_{1}}{t}$ et $\Gamma, x : T_{1} \vdash t : T_{2}$.
+  \end{enumerate}
+\end{lemma}
+
+\begin{proof}
+  Direct vu les règles de typage.
+\end{proof}
+
+\begin{theorem} [de progression]
+  Soit $t$ un terme bien typé sans variable libre. Alors, soit $t$ est une
+  valeur, soit il existe $t'$ tel que $t \rightarrow t'$.
+\end{theorem}
+
+\begin{proof}
+  Les seuls nouveaux cas sont $t = \lambdaExprType{X}{t_{1}}$ et $t =
+  t_{1}[T_{2}]$.
+
+  Dans le premier cas, $t$ est une valeur donc le résultat est direct.
+
+  Dans le second cas, par le lemme d'inversion, nous avons $\vdash t_{1} :
+  \forall X . \, T_{1}$. L'hypothèse de récurrence nous dit que soit $t_{1}$ est
+  une valeur, soit il existe $t'_{1}$ tel que $t_{1} \rightarrow t'_{1}$.
+
+  \begin{itemize}
+  \item Si $t_{1}$ est une valeur, par le lemme des formes canoniques, $t_{1} =
+    \lambdaExprType{X}{t}$ et (E-T-ABS) s'applique.
+  \item Si $t_{1}$ se réduit en $t'_{1}$, alors (E-T-APP) s'applique.
+  \end{itemize}
+\end{proof}
+
+\subsection*{Préservation}
+
+%Comme premier lemme, nous renforçons
+%\ref{thm:simply-typed-lambda-calculus-preservation-substitution} en ajoutant un
+%contexte $\Delta$.
+%
+%\begin{lemma}
+%  \label{thm:system-f-preservation-substitution-term}.
+%  Soit $\Gamma, x : S, \Delta \vdash t : T$ et $\Gamma \vdash s : S$.
+%
+%  Alors $\Gamma, \Delta \vdash [x \rightarrow s] t : T$
+%\end{lemma}
+%
+%\begin{proof}
+%  
+%\end{proof}
+
+\begin{lemma} [de substitution de variable de type]
+  \label{thm:system-f-preservation-substitution-type}
+  Soit $S$ un type.
+
+  Si
+
+  \begin{equation*}
+    \Gamma, X, \Delta \vdash t : T
+  \end{equation*}
+  alors
+  \begin{equation*}
+    \Gamma, [X \rightarrow S]\Delta \vdash [X \rightarrow S]t : [X \rightarrow S] T 
+  \end{equation*}
+  où $[X \rightarrow S]\Delta$ signifie que nous remplaçons toutes les
+  occurences de $X$ par $S$ dans le contexte $\Delta$.
+\end{lemma}
+
+\begin{proof}
+  \label{proof:system-f-preservation-substitution-type}
+  La preuve se réalise par récurrence sur l'arbre de dérivation. Nous ne
+  démontrons que le cas (T-ABS) où $\Delta$ est nécessaire.
+
+%  \begin{itemize}
+   (T-ABS). Nous avons
+   \begin{equation*}
+     \Gamma, X, \Delta \vdash \lambdaExpr{x : T_{1}}t_{2} : T_{1} \rightarrow T_{2}
+   \end{equation*}
+   Par le lemme d'inversion, nous obtenons
+   \begin{equation*}
+     \Gamma, X, \Delta, x : T_{1} \vdash t_{2} : T_{2}
+   \end{equation*}
+   Par hypothèse de récurrence,
+   \begin{equation*}
+     \Gamma, [X \rightarrow S]\Delta, x : [X \rightarrow S]T_{1} \vdash [X
+     \rightarrow S]t_{2} : [X \rightarrow S]T_{2}
+   \end{equation*}
+   En utilisant (T-ABS), nous avons
+   \begin{equation*}
+     \Gamma, [X \rightarrow S]\Delta \vdash \lambdaExpr{x : [X \rightarrow S]T_{1}}[X
+     \rightarrow S]t_{2} : [X \rightarrow S]T_{2}
+   \end{equation*}
+   En utilisant la définition de la fonction de substitution, nous concluons
+   \begin{equation*}
+     \Gamma, [X \rightarrow S]\Delta \vdash [X \rightarrow S]\lambdaExpr{x :
+       T_{1}} t_{2} : [X \rightarrow S]T_{2}
+   \end{equation*}
+%  \item (T-T-APP). Nous avons
+%    \begin{equation*}
+%      \Gamma, X, \Delta \vdash t[T'] : [Y \rightarrow T']T
+%    \end{equation*}
+%    Par le lemme d'inversion, nous avons
+%    \begin{equation*}
+%      \Gamma, X, \Delta \vdash t : \forall Y . T
+%    \end{equation*}
+%    Par hypothèse de récurrence,
+%     \begin{align*}
+%       & & \Gamma, [X \rightarrow S]\Delta \vdash [X \rightarrow S]t : [X \rightarrow S] \forall Y . T \\
+%       & = & \Gamma, [X \rightarrow S]\Delta \vdash [X \rightarrow S]t : \forall Y . [X \rightarrow S]T
+%    \end{align*}
+%    En utilisant (T-T-APP), nous obtenons
+%     \begin{equation*}
+%        \Gamma, [X \rightarrow S]\Delta \vdash [X \rightarrow S]t[T'] : [Y \rightarrow T'][X \rightarrow S]T
+%    \end{equation*}
+%\end{itemize}
+   
+
+\end{proof}
+
+\begin{theorem} [de préservation du typage]
+  \label{thm:system-f-preservation}
+  Soit $\Gamma \vdash t : T$ et $t \rightarrow t'$. Alors $\Gamma \vdash t' :
+  T$.
+\end{theorem}
+
+\begin{proof}
+  \label{thm:system-f-preservation-proof}. Nous procédons par induction sur
+  l'arbre de dérivation du jugement de typage $\Gamma \vdash t : T$. Par rapport
+  à la preuve du $\lambda$-calcul simplement typé, il nous
+  suffit d'ajouter des cas pour (T-T-ABS) et (T-T-APP).
+
+  \begin{itemize}
+  \item (T-T-ABS). Ce cas n'est pas possible car il n'existe pas de règle d'évaluation.
+  \item (T-T-APP). Nous avons $t = t_{1}[T_{1}]$. Par le lemme d'inversion, nous
+    avons $\Gamma \vdash t_{1} : \forall X . \, T_{12}$ et $T = [X \rightarrow
+  T_{1}] T_{12}$. Les deux règles d'évaluation possibles sont (E-T-ABS) et
+  (E-T-APP).
+    \begin{itemize}
+    \item (E-T-APP). Nous utilisons l'hypothèse de récurrence et (E-T-APP).
+    \item (E-T-ABS). Alors, $t_{1} = \lambdaExprType{X}{t_{12}}$ avec $\Gamma, X
+      \vdash t_{12} : T_{12}$ et $t'_{1} = [X \rightarrow T_{1}] t_{12}$. Par
+     \ref{thm:system-f-preservation-substitution-type}, nous avons $\Gamma \vdash
+     [X \rightarrow T_{1}] t_{12} : [X \rightarrow T_{1}] T_{12}$. Nous concluons
+     en se souvenant que $[X \rightarrow T_{1}]T_{12} = T$.
+    \end{itemize}
+  \end{itemize}
+\end{proof}

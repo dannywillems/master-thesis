@@ -1,0 +1,8 @@
+let module M = struct
+  type t = Int.t
+  let x : self.t = 42
+end;;
+
+let f = fun(m : sig type t val x : self.t end, x : Int.t) -> m.x;;
+
+f M 4;;

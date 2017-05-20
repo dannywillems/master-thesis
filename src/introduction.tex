@@ -1,6 +1,7 @@
-\chapter{Introduction}
+\chapter*{Introduction}
+\addcontentsline{toc}{chapter}{Introduction}
 
-La programmation modulaire est un principe de développement visant à séparer une
+La programmation modulaire est un principe de développement consistant à séparer une
 application en composants plus petits appelés \textit{modules}. Le langage de
 programmation OCaml contient un langage de modules qui permet aux développeurs
 d'utiliser la programmation modulaire. Dans ce langage de modules, un module est
@@ -9,60 +10,106 @@ types définis dans le même module.
 OCaml étant un langage fortement typé, les modules possèdent également
 un type, appelé dans ce cas \textit{signature}.
 
+%% TODO exemple d'un module OCaml et de sa signature.
+
 Bien que les modules soient bien intégrés dans OCaml, une
 distinction est faite entre le langage de base, contenant les types dits
-\og primitifs \fg{}
-comme les entiers, les chaines de caractères ou les fonctions, et le
-langage de module. En particulier, le terme \textit{foncteur} est employé à la
-place de \textit{fonction} pour parler des valeurs prenant un module en
-paramètres et en retournant un autre. De plus, il n'est pas possible de définir
-des valeurs prenant un module et un type primitif et retournant un module (ou un
-type primitif).
+\og primitifs \fg, comme les entiers, les chaînes de caractères ou les fonctions, et le
+langage de modules. En particulier, le terme \textit{foncteur} est employé à la
+place de \textit{fonction} pour parler des fonctions prenant un module en
+paramètre et en renvoyant un autre.
 
-D'un autre côté, dans les types primitifs d'OCaml se trouvent les
-\textit{enregistrements}. Ces derniers sont des ensembles de couples
-\textit{(label, valeur)}, et ressemblent en quelques points aux modules.
+% Pour changer le nom du début de la légende d'un code.
+\renewcommand\listingscaption{Code OCaml}
 
-Ce mémoire vise à fournir un calcul typé, construit à partir du $\lambda$-calcul
-simplement typé, dans lequel le langage de modules est confondu avec le langage
-de base grâce aux enregistrements. Une preuve de la sûreté de ce calcul ainsi
-qu'un interpréteur avec un algorithme de sous-typage et d'inférence de type
-sont fournis.
+\begin{listing}
+  \inputminted{OCaml}{codes/intro_point2D.ml}
+  \caption{Exemple d'un module nommé Point2D contenant un type t pour
+    représenter un point par ses coordonnées cartésiennes dans un enregistrement
+    et d'une fonction add retournant un point dont les coordonnées sont
+    la somme de deux points donnés en paramètres.}
+\end{listing}
 
-Les chapitres sont organisés afin de comprendre la construction d'un tel calcul
-à partir du plus simples des calculs, le $\lambda$-calcul.
+\begin{listing}
+  \caption{MakePoint2D est un foncteur qui permet de rendre polymorphe notre
+    module Point2D.}
+  \inputminted{OCaml}{codes/intro_point2D_polymorphic.ml}
+\end{listing}
 
-Dans le chapitre 1, nous présentons \textit{le $\lambda$-calcul non typé}, un calcul
+\begin{listing}
+  \caption{Application de notre foncteur au module des entiers.}
+  \inputminted{OCaml}{codes/intro_point2D_polymorphic_app.ml}
+\end{listing}
+
+D'un autre côté, dans les types de base d'OCaml se trouvent les
+\textit{enregistrements}. Ces derniers peuvent être interprétés comme des listes
+de couples \textit{(label, valeur)}, et ressemblent aux modules. Cependant, les deux
+différences majeures sont la possibilité de définir des types dans un
+module ainsi que d'avoir des champs mutuellement dépendants.
+
+Ce mémoire vise à donner, dans un premier temps et après avoir défini les notions
+nécessaires, un calcul typé, DOT\cite{WF-DOT-2016}, dans lequel le
+langage de modules est confondu avec le langage de base grâce aux
+enregistrements. Cette unification implique
+que les modules (et, \textit{in fine}, les foncteurs) sont des citoyens de première
+classe, c'est-à-dire que nous pouvons les manipuler comme tout autre terme, ce qui
+n'est pas le cas actuellement en OCaml.
+Dans un second temps, ce travail propose une implémentation en OCaml
+des algorithmes de typage et de sous-typage ainsi qu'un langage de surface qui nous
+permet d'écrire des programmes DOT.
+
+%Une preuve de la sûreté de ce calcul ainsi
+%qu'un interpréteur avec un algorithme de sous-typage et d'inférence de type est
+%fourni.
+
+Les chapitres sont organisés afin de comprendre la construction de DOT
+à partir du plus simple des calculs, le $\lambda$-calcul.
+
+Dans le chapitre 1, nous présenterons \textit{le $\lambda$-calcul non typé}, un calcul
 minimal qui contient des termes pour les variables, pour les abstractions (afin
 de représenter des fonctions) et des applications (afin de représenter
 l'application d'une fonction à un paramètre). Nous discuterons également de la
 sémantique que nous attribuons à ce calcul.
 
-Dans le chapitre 2, nous introduisons la notion de type et nous l'appliquons au
+Dans le chapitre 2, nous introduirons la notion de type et nous l'appliquons au
 $\lambda$-calcul, ce qui nous donnera \textit{le $\lambda$-calcul simplement typé}. Nous
-discuterons de la notion de \textit{sureté du typage} à travers \textit{les théorèmes
-de préservation et de progression} que nous démontrons pour ce calcul typé.
+discuterons de la notion de \textit{sûreté du typage} à travers \textit{les théorèmes
+de préservation et de progression} que nous démontrerons pour ce calcul typé.
 
-Dans le chapitre 3, nous parlerons de la notion de type récursif et nous
-étudierons \textit{le $\lambda$-calcul simplement typé avec type récursif}.
-
-Dans les chapitres 4, 5 et 6, nous enrichissons le $\lambda$-calcul simplement
+Dans les chapitres 3, 4 et 5, nous enrichirons le $\lambda$-calcul simplement
 typé avec la notion de polymorphisme qui permet d'attribuer plusieurs types à un
-terme. Le chapitre 4 se concentre sur \textit{le polymorphisme avec sous-typage},
-illustré avec les enregistrements. Dans le chapitre 5, nous parlons de
+terme. Le chapitre 3 se concentre sur \textit{le polymorphisme avec sous-typage},
+illustré avec les enregistrements.
+%Nous parlerons aussi de l'implémentation d'un
+%algorithme de sous-typage pour ce calcul et nous montrerons qu'un travail est
+%nécessaire pour passer de la théorie à l'implémentation.
+Dans le chapitre 4, nous parlerons de
 \textit{polymorphisme paramétré} qui, combiné au $\lambda$-calcul simplement typé, forme
-le calcul appelé \textit{System F}.
-Le chapitre 6 se charge de combiner ces deux notions de polymorphisme dans un
-calcul appelé \textit{System $F_{<:}$}.
+le calcul appelé \textit{Système F}.
+Le chapitre 5 se chargera de combiner ces deux notions de polymorphismes dans un
+calcul appelé \textit{Système $F_{<:}$}.
+Une preuve des théorèmes de préservation et de progression sera donnée pour
+les calculs définis dans les chapitres 3 et 4.
 
-Pour finir, dans le chapitre 7, nous complétons les enregistrements définis
-dans le chapitre 4 avec les \textit{types chemins dépendants} qui offre la possibilité
-d'ajouter des types dans les enregistrements. Nous montrerons comment ce dernier
-calcul permet de résoudre le problème posé.
+Ensuite, dans le chapitre 6, nous étudierons le calcul DOT en complétant les
+enregistrements définis dans le chapitre 3 avec les \textit{types chemins
+dépendants} qui offrent la possibilité d'ajouter des types dans les
+enregistrements, la syntaxe manquante pour une
+convergence entre enregistrements et modules. Ce dernier chapitre comportera en
+plus des types chemins dépendants, chaque notion étudiée précédemment,
+c'est-à-dire le $\lambda$-calcul simplement typé, les
+enregistrements, le polymorphisme par sous-typage et le polymorphisme paramétré
+ainsi que des types récursifs.
 
-Chaque calcul possède une implémentation écrite en OCaml dont les choix et les
-difficultés d'implémentation ainsi qu'un lien vers celle-ci sont donnés dans une
-section dans le chapitre correspondant au calcul.
+Pour finir, dans le chapitre 7, nous discuterons de l'implémentation du langage
+RML\cite{rml-github} qui comprend un algorithme de typage et de sous-typage
+ainsi que d'un langage de surface pour le
+calcul DOT. Nous verrons que passer des règles de sous-typage à un algorithme
+n'est pas évident pour plusieurs raisons.
+% Nous donnerons des comparaisons entre OCaml et RML
 
-%Le sujet de ce mémoire est un sujet de recherche proposé à l'INRIA aux étudiants
-%du MPRI.
+
+La principale difficulté de ce travail se trouve dans l'étude des types
+chemin dépendants, sujet de recherche récent et moins bien compris que les
+calculs comme \textit{Système $F$} ou \textit{Système $F_{<:}$}, ainsi que
+la gestion de ceux-ci dans les algorithmes.

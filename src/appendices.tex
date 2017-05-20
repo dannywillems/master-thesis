@@ -1,0 +1,120 @@
+\appendix
+\chapter{Preuve par induction sur les termes et les types}
+
+Les termes ainsi que les types d'un langage sont définis de manière inductive.
+Par exemple, pour le $\lambda$-calcul simplement typé, la grammaire des termes
+est définie par
+\begin{align*}
+  t ::= & \, & \text{terme} \\
+        & \; x & \text{var} \\
+        & \; t \, t & \text{app} \\
+        & \; \lambdaExpr{x : T}{t} & \text{abs}
+\end{align*}
+
+et la grammaire des types, en supposant que nous avons uniquement \verb|Bool|
+(pour les booléens) comme type de base, est définie par
+\begin{align*}
+  T ::= & \, & \text{types} \\
+        & \; Bool & \text{type des booléens} \\
+        & \; T \rightarrow T & \text{type des fonctions}
+\end{align*}
+
+Ces définitions récursives sur les termes et les types nous permettent de
+définir récursivement des fonctions agissant sur les termes et les types. Par
+exemple, nous pouvons définir de manière inductive une fonction
+\verb|size| sur les termes et les types de la manière suivante.
+
+\begin{align*}
+  size(x) & = 1 \\
+  size(t_{1} t_{2}) & = size(t_{1}) + size(t_{2}) \\
+  size(\lambdaExpr{x : T}{t}) & = size(t) + 1
+\end{align*}
+
+\begin{align*}
+  size(Bool) & = 1 \\
+  size(T_{1} \rightarrow T_{2}) & = size(T_{1}) + size(T_{2}) \\
+\end{align*}
+
+Si nous nous représentons les termes et les types en forme d'arbre, la
+définition se résume à la définition du nombre de noeuds de l'arbre. Cette
+représentation et la définition de fonctions comme \verb|size| nous permettent de
+raisonner par induction sur le nombre de noeuds de l'arbre en utilisant l'induction sur
+les naturels, comme le montre la preuve d'unicité de type pour le
+$\lambda$-calcul simplement typé.
+
+Nous supposons pour la plupart des grammaires que nous disposons d'une telle
+fonction qui permette de raisonner inductivement sur la structure des
+programmes ou des types, la fonction \verb|size| étant souvent facile à définir.
+
+%Certaines preuves nécessitent une induction sur deux paramètres naturels comme celles
+%du lemme d'affaiblissement et du lemme de permutation pour le $\lambda$-calcul
+%simplement typé.
+
+%En effet, pour le lemme de permutation, pour le cas des abstractions, l'argument
+%complet est:
+%
+%\og Par hypothèse et le lemme d'inversion, $\Gamma \vdash \lambdaExpr{x : T_{1}}
+%t' : T_{1} \rightarrow T_{2}$ et $\Gamma, x : T_{1} \vdash t' : T_{2}$. Par
+%hypothèse de récurrence, $\Delta, x : T_{1} \vdash t' : T_{2}$. Par $(T-ABS)$,
+%$\Delta \vdash \lambdaExpr{x : T_{1}}{t'} : T_{1} \rightarrow T_{2}$. \fg
+%
+%Cependant, l'hypothèse de récurrence est \og $\Gamma \vdash t : T$ implique $\Delta
+%\vdash t : T$ \fg, et non \og $\Gamma, x : T_{1} \vdash t : T$ implique $\Delta, x :
+%T_{1} \vdash t : T$ \fg : le contexte n'est pas le même.
+%
+%L'argument reste pourtant vrai : le principe de récurrence utilisé est celui sur
+%$\naturel^{2}$ muni de l'ordre lexicographique en utilisant comme premier
+%paramètre la hauteur de l'arbre de typage (qui diminue strictement dans le cas donné) et
+%comme second la taille du contexte (qui augmente). L'énoncé complet du lemme de
+%permutation devrait être:
+%
+%\og Soit $\Gamma \vdash t : T$ dont l'arbre de dérivation est de hauteur $n$ et
+%dont la cardinalité de $\Gamma$ est $m$. Alors, pour toute permutation $\Delta$ de
+%$\Gamma$, $\Delta \vdash t : T$ \fg.
+%
+%Pour rappel, le principe de récurrence sur $\naturel^{2}$ est le suivant :
+%\begin{proposition}
+%  Soit $P$ une proposition sur $\naturel^{2}$.
+%
+%  Si, pour tout $(m, n) \in \naturel^{2}$, $P(m', n')$ est vrai pour tout $(m',
+%  n') \leq (m, n)$, alors, $P(m, n)$ est vrai pour tout $(m, n) \in \naturel^{2}$.
+%\end{proposition}
+%
+%et se démontre en plusieurs lemmes :
+%
+%\begin{lemma} [Principe d'induction sur un ensemble bien ordonné]
+%  Soit $(X, \leq)$ un ensemble bien ordonné, alors le principe d'induction est
+%  vrai sur $X$, c'est-à-dire:
+%
+%  Soit $P$ une proposition sur $X$.
+%  Si pour tout $x \in X$, quelque soit $y \in X$ tel que $y \leq x$, $P(y)$ est
+%  vrai, alors $P(x)$ est vrai pour tout $x \in X$.
+%\end{lemma}
+%
+%\begin{proof}
+%  Même principe que la preuve sur $\naturel$.
+%\end{proof}
+%
+%\begin{lemma}
+%  Soit $(X, \leq)$ un ensemble bien ordonné. Alors $(X^{2}, \leq_{l})$ où
+%  $\leq_{l}$ est l'ordre lexicographique est bien ordonné.
+%\end{lemma}
+%
+%\begin{proof}
+%  Soit $S \subseteq X^{2}$.
+%
+%  Posons $S_{1} = \GSsetDef{x \in X}{\exists y \in X \text{ tel que } (x, y) \in S}$.
+%  Comme $S_{1} \subseteq X$ et $X$ est bien ordonné, $S_{1}$ possède un minimum.
+%  Notons le $\min{S_{1}}$.
+%
+%  Posons $T = \GSsetDef{y \in X}{(\min{S_{1}}, y) \in S}$. Comme $T \subseteq
+%  X$, $T$ possède un minimum. Notons le $\min{T}$.
+%
+%  Alors, $s = (\min{S_{1}}, \min{T})$ est le minimum de $S$. En effet, si $(x, y)
+%  \in S$, on a $x \in S_{1}$ car $(x, y) \in S$, donc $\min{S_{1}} \leq x$ et si
+%  $\min{S_{1}} = x$, alors, comme $y \in T$, $\min{T} \leq y$. Par construction,
+%  $s \in S$.
+%\end{proof}
+%
+%De manière générale, le dernier lemme peut se démontrer, en utilisant les mêmes
+%arguments, pour $X^{n}$ où $n$ est un naturel quelconque.

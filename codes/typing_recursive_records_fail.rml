@@ -1,0 +1,7 @@
+let module Test = struct
+  type t = Int.t
+  type s = self.t
+  (* plus et fail sont mutuellement dépendants. *)
+  let fail = fun(x : self.t, y : self.s) -> self.plus x y
+  let plus = fun(x : self.t, y : self.s) -> Int.add x y
+end;;

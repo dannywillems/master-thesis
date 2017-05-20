@@ -1,3 +1,237 @@
-\chapter{System $F_{<:}$}
+\chapter{Système $F_{<:}$}
+\label{chapter:system-f-sub}
 
-\section{Sureté de System $F_{<:}$}
+Dans les chapitres \ref{chapter:lambda-calculus-with-records} et
+\ref{chapter:system-f}, nous avons défini deux notions de polymorphisme: le
+polymorphisme par sous-typage à travers les enregistrements et le polymorphisme
+paramétré.
+
+Les deux mécanismes permettent de résoudre deux problèmes différents :
+\begin{enumerate}
+  \item le sous-typage permet d'affiner notre relation de typage à travers la
+    relation $<:$. Par exemple, il nous est permis de définir la fonction
+    identité sur les réels ($\lambdaExpr{x : \real} x$) et de l'appliquer à un
+    entier car $\naturel$ est un sous-type de $\real$.
+  \item le polymorphisme paramétré permet de quantifier sur les types et de
+    créer des abstractions de type. Par exemple, nous pouvons
+    définir la fonction identité polymorphe $\lambdaExprType{X}{\lambdaExpr{x :
+    X}{x}}$ et l'appliquer aux types $\real$ et $\naturel$, mais également à
+    n'importe quel autre type comme $\naturel \rightarrow \real$ ou encore $\real
+    \rightarrow (\naturel \rightarrow \real)$.
+\end{enumerate}
+
+Dans ce chapitre, nous allons unifier ces deux notions en un langage appelé
+Système $F_{<:}$\footnote{prononcé \og système F sub \fg}. L'idée principale de
+Système $F_{<:}$ est d'élargir notre relation de sous-typage sur les variables de
+type pour les borner et ainsi restreindre les types qui peuvent être appliqués
+aux abstractions de type. De cette façon, une même abstraction de type dépendante d'une
+variable $X$, bornée supérieurement par $\real$, pourra accepter les types $\naturel$ et
+$\real$, mais pas $\naturel \rightarrow \real$ ou encore $\real \rightarrow
+\real$. Nous ne considérons donc plus seules les variables de type, mais liées
+à une borne supérieure. Nous notons $X <: T$ pour dire que la variable de type
+$X$ est borné supérieurement par $T$.  
+
+Ajouter une borne supérieure permet d'affiner le type de la variable $X$ en
+obligeant le type appliqué à avoir certaines caractéristiques. Par exemple, la
+fonction $\lambdaExprType{X <: \left\{ z : \real \right\}}{\lambdaExpr{x :
+    X}{\, x.z}}$ oblige, lors d'une application de type, de donner un type
+enregistrement avec au moins le champ $z$ qui est de type réel.
+
+Il est naturel de se demander pourquoi nous ne donner qu'une borne
+supérieure aux variables. Nous verrons que DOT attribue également une borne inférieure.
+
+Dans ce chapitre, nous considérons également le type \verb|Top|.
+
+\section{Syntaxe}
+
+La syntaxe de Système $F_{<:}$ est celle de Système $F$ à laquelle nous ajoutons
+une borne supérieure aux variables des abstractions de type.
+
+\begin{minipage}{0.45\textwidth}
+  \begin{align*}
+    t ::= & \, & \text{terme} \\
+          & \; x & \text{var} \\
+          & \; t \, t & \text{app} \\
+          & \; \lambdaExpr{x : T}{t} & \text{abs} \\
+          & \; \lambdaExprType{X <: T}{t} & \text{type abs} \\
+          & \; t[T] & \text{type app}
+  \end{align*}
+\end{minipage}
+\begin{minipage}{0.45\textwidth}
+  \begin{align*}
+    T ::= & \, & \text{type} \\
+          & \; X & \text{type var} \\
+          & \; T \rightarrow T & \text{fonction} \\
+          & \; \forall X <: T. \, T & \text{universel} \\
+          & \; Top & \text{Top}
+  \end{align*}
+\end{minipage}
+\\
+\\
+\\
+Les valeurs restent les mêmes :
+\begin{align*}
+  v ::= & \, & \text{valeur} \\
+        & \; \lambdaExpr{x : T}{t} & \text{abs} \\
+        & \; \lambdaExprType{X <: T}{t} & \text{type abs}
+\end{align*}
+
+\section{Sémantique}
+
+Au niveau de la sémantique, les règles restent les mêmes que Système F.
+
+\begin{mathpar}
+  \inferrule
+    {t_{1} \rightarrow t_{1}'}
+    {t_{1} \, t \rightarrow t_{1}' \, t} \quad (\textsc{E-APP1})
+  \and
+  \inferrule
+    {t \rightarrow t'}
+    {v \, t \rightarrow v \, t'} \quad (\textsc{E-APP2})
+  \and
+  \inferrule
+    {(\lambdaExpr{x : T}{t}) v \rightarrow [x := v]t}
+    {} \quad (\textsc{E-APPABS})
+  \and
+  \inferrule
+  {t \rightarrow t'}
+  {t[T] \rightarrow t'[T]} \quad (\textsc{E-T-APP})
+  \and
+  \inferrule
+  {(\lambdaExprType{X <: T_{1}}{t})[T] \rightarrow [X \rightarrow T]t}
+  {} \quad (\textsc{E-T-ABS})
+\end{mathpar}
+\label{eval:system-f-sub}
+
+\section{Contexte de typage}
+
+Au niveau du contexte de typage, à la place d'avoir uniquement la variable de
+type, nous allons également ajouter la borne supérieure.
+
+Il est nécessaire de faire attention à l'ordre d'apparition des variables. Par
+exemple, nous dirons que $X <: Y, Y <: Top$ est mal formé car $Y$
+apparaît comme borne avant sa définition ($Y <: Top$). Bien que ça soit une
+définition informelle, nous considérerons uniquement les contextes de typage
+tels qu'une variable $Y$ n'apparaît jamais comme borne supérieure à gauche de sa
+définition.
+
+La syntaxe du contexte de typage est donc :
+\begin{align*}
+  \Gamma ::= & \, & \text{contexte} \\
+        & \; \emptyset & \\
+        & \; \Gamma, x : T & \\
+        & \; \Gamma, X <: T & \\
+\end{align*}
+
+\section{Règles de typage et de sous-typage}
+
+Comme le contexte comporte des hypothèses de sous-typage, nous ajoutons un
+contexte $\Gamma$ dans les règles de sous-typage. Une affirmation $S <: T$
+devient $\Gamma \vdash S <: T$.
+
+Les règles de typage deviennent :
+
+\begin{mathpar}
+  \inferrule
+  {(x : T) \in \Gamma}
+  {\Gamma \vdash x : T}
+  \quad (\textsc{T-VAR})
+  \and
+  \inferrule
+  {\Gamma, x : T_{1} \vdash t : T_{2}}
+  {\Gamma \vdash \lambda (x : T_{1}) t : T_{1} \rightarrow T_{2}}
+  \quad (\textsc{T-ABS})
+  \and
+  \inferrule
+  {\Gamma \vdash u : T_{1} \rightarrow T_{2} \\ \Gamma \vdash v : T_{1}}
+  {\Gamma \vdash u \, v : T_{2}}
+  \quad (\textsc{T-APP})
+  \\
+  \inferrule
+  {\Gamma, X <: T_{1} \vdash t : T}
+  {\Gamma \vdash \lambdaExprType{X <: T_{1}}{t} : \forall X <: T_{1}. \, T}
+  \quad (\textsc{T-T-ABS})
+  \and
+  \inferrule
+  {\Gamma \vdash t_{1} : \forall X <: T_{1}. \, T \\ \Gamma \vdash T' <: T_{1}}
+  {\Gamma \vdash t_{1}[T'] : [X \rightarrow T']T}
+
+  \quad (\textsc{T-T-APP})
+  \and
+  \inferrule
+  {\Gamma \vdash t : S \\ \Gamma \vdash S <: T}
+  {\Gamma \vdash t : T}
+  \quad (\textsc{T-SUB})
+\end{mathpar}
+
+Quant aux règles de sous-typage, nous avons :
+
+\begin{mathpar}
+  \inferrule
+  {\Gamma \vdash S <: S}
+  {}
+  \quad (\textsc{S-REFL})
+  \and
+  \inferrule
+  {\Gamma \vdash S <: T \\ \Gamma \vdash T <: U}
+  {\Gamma \vdash S <: U}
+  \quad (\textsc{S-TRANS})
+  \and
+  \inferrule
+  {\Gamma \vdash S <: Top}
+  {}
+  \quad (\textsc{S-TOP})
+  \\
+  \inferrule
+  {X <: T \in \Gamma}
+  {\Gamma \vdash X <: T}
+  \quad (\textsc{S-TVAR})
+  \and
+  \inferrule
+  {\Gamma \vdash T_{1} <: S_{1} \\ \Gamma \vdash S_{2} <: T_{2}}
+  {\Gamma \vdash S_{1} \rightarrow S_{2} <: T_{1} \rightarrow T_{2}}
+  \quad (\textsc{S-ARROW})
+  \and
+  \inferrule
+  {\Gamma \vdash T_{1} <: S_{1} \\ \Gamma, X <: T_{1} \vdash S_{2} <: T_{2}}
+  {\Gamma \vdash \forall X <: S_{1}. S_{2} <: \forall X <: T_{1}. T_{2}}
+  \quad (\textsc{S-ALL})
+\end{mathpar}
+
+Remarquons que dans (S-ALL), la borne supérieur de la variable $X$ peut être
+différente.\footnote{Une variante, appelée Kernel $F_{<:}$, oblige la borne
+  supérieure à être la même. Nous ne discuterons pas de celle-ci dans ce document.}
+
+\section{Sûreté}
+
+Les théorèmes de préservation et de progression restent vrais pour Système
+$F_{<:}$. Cependant, nous ne les démontrerons pas car ils nécessitent des lemmes
+techniques ainsi qu'une définition formelle de contexte bien formé et ce n'est
+pas le sujet principal de ce document. La structure
+et les techniques restent les mêmes : lemme d'inversion des relations de typage,
+lemme des formes canoniques, lemme d'inversion de la relation de sous-typage, lemme de
+substitution des types, preuve par induction structurelle, etc.
+Des preuves des théorèmes peuvent être trouvées dans
+\cite{tapl-bounded-quantification}.
+
+\section{Indécidabilité du sous-typage}
+
+Etant donnés deux types $S$ et $T$, la question $S <: T$ a-t-elle
+toujours une réponse ? En d'autres termes, la question du sous-typage est-elle
+décidable ?
+
+Il a été démontré qu'il n'existe pas d'algorithme correct et complet de sous-typage donnant une
+réponse sur toute question $S <: T$.
+Un algorithme $A(\Gamma, S, T)$ est \textit{correct} si lorsque $A(\Gamma, S,
+T)$ a comme sortie oui, $\Gamma \vdash S <: T$. Un algorithme est
+\textit{complet} si, lorsque $\Gamma \vdash S <: T$, la sortie de $A(\Gamma, S,
+T)$ est oui.
+
+Plus d'informations peuvent être trouvées
+dans \cite{tapl-bounded-quantification-metatheory}.
+
+Le problème de l'indécidabilité du sous-typage de Système $F_{<:}$ est important
+quand nous considérons l'écriture d'un algorithme de sous-typage pour ce calcul.
+En effet, cela implique que sur certaines entrées, l'algorithme peut
+diverger\footnote{Si bien sûr nous ne définissons pas des règles pour l'arrêter
+  dans le cas où il n'y a pas de réponse.}.

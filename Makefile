@@ -14,11 +14,11 @@ DVILUATEX	= dviluatex
 BIBTEX		= bibtex
 
 CC_WITH_OPTIONS = \
-    TEXINPUTS="$(SRC_DIR):$(RES_DIR):$(THEME_DIR):$(LIB_DIR):" \
+    TEXINPUTS="$(SRC_DIR):$(RES_DIR):$(THEME_DIR):$(LIB_DIR):codes:$(BUILD_DIR):" \
     TEXMFOUTPUTS="$(OUTPUT_DIR)" \
     $(CC) \
     -output-directory=$(OUTPUT_DIR) \
-    --shell-escape
+    -shell-escape
 
 ################################################################################
 
@@ -43,7 +43,7 @@ ifeq ($(USE_BIB),true)
 else
 endif
 	$(CC_WITH_OPTIONS) $@.tex
-	ln -s $(OUTPUT_DIR)/$@.pdf $(CURRENT_DIR)/$@.pdf
+	cp $(OUTPUT_DIR)/$@.pdf $(CURRENT_DIR)/$@.pdf
 
 zip: fclean $(NAME)
 	$(MAKE) clean
@@ -61,6 +61,7 @@ clean:
 fclean: clean clean-symlink
 	$(RM) $(OUTPUT_DIR)/$(NAME).{pdf,zip,dvi}
 	-rmdir $(OUTPUT_DIR)
+	$(RM) $(CURRENT_DIR)/$(NAME).pdf
 
 re: fclean $(NAME)
 ################################################################################

@@ -2,196 +2,461 @@
 
 Dans le chapitre 1, nous avons défini la syntaxe et la sémantique d'un calcul
 appelé le $\lambda$-calcul non typé. Nous allons maintenant ajouter une notion de types à
-chaque terme de notre calcul.
+chaque terme de notre calcul, ce qui nous mènera au $\lambda$-calcul simplement
+typé\footnote{Plus d'informations peuvent être trouvées dans \cite{tapl-simply-typed-lambda-calculus}}.
 
-Motivation du typage.
+\section{Typage, contexte de typage et règle d'inférence}
+
+Le typage consiste à classer les termes en fonction de leur nature. Par exemple,
+une abstraction est interprétée comme une fonction prenant un paramètre et
+renvoyant un terme. Nous représentons cela par le type $\rightarrow$, appelé
+couramment \textit{type flèche}. Un type flèche dépend naturellement de deux autres types : le
+type du terme qu'il prend en paramètre (disons $T_{1}$) et le type du terme
+qu'il retourne (disons $T_{2}$). Dans ce cas, l'abstraction est dite de type
+$T_{1} \rightarrow T_{2}$, lu \og $T_{1}$ flèche $T_{2}$ \fg. Un
+autre exemple est l'application. Une application $u \, v$ représentant une
+application de $v$ à la fonction $u$, il serait naturel de dire que $u$ est un
+type flèche dont le type de son paramètre est le type de $v$.
 
 \begin{definition} [Relation de typage]
+  \label{def:simply-typed-lambda-calculus-type-relation}
+  Soit $\Lambda$ un ensemble de termes.
   Soit $\tau$ un ensemble, appelé \textbf{ensemble des types}, dont les éléments
-  sont notés $T_{i}$.
-  Soit $\Lambda$ l'ensemble des $\lambda$ termes.
+  sont notés $T$.
 
-  On définit une relation binaire $R$ entre les
-  $\lambda$ termes et les éléments de $\tau$.
+  On définit une relation binaire $R$, appelée \textbf{relation de typage}, entre les
+  termes et les éléments de $\tau$.
   
   On dit que \textbf{le terme $t \in \Lambda$ est de type $T \in \tau$} si $(t, T)
-  \in R$ (noté plus souvent $t : T$).
+  \in R$, noté le plus souvent $t : T$. Si un terme $t$ est en relation avec au
+  moins un type $T$, on dit que $t$ est \textbf{bien typé}.
 \end{definition}
 
-Le typage est donc un moyen de spécifier l'appartenance de certains
-$\lambda$-termes à un ensemble précis de type et ainsi réduire les opérations
-possibles sur ces $\lambda$-termes.
+Cette définition de la relation de typage est générale car il suffit de se
+donner un ensemble de termes et un ensemble de types. Dans ce chapitre, nous
+allons nous focaliser sur les termes du $\lambda$-calcul non typé. Dans les
+prochains chapitres, nous ajouterons d'autres termes comme les enregistrements
+et nous devrons en conséquence leur donner un type.
 
-Dans le chapitre 1 sur le $\lambda$-calcul non typé, nous avons défini une
-relation d'évaluation, noté $\rightarrow$. Nous pouvons nous demander comment la
-relation de typage est compatible avec la relation $\rightarrow$.
+Dans ce chapitre, nous allons travailler avec l'ensemble des types dits
+\textit{simples}.
 
-Dans une règle de typage, il se peut que certains termes possèdent des variables
-libres (comme $\lambda x. x y$). Lorsque nous $\beta$-réduisons un terme, il nous
-faut connaître chaque type de chaque variable libre (dans notre cas, $y$). Nous
-introduisons pour cela \textbf{le contexte de typage} qui fondamentalement est
-une suite finie de couples $(x_{i}, T_{i})$ où $x_{i}$ est une variable et
-$T_{i}$ est un type.
+\begin{definition}
+  \label{def:simply-typed-lambda-calculus-types}
+  Soit $B$ un ensemble de types appelés \textbf{types de base}.
+  L'ensemble des \textbf{types simples} est défini par la grammaire suivante :
+  \begin{align*}
+    T ::= & \, & \text{types} \\
+          & \; B & \text{base} \\
+          & \; T \rightarrow T & \text{type des fonctions}
+  \end{align*}
+\end{definition}
+
+L'ensemble de base $B$ est assez naturel : il existe souvent dans les langages
+des types dits de base ou primitifs.
+
+%Le typage est donc un moyen de spécifier l'appartenance de certains
+%$\lambda$-termes à un ensemble précis de types et ainsi réduire les opérations
+%possibles sur ces $\lambda$-termes.
+
+%Dans le chapitre 1 sur le $\lambda$-calcul non typé, nous avons défini une
+%relation d'évaluation, noté $\rightarrow$. Nous pouvons nous demander comment la
+%relation de typage est compatible avec la relation $\rightarrow$.
+
+\subsection*{Contexte et jugement de typage}
+
+Nous avons déjà mentionné que, naturellement, les abstractions $\lambdaExpr{x}{t}$ ont le type
+flèche, par exemple $T_{1} \rightarrow T_{2}$. Cependant, comment pouvons-nous
+connaître le type des arguments, c'est-à-dire le type du paramètre que la
+fonction attend ? Deux solutions sont couramment utilisées : soit annoter la
+variable avec un type, soit étudier le type du corps de la fonction et
+en déduire le type que le paramètre devrait avoir.
+Dans la suite, nous utiliserons la première solution. Le terme de l'abstraction
+se voit alors ajouter un type à son argument et devient $\lambdaExpr{x : T}{t}$.
+La syntaxe des termes devient alors :
+
+\begin{align*}
+  \label{def:simply-typed-lambda-calculus-terms}
+  t ::= & \, & \text{terme} \\
+        & \; x & \text{var} \\
+        & \; t \, t & \text{app} \\
+        & \; \lambdaExpr{x : T}{t} & \text{abs}
+\end{align*}
+
+Avant de discuter des règles de typage, il convient de remarquer qu'il est
+nécessaire de connaître certaines informations quand nous souhaitons typer des
+termes. En effet, si nous prenons le terme $\lambdaExpr{x : T} y$ et que nous
+souhaitons le typer, il est nécessaire de connaître le type de $y$. Cela nous
+amène à la notion de \textit{contexte de typage}.
 
 \begin{definition} [Contexte de typage]
-  Un \textbf{contexte de typage}, noté $\Gamma$, est un ensemble fini de couples $(x_{i},
-  T_{i})$ où $x_{i}$ est une variable et $T_{i}$ est un type.
-  
-  L'union d'un contexte de typage $\Gamma$ avec le couple $(x, T)$ est notée
-  $\Gamma, x : T$ (à la place de $\Gamma \cup \left\{(x, T)\right\}$).
+  \label{def:simply-typed-lambda-calculus-context}
+  Un \textbf{contexte de typage}, noté $\Gamma$, est une suite finie de couples $(x_{i},
+  T_{i})$ où $x_{i}$ est une variable et $T_{i}$ est un type. Chaque $x_{i}$ est différent.
+
+  L'union d'un contexte de typage $\Gamma$ avec un couple $(x, T)$ est notée
+  $\Gamma, x : T$ et l'union de $\Gamma$ avec $\Delta$ est notée $\Gamma, \Delta$.
+  Le contexte vide est noté $\emptyset$.
+
+  Le domaine de $\Gamma$, noté $dom(\Gamma)$, est l'ensemble des $x_{i}$.
 \end{definition}
 
-\begin{definition} [Règle de typage / jugement de typage]
-  Voir la définition récursive de wikipedia :
-  \url{https://fr.wikipedia.org/wiki/Lambda-calcul#cite_ref-8}
-  Cela permet de voir un jugement de typage comme un triplet $(\Gamma, t, T)$,
-  noté $\Gamma \vdash t : T$ qu'on lit \textbf{$t$ est de type $T$ dans le
-    contexte $\Gamma$}.
-  On définit récursivement un jugement de typage
-  \begin{enumerate}
-  \item $(x : T) \in \Gamma \implies \Gamma \vdash t : T$
-  \item $\Gamma, x : T \vdash t : T_{1} \implies \Gamma, x : T \vdash \lambda (x
-    : T) t : T \rightarrow T_{1}$
-  \item $\Gamma \vdash u : T_{1} \rightarrow T_{2} \wedge \Gamma \vdash u :
-    T_{1} \implies \Gamma \vdash uv : T_{2}$
-  \end{enumerate}
+La relation de typage devient alors une relation à trois composantes : le
+contexte, le terme et le type. Nous parlons alors de \textit{jugement de typage}.
 
-   Si $(t, T) \in \Gamma$, on dit alors que $t$ est bien typé dans $\Gamma$.
+\begin{definition} [Jugement de typage]
+  \label{def:simply-typed-lambda-calculus-judgement}
+  \textbf{Un jugement de typage} est un triplet $(\Gamma, t, T)$ où $\Gamma$ est un
+  contexte de typage, $t$ un terme et $T$ un type. Nous le notons le plus
+  souvent $\Gamma \vdash t : T$ et nous disons \og $t$ à le type $T$ sous les
+  hypothèses $\Gamma$\footnote{ou encore dans le contexte $\Gamma$} \fg.
+  Si $\Gamma$
+  est vide, nous omettons $\emptyset$ et le jugement devient $\vdash t : T$.
 \end{definition}
 
-Le contexte est utilisé pour faire des hypothèses sur chaque variable libre dans
-le $\lambda$-terme $t$. Donc, on ne peut avoir un jugement de typage de type:
+\subsection*{Règle de typage et arbre de dérivation}
 
-$\empty \vdash (\lambda (x : T_{1}) x) y$ car toutes les variables libres (en
-l'occurrence ici $y$) du $\lambda$-terme ne sont pas typées dans le contexte
-$\empty$ : nous ne connaissons pas le type de $y$.
+Maintenant, nous avons les outils pour définir nos règles de typage,
+c'est-à-dire comment nous attribuons les types aux termes.
 
-Comme pour les règles d'évaluation, on écrit la définition d'un jugement de typage comme des
-règles d'inférence. La définition d'un jugement de typage devient donc:
+\begin{definition} [Règles de typage]
+  \label{def:simply-typed-lambda-calculus-typing-rules}
+  Les règles de typage pour le $\lambda$-calcul simplement typé sont
+  \begin{mathpar}
+    \inferrule
+      {(x : T) \in \Gamma}
+      {\Gamma \vdash x : T} \quad (\textsc{T-VAR})
+    \and
+    \inferrule
+      {\Gamma, x : T_{1} \vdash t : T_{2}}
+      {\Gamma, x : T_{1} \vdash \lambdaExpr{x : T_{1}}{t} : T_{1} \rightarrow T_{2}} \quad (\textsc{T-ABS})
+    \and
+    \inferrule
+      {\Gamma \vdash u : T_{1} \rightarrow T_{2} \\ \Gamma \vdash v : T_{2}}
+      {\Gamma \vdash u \, v : T_{2}} \quad (\textsc{T-APP})
+  \end{mathpar}
+\end{definition}
 
-\inferrule
-{(x : T) \in \Gamma}
-{\Gamma \vdash x : T}
-\quad (\textsc{T-VAR})
+La règle (T-VAR) est évidente : si $(x, T)$ est dans le contexte, alors
+$x$ est de type $T$ sous le contexte $\Gamma$.
+Quant à (T-ABS), elle affirme que si le corps $t$ de l'abstraction
+$\lambdaExpr{x : T_{1}}{t}$ est de type $T_{2}$, alors l'abstraction est de type
+$T_{1} \rightarrow T_{2}$.
+Pour finir, (T-APP) type les applications : dans le terme $u \, v$, $u$ doit
+être une fonction de type $T_{1} \rightarrow T_{2}$, et $v$ doit être du même
+type que celui que $u$ attend, c'est-à-dire $T_{1}$, l'application ayant le type $T_{2}$.
 
-\inferrule{\Gamma, x : T \vdash t : T_{1}}{\Gamma, x : T \vdash
-  \lambda (x : T) t : T_{1}}
-\quad (\textsc{T-ABS})
+Le typage d'un terme produit des \textit{arbres de dérivation de typage} (ou tout simplement
+\textit{une dérivation de typage}). Un arbre de dérivation de typage
+est un arbre dont les noeuds sont des jugements de typage, construits à partir
+des règles de typage et dont la racine est le jugement de typage du terme à
+typer. La racine de l'arbre est également appelée \textit{conclusion}.
+La racine de l'arbre de dérivation est le jugement de typage le plus en bas. Les branches
+sont annotées par le nom des règles qui permettent de déduire le type.
 
-\inferrule{\Gamma \vdash u : T_{1} \rightarrow T_{2} \\ \Gamma \vdash v : T_{2}}{\Gamma
-  \vdash uv : T_{2}}
-\quad (\textsc{T-APP})
+Par exemple, $\lambdaExpr{x : T_{1} \rightarrow T_{2} }{\lambdaExpr{y : T_{1}} x
+\, y}$ est de type $(T_{1} \rightarrow T_{2}) \rightarrow T_{1} \rightarrow
+T_{2}$. Un arbre de dérivation possible est
+  \\
 
-Le $\lambda$-calcul simplement typé est donc un tuple $(\Lambda, \rightarrow,
-\tau, \Gamma_{\tau})$ où
+$
+\inferrule* [Right=(\textsc{T-APP})]
+  {\inferrule* [Left=(\textsc{T-VAR})]
+    {x : T_{1} \rightarrow T_{2} \in \Gamma}
+    {\Gamma \vdash x : T_{1} \rightarrow T_{2}}
+    \\
+  \inferrule* [Right=(\textsc{T-VAR})]
+    {y : T_{1} \in \Gamma}
+    {\Gamma \vdash y : T_{1}}
+  }
+  {\inferrule* [Right=(\textsc{T-ABS})]
+    {\Gamma, x : T_{1} \rightarrow T_{2}, y : T_{1} \vdash x \, y : T_{2}}
+    {\inferrule* [Right=(\textsc{T-ABS})]
+      {\Gamma, x : T_{1} \rightarrow T_{2}
+        \vdash
+        \lambdaExpr{y : T_{1}}{x \, y} :
+        T_{1} \rightarrow T_{2}
+      } 
+      {\Gamma \vdash \lambdaExpr{x : T_{1} \rightarrow T_{2}}{\lambdaExpr{y :
+            T_{1}}{x \, y}} : (T_{1} \rightarrow
+        T_{2}) \rightarrow T_{1} \rightarrow T_{2}
+      }
+    }
+  } 
+$
+
+
+%Le $\lambda$-calcul simplement typé est donc un tuple $(\Lambda, \rightarrow,
+%\tau, \Gamma_{\tau})$ où
+%\begin{enumerate}
+%\item $\Lambda$ est l'ensemble des $\lambda$-termes.
+%\item $\rightarrow$ est la relation de $\beta$-réduction.
+%\item $\tau$ l'ensemble des types.
+%\item $\Gamma$ est le jugement de typage (défini récursivement).
+%\end{enumerate}
+
+\section{Sûreté du typage}
+
+Dans cette partie, nous allons aborder deux théorèmes importants : les
+théorèmes de progression et de préservation du typage. En assemblant ces deux
+théorèmes, nous en déduisons le principe \og les
+programmes\footnote{Un programme est synonyme de terme.}
+bien typés ne bloquent pas \fg. Ne pas bloquer signifie que si le programme se
+termine (un programme bien typé peut contenir une boucle infinie), alors il
+se réduira en une valeur du type du programme.
+
+Ces deux théorèmes relient les deux relations précédemment définies : la
+relation de typage et la relation de $\beta$-réduction.
+
 \begin{enumerate}
-\item $\Lambda$ est l'ensemble des $\lambda$-termes.
-\item $\rightarrow$ est la relation de $\beta$-réduction.
-\item $\tau$ l'ensemble des types.
-\item $\Gamma$ est le jugement de typage (défini récursivement).
+  \item Progression : si un terme est bien typé, alors soit c'est une
+    valeur, soit il se réduit en un terme.
+    \item Préservation (du typage) : si un terme $t$ de type $T$ se réduit en un terme $t'$,
+      alors $t'$ est de type $T$.
 \end{enumerate}
-
-\section{Sûreté}
-
-Expliquer la préservation et la progression.
-Regarder dans le cours de l'ENS à la place ??
 
 Avant de montrer la préservation et la progression, il est nécessaire de
 remarquer certains faits qui découlent immédiatement des règles de typage.
 
-\subsection*{Progression}
-
 \begin{lemma} [Inversion des règles de typage]
+  \label{lemma:simply-typed-lambda-calculus-inversion}
   \begin{enumerate}
     \item Si $\Gamma \vdash x : T$, alors $(x : T) \in \Gamma$
-    \item 
-    \item 
-    \item 
-    \item 
-    \item 
+    \item Si $\Gamma \vdash \lambdaExpr{x : T_{1}}{t_{2}} : T$ alors $T = T_{1}
+      \rightarrow T_{2}$ pour un $T_{2}$ tel que $t : T_{2}$.
+    \item Si $\Gamma \vdash t_{1} t_{2} : T$, alors il existe $T_{1}$
+      tel que $t_{1} : T_{1} \rightarrow T$ et $t_{2} : T_{1}$.
   \end{enumerate}
 \end{lemma}
-  
+
 \begin{proof}
-  Évident d'après les règles de typage données.
+  \label{proof:simply-typed-lambda-calculus-inversion}
+  Ces propositions découlent des règles de typage. En effet, pour la deuxième
+  par exemple, la seule règle qui permet d'affirmer que $\Gamma \vdash
+  \lambdaExpr{x : T_{1}}{t_{2}} : T$ est (T-ABS).
 \end{proof}
 
-Une autre remarque importante sur le calcul $\lambda_{\rightarrow}$ est
-l'unicité de type pour les $\lambda$. Cette proposition est tellement
-fondamentale que le terme théorème est utilisé. Cependant, cette propriété n'est
-pas vraie dans tous les calculs, comme nous le montrerons quand nous
-introduirons le sous-typage.
+Le lemme d'inversion des règles de typage dit également quelque chose de
+fondamental sur les arbres de typage et qui a une énorme importance lorsque
+nous souhaitons implémenter un algorithme de typage\footnote{Nous verrons par la
+suite que ce n'est pas tout le temps évident de passer des règles de typage à un
+algorithme de typage.}. En effet, les 3 points du
+lemme nous donnent quels sont les possibles fils de la conclusion. Par
+exemple, si nous devons montrer que $\Gamma \vdash \lambdaExpr{x : T}{t} : T'$,
+nous sommes convaincus, par le lemme d'inversion, que le noeud précédent
+provient de la règle (T-ABS). Cela implique que pour un jugement de typage
+donné, il n'y a au plus qu'un seul arbre de dérivation.
 
-\begin{theorem}
-  Tout $\lambda$-terme bien typé possède un type unique.
+Une autre remarque importante, et qui découle du fait que les arbres de
+dérivations sont uniques, est l'unicité de type. Nous verrons que cette
+proposition n'est pas vraie dans tous les calculs.
+
+\begin{theorem} [Unicité du typage]
+  \label{thm:simply-typed-lambda-calculus-type-unicity}
+  Soit $t$ un $\lambda$-terme. Si $t$ est bien typé, alors son type est unique.
+  De plus, il existe au plus un arbre de dérivation qui permet de montrer que $t$
+  a ce type.
 \end{theorem}
 
 \begin{proof}
-  
+  \label{proof:simply-typed-lambda-calculus-type-unicity}
+  Supposons que $t$ possède deux types, par exemple $S$ et $T$. Nous avons donc les
+  jugements de typage : $\Gamma \vdash t : S$ et $\Gamma \vdash t : T$. Nous procédons
+  par induction sur la structure des termes.
+  \begin{itemize}
+   \item $t$ est une variable $x$. Alors nous avons les jugements de typage
+     $\Gamma \vdash x : S$ et $\Gamma \vdash x : T$. Par le lemme d'inversion, nous
+     en déduisons que $(x, S) \in
+     \Gamma$ et $(x, T) \in \Gamma$. Comme une variable ne peut apparaître
+     qu'une fois dans un contexte, nous en déduisons $S = T$.
+
+   \item $t$ est de la forme $\lambdaExpr{x : T_{1}}{t'}$. Par le lemme
+     d'inversion, $S = T_{1} \rightarrow R_{1}$ et $T = T_{1} \rightarrow
+     R_{2}$ avec $t' : R_{1}$ et $t' : R_{2}$. Par induction sur $t'$, nous
+     déduisons que $R_{1} = R_{2}$. Donc $S = T$.
+
+   \item $t$ est de la forme $u \, v$. Par le lemme d'inversion, il existe
+     $T_{1}$ et $T_{2}$ tel que $u$ est de type $T_{1} \rightarrow S$ et de type $T_{2}
+     \rightarrow T$ avec $v$ de type $T_{1}$ et de type $T_{2}$. Par induction
+     sur $u$ et sur $v$, le type de de $v$ est unique ($T_{1} = T_{2}$) et celui
+     de $u$ également. Nous avons donc $S = T$.
+   \end{itemize}
+
+   L'unicité de l'arbre de dérivation découle immédiatement du lemme d'inversion
+   et de la remarque ci-dessus.
 \end{proof}
 
+\subsection*{Progression}
+
 \begin{theorem} [de progression de $\lambda_{\rightarrow}$]
+  \label{thm:simply-typed-lambda-calculus-progression}
   Soit $t$ un terme bien typé sans variable libre. Alors, soit $t$ est une
   valeur, soit il existe $t'$ tel que $t \rightarrow t'$.
 \end{theorem}
 
 \begin{proof}
-  
+  \label{proof:simply-typed-lambda-calculus-progression}
+  Nous procédons par induction sur la structure des termes.
+  \begin{itemize}
+    \item Le cas d'une variable, par exemple $x$, n'est pas possible car par
+      hypothèse, le terme $t$ est clos. Or, $x$ est libre dans $x$.
+    \item $t$ est une abstraction. Le résultat est direct car $t$ est une valeur.
+    \item $t$ est de la forme $u \, v$. $t$ étant
+      bien typé, nous avons le jugement de typage $\vdash u \, v : T$. Par le lemme
+      d'inversion, $u : T_{1} \rightarrow T$ et $v : T_{1}$. Par induction,
+      comme $u$ (resp. $v$) est bien typé, $u$ (resp. $v$) est soit une valeur,
+      soit se réduit en un $u'$ (resp. $v'$).
+      \begin{itemize}
+        \item Si $u$ se réduit en $u'$, alors (E-APP1) s'applique et $u \, v$
+          se réduit en $u' \, v$.
+        \item Si $u$ est une valeur et $v$ se réduit en $v'$, alors (E-APP2)
+          s'applique et $u \, v$ se réduit en $u \, v'$.
+        \item Si $u$ et $v$ sont des valeurs, (E-APPABS) s'applique.
+      \end{itemize}
+  \end{itemize}
 \end{proof}
 
 \subsection*{Préservation}
 
-\begin{lemma} [d'affaiblissement]
-  Soit $\Gamma \vdash t : T$ et $x \notin dom(\Gamma)$.
-
-  Alors $\Gamma, x : S \vdash t : T$.
+\begin{lemma} [de permutation]
+  \label{thm:simply-typed-lambda-calculus-permutation}
+  Soit $\Gamma \vdash t : T$ et soit $\Delta$ une permutation de $\Gamma$. Alors
+  $\Delta \vdash t : T$.
 \end{lemma}
 
 \begin{proof}
-  
+  \label{proof:simply-typed-lambda-calculus-permutation}
+  Par induction sur l'arbre de dérivation de typage.
+  \begin{itemize}
+  \item (T-VAR). $t$ est une variable $x$. Par hypothèse, $\Gamma \vdash x : T$
+    et $(x, T) \in \Gamma$. D'où $(x, T) \in \Delta$. Par (T-VAR), $\Delta \vdash x
+    : T$.
+  \item (T-ABS). Nous avons $t = \lambdaExpr{x : T_{1}} t'$ et
+    \begin{mathpar}
+      \inferrule*[Left=(T-ABS)]
+      {\Gamma, x : T_{1} \vdash t' : T_{2}}
+      {\Gamma \vdash \lambdaExpr{x : T_{1}} t' : T_{1} \rightarrow T_{2}}
+    \end{mathpar}
+      Par hypothèse de récurrence, $\Delta, x : T_{1} \vdash t' : T_{2}$. Par
+(T-ABS), $\Delta \vdash \lambdaExpr{x : T_{1}}{t'} : T_{1} \rightarrow T_{2}$.
+  \item (T-APP). Nous avons donc $t = u \, v$ et
+    \begin{mathpar}
+      \inferrule*[Left=(T-APP)]
+      {\Gamma \vdash u : T_{1} \rightarrow T \\ \Gamma \vdash v : T_{1}}
+      {\Gamma \vdash u \, v : T}
+    \end{mathpar}
+    Par hypothèse de récurrence, $\Delta \vdash u : T_{1} \rightarrow T$ et
+    $\Delta \vdash v : T_{1}$. Par (T-APP), $\Delta \vdash u \, v : T$.
+  \end{itemize}
+\end{proof}
+
+\begin{lemma} [d'affaiblissement]
+  \label{thm:simply-typed-lambda-calculus-weakening}
+  Soit $\Gamma \vdash t : T$ et $x \notin dom(\Gamma)$.
+
+  Alors $\Gamma, x : S \vdash t : T$.\footnote{Nous pouvons généraliser le lemme
+  à un contexte $\Gamma'$ dont le domaine est distinct de celui de $\Gamma$.}
+\end{lemma}
+
+\begin{proof}
+  \label{proof:simply-typed-lambda-calculus-weakening}
+  Par induction sur l'arbre de dérivation de typage.
+  \begin{itemize}
+  \item (T-VAR). $t = y$. Le cas où $y = x$ est impossible car nous avons $(x, T)
+    \in \Gamma$ et cela contredit l'hypothèse que $x \notin dom(\Gamma)$. Si $y \neq
+    x$, nous avons $(y, T) \in \Gamma$ et par conséquent, $(y, T) \in \Gamma, x : S$ et nous
+    concluons en utilisant (T-VAR).
+  \item (T-ABS). $t = \lambdaExpr{y : T_{1}}{t'}$. Nous avons $T = T_{1}
+    \rightarrow T_{2}$ et $\Gamma, y : T_{1} \vdash t' : T_{2}$. Par hypothèse de
+    récurrence, on a $\Gamma, y :
+    T_{1}, x : S \vdash t' : T_{2}$. Par le lemme de permutation, nous avons
+    $\Gamma, x : S, y : T_{1} \vdash t' : T_{2}$ et par (T-ABS), nous déduisons
+    $\Gamma, x : S \vdash \lambdaExpr{y : T_{1}}{t'} : T_{1} \rightarrow T_{2}$.
+    \item (T-APP). $t = u \, v$. Nous avons $\Gamma \vdash u : T_{1} \rightarrow
+      T$ et $\Gamma \vdash v : T_{1}$. Par hypothèse de récurrence, $\Gamma, x : S
+      \vdash u : T_{1} \rightarrow T$ et $\Gamma, x : S \vdash v : T_{1}$. Nous
+      concluons que $\Gamma, x : S \vdash u \, v : T$ par (T-APP).
+  \end{itemize}
 \end{proof}
 
 \begin{lemma} [de préservation du typage pour la substitution]
+  \label{thm:simply-typed-lambda-calculus-preservation-substitution}
   Soit $\Gamma, x : S \vdash t : T$ et $\Gamma \vdash s : S$.
 
   Alors $\Gamma \vdash [x \rightarrow s] t : T$
 \end{lemma}
 
 \begin{proof}
+  \label{proof:simply-typed-lambda-calculus-preservation-substitution}
+  Nous procédons par une induction sur l'arbre de dérivation du jugement $\Gamma, x : S
+  \vdash t : T$.
 
+  \begin{itemize}
+  \item (T-VAR). $t = z$. Alors, par le lemme d'inversion, $(z, T) \in \Gamma, x : S$.
+    Deux cas sont possibles. Si $z = x$, alors $[x \rightarrow s] z = s$ ainsi que
+    $S = T$ et nous obtenons le résultat souhaité. Si $z \neq x$,
+    alors $[x \rightarrow s] z = z$ et il n'y a rien à montrer car $\Gamma
+    \vdash z : T$.
+  \item (T-ABS). $t = \lambdaExpr{y : T_{1}}{t'}$.
+    Nous avons $T = T_{1} \rightarrow R$ avec
+    $\Gamma, x : S, y : T_{1} \vdash t' : R$. 
+
+    Sans perte de généralité, nous supposons $y \notin dom(\Gamma)$.
+    Rappelons que par définition de la $\beta$-réduction,
+    \begin{equation*}
+      [x \rightarrow s]\lambdaExpr{y : T_{1}}{t'} = \lambdaExpr{y : T_{1}}[x \rightarrow s] t'
+    \end{equation*}
+    Par le lemme de permutation,
+    nous avons également $\Gamma, y : T_{1}, x : S \vdash t' : R$. En utilisant le lemme
+    d'affaiblissement avec $\Gamma \vdash s : S$, comme $y \notin dom(\Gamma)$,
+    nous obtenons $\Gamma, y : T_{1} \vdash s : S$.
+    Nous appliquons alors l'hypothèse de récurrence et nous obtenons
+    $\Gamma, y : T_{1} \vdash [x \rightarrow s] t' : R$. Par (T-ABS), nous avons
+    $\Gamma \vdash [x \rightarrow s] \lambdaExpr{y : T_{1}}{t'} : R$ .
+
+    \item $t = u \, v$.
+      Rappelons que par définition de la $\beta$-réduction,
+      \begin{equation*}
+        [x \rightarrow s](u \, v) = ([x \rightarrow s] u) \, ([x \rightarrow s] v)
+      \end{equation*}
+      Nous avons $\Gamma, x : S
+      \vdash u : T_{1} \rightarrow T$ et $\Gamma, x : S \vdash v : T_{¡}$. Par
+      hypothèse de récurrence, nous avons $\Gamma \vdash [x \rightarrow s]u :
+      T_{1} \rightarrow T$ et
+      $\Gamma \vdash [x \rightarrow s]v : T_{1}$. Par (T-APP), nous avons
+      $\Gamma \vdash [x \rightarrow s](u \, v) : T$.
+  \end{itemize}
+  
 \end{proof}
 
-\section*{Normalisation}
+\begin{theorem} [de préservation du typage]
+  \label{thm:simply-typed-lambda-calculus-preservation}
+  Soit $\Gamma \vdash t : T$ et $t \rightarrow t'$. Alors $\Gamma \vdash t' :
+  T$.
+\end{theorem}
 
-Peut être ne pas donner des preuves, mais en parler pour dire que c'est très important.
-
-On se pose des questions sur la finitude des évaluations.
-
-Regarder du coté du cours de l'ENS Lyon, chap 3 pour le lambda-calcul simplement typé.
-
-\begin{definition}
-  On dit qu'un $\lambda$-terme est
+\begin{proof}
+  \label{proof:simply-typed-lambda-calculus-preservation}
+  Par induction sur l'arbre de dérivation de $\Gamma \vdash t : T$.
   \begin{itemize}
-  \item \textbf{fortement normalisable} si
-  toute chaine de $\beta$-réduction est finie.
-  \item \textbf{faiblement normalisable} s'il existe une chaine de
-    $\beta$-réduction finie.
+  \item (T-VAR). $t = x$. Ce cas n'est pas possible car aucune règle de
+    réduction existe pour les variables.
+  \item (T-ABS). $t = \lambdaExpr{x : T_{1}}{t_{2}} : T$. Même chose que pour le
+    cas des variables.
+  \item (T-APP). $t = u v$. Nous avons $\Gamma
+    \vdash u : T_{1} \rightarrow T$ et $\Gamma \vdash v : T_{1}$. Plusieurs cas possibles:
+    \begin{itemize}
+    \item $u$ se réduit en $u'$. Alors, $t' = u' \, v$ par (E-APP1). Par hypothèse
+      de récurrence, nous
+      obtenons $\Gamma \vdash u' : T_{1} \rightarrow T$. Par (T-APP),
+      $\Gamma \vdash u' \, v : T$.
+    \item $v$ se réduit en $v'$ et $u$ est une valeur. Alors, $t' = u \, v'$ par
+      (E-APP2). Nous appliquons alors le même argument que pour le cas précedent.
+    \item $u$ et $v$ sont des valeurs. Posons $u = \lambdaExpr{x : T_{1}} t_{2}$.
+      Alors $t' = [x \rightarrow v]t_{2}$ et nous avons $\Gamma \vdash v :
+      T_{1}$. Nous avons $\Gamma, x : T_{1} \vdash t_{2}
+      : T$. Par le lemme de
+      substitution, nous concluons $\Gamma \vdash [x \rightarrow v]t_{2} : T$.
+    \end{itemize}
   \end{itemize}
-\end{definition}
-
-\section{Enrichir le calcul avec des types de bases}
-
-Remarquer qu'on peut ajouter d'autres types comme les listes, les records,
-etc avec des règles de typage et des règles d'évaluations propres sans que
-cela ne change la propriété de soundness.
-
-Nous utiliserons dans la suite la syntaxe
-let x = t in u qui est un alias pour une forme de lambda (la donner).
-Cette syntaxe nous permet de n'étudier que les applications entre variables.
-En effet, si nous avons une expression de la forme (t u), nous pouvons réduire
-l'expression sous la forme (x y) avec
-let x = t in
-let y = u in
-x y
-
-Cependant, il faut vérifier que la sémantique reste la même. Je ne pense pas...
+\end{proof}
