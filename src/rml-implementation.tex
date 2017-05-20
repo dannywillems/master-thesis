@@ -61,7 +61,7 @@ $\arraycolsep=1.0pt\def\arraystretch{1.5}
   \forall(x : S) T & \text{forall(x : S) T} \\
   \hline
   T_{1} \wedge T_{2} & T_{1} \text{ \& } T_{2} \\
-  T \wedge \left\{ \text{A : S .. T } \right\} & \text{T with type a = S .. T} \\
+  T \wedge \left\{ \text{A : L .. U } \right\} & \text{T with type a = L .. U} \\
   T \wedge \left\{ \text{A : S .. T } \right\} \wedge \left\{ \text{A' : S' ..
   T' } \right\} & \text{T with type a = S .. T and a' = S' .. T'} \\
   \hline
@@ -141,7 +141,7 @@ exemple :
   le comportement d'une abstraction. Lorsqu'un type \verb|abs|
   est rencontré, la variable de l'abstraction est automatiquement ajoutée dans
   l'environnement. \verb|abs| est utilisé dans RML pour les types récursifs,
-  les abstractions et la gestion des fonctions dépendantes.
+  les abstractions et les fonctions dépendantes.
 \end{enumerate}
 
 \begin{listing}
@@ -183,7 +183,7 @@ des fonctions pour afficher un contexte donné.
 Un problème qui se pose lors de l'écriture des algorithmes, est : étant donnés une variable
 $x$ et un contexte, quelle est la borne inférieure ou la borne supérieure du
 type dépendant $x.A$ ? La question se pose, par exemple, quand nous devons
-comparer deux types dépendants $x.A$ et $y.A$.
+comparer deux types dépendants $x.A$ et $y.A'$.
 
 En d'autres termes, pour la borne supérieure, pour une variable $x$ de type $T$ et
 un champ $A$, quel est le plus petit type $U$ tel que $T <: \left\{ A : L .. U
@@ -198,7 +198,8 @@ et \verb|Some(T)| si la réponse est $T$. Nous omettons le \verb|Some| pour la
 description ci-dessous.
 
 Cet algorithme n'est jamais discuté ni décrit dans les différents
-documents au sujet de DOT.
+documents au sujet de DOT. Comprendre son utilité et son importance ainsi que
+son écriture n'a pas été facile.
 
 L'algorithme prend comme
 paramètres, en plus de la variable $x$, du type $T$ et du label $A$, un contexte
@@ -292,9 +293,9 @@ définissons des modules, nous devons donner leur signature. Du
 coté développeur, cela n'est pas très pratique. Nous notons $\nu(x) d$
 l'enregistrement récursif $\nu(x : T) d$ quand $T$ n'est pas mentionné.
 
-Pour simplifier l'écriture de programmes, nous avons décidé d'ajouter un
+Pour simplifier l'écriture de programmes, nous ajoutons un
 algorithme pour inférer le type d'une liste de
-declarations. Lorsqu'un enregistrement récursif $\nu(x) d$ est rencontré,
+déclarations. Lorsqu'un enregistrement récursif $\nu(x) d$ est rencontré,
 nous commençons par ajouter dans le contexte $x$ avec le type \verb|Top|.
 Ensuite, nous allons parcourir la déclaration $d$ et affiner le type de $x$ en
 fonction de la forme de $d$.
@@ -440,10 +441,10 @@ Même cas que précédemment en utilisant la règle (ALL <: ALL). Lors de l'appe
 récursif sur la question $T_{1} <: T_{2}$, nous devons ajouter la variable $x$
 avec le type $S_{2}$ dans le contexte comme la règle (ALL <: ALL) le mentionne.
 
-\subsection*{$x.A <: y.A$}
+\subsection*{$x.A <: y.A'$}
 
 Les premiers cas posant des difficultés sont ceux des types dépendants, par exemple
-$x.A$ et $y.A$\footnote{Les cas $x.A <: U$ et $y.A$ sont traités ci-dessous.}. En effet, les règles (REFL), (SEL <:) et (<: SEL) peuvent être
+$x.A$ et $y.A'$\footnote{Les cas $x.A <: U$ et $U <: x.A$ sont traités ci-dessous.}. En effet, les règles (REFL), (SEL <:) et (<: SEL) peuvent être
 employées.
 
 L'algorithme procède par cas :
@@ -466,7 +467,7 @@ L'algorithme procède par cas :
     {\Gamma \vdash x.A <: U'}
   \end{mathpar}
   Si nous avons réussi à montrer en utilisant (SEL <:), nous renvoyons cette solution. Sinon, nous
-  essayons (<: SEL). Si cette dernière échoue, cela signifie que $x.A <: y.A$
+  essayons (<: SEL). Si cette dernière échoue, cela signifie que $x.A <: y.A'$
   est faux : nous renvoyons
   donc non. L'utilisation de \verb|best_bound| et (T-SUB) pour (SEL<:) nous donne
   \begin{mathpar}
@@ -516,7 +517,7 @@ se différencient que par leur variable interne, voir la figure
 
 \subsection*{$x.A <: T$ ou $T <: x.A$}
 
-Comme pour le cas $x.A <: y.A$, nous modifions la règle de sous-typage en
+Comme pour le cas $x.A <: y.A'$, nous modifions la règle de sous-typage en
 utilisant (T-SUB) et \verb|best_bound|.
 
 \subsection*{Intersections}
@@ -823,4 +824,8 @@ projet\cite{rml-github-issues}. Voici quelques exemples.
     n'est pas courant en OCaml car le type est inféré. Cette inférence de type
     passe par la résolution d'équations et nécessite de travailler avec deux
     arbres différents.
+  \item Un enregistrement récursif peut posséder plusieurs déclarations grâce à
+    l'intersection. Il serait plus efficace d'implémenter cela grâce à une map
+    qui associe la déclaration à un label. Cette solution n'a pas été
+    implémentée directement pour rester fidèle à la grammaire de DOT.
 \end{itemize}

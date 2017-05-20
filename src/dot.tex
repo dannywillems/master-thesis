@@ -17,7 +17,6 @@ plusieurs documents comme \cite{nada-amin-thesis}, \cite{OOPSLA-DOT-2016},
 \cite{POPL-2017-DOT} ou encore \cite{WF-DOT-2016}. Dans ce document, nous avons
 fait le choix d'utiliser \cite{WF-DOT-2016} car la syntaxe et les règles sont
 proches des calculs présentés dans ce mémoire.
-% TODO. Toutefois, aucune variante ne semble satisfaisante.
 
 \section{Syntaxe}
 
@@ -36,7 +35,7 @@ La syntaxe des termes de DOT est définie par la grammaire suivante :
 \begin{minipage}{0.45\textwidth}
   \begin{align*}
     d ::= & \, & \text{decl} \\
-          & \; \left\{ a : t \right\} & \text{champ} \\
+          & \; \left\{ a = t \right\} & \text{champ} \\
           & \; \left\{ A = T \right\} & \text{type} \\
           & \; d \wedge d & \text{aggregation}
 \end{align*}
@@ -62,7 +61,7 @@ A la différence des autres calculs, une application n'est pas constituée de de
 termes mais de deux variables\footnote{Nous pouvons cependant utiliser (let)
   pour retrouver des applications entre termes.}. Nous retrouvons la projection d'un champ avec
 (champ proj). Comme pour les applications, uniquement une variable peut être
-utilisée\footnote{Même remarque que pour les applications.}
+utilisée\footnote{Même remarque que pour les applications.}.
 
 (let) permet de créer des variables locales comme il est possible en OCaml.
 (let) est utilisé pour lier un terme à une variable et pouvoir utiliser cette
