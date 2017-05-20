@@ -17,7 +17,6 @@ plusieurs documents comme \cite{nada-amin-thesis}, \cite{OOPSLA-DOT-2016},
 \cite{POPL-2017-DOT} ou encore \cite{WF-DOT-2016}. Dans ce document, nous avons
 fait le choix d'utiliser \cite{WF-DOT-2016} car la syntaxe et les règles sont
 proches des calculs présentés dans ce mémoire.
-% TODO. Toutefois, aucune variante ne semble satisfaisante.
 
 \section{Syntaxe}
 
@@ -36,7 +35,7 @@ La syntaxe des termes de DOT est définie par la grammaire suivante :
 \begin{minipage}{0.45\textwidth}
   \begin{align*}
     d ::= & \, & \text{decl} \\
-          & \; \left\{ a : t \right\} & \text{champ} \\
+          & \; \left\{ a = t \right\} & \text{champ} \\
           & \; \left\{ A = T \right\} & \text{type} \\
           & \; d \wedge d & \text{aggregation}
 \end{align*}
