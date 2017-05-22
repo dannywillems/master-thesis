@@ -13,8 +13,8 @@ un type, appelé dans ce cas \textit{signature}.
 %% TODO exemple d'un module OCaml et de sa signature.
 
 Bien que les modules soient bien intégrés dans OCaml, une
-distinction est faite entre le langage de base, contenant les types dits \og de
-base \fg \, comme les entiers, les chaînes de caractères ou les fonctions, et le
+distinction est faite entre le langage de base, contenant les types dits
+\og primitifs \fg, comme les entiers, les chaînes de caractères ou les fonctions, et le
 langage de modules. En particulier, le terme \textit{foncteur} est employé à la
 place de \textit{fonction} pour parler des fonctions prenant un module en
 paramètre et en renvoyant un autre.
@@ -51,7 +51,7 @@ Ce mémoire vise à donner, dans un premier temps et après avoir défini les no
 nécessaires, un calcul typé, DOT\cite{WF-DOT-2016}, dans lequel le
 langage de modules est confondu avec le langage de base grâce aux
 enregistrements. Cette unification implique
-que les modules (et in fine les foncteurs) sont des citoyens de première
+que les modules (et, \textit{in fine}, les foncteurs) sont des citoyens de première
 classe, c'est-à-dire que nous pouvons les manipuler comme tout autre terme, ce qui
 n'est pas le cas actuellement en OCaml.
 Dans un second temps, ce travail propose une implémentation en OCaml
@@ -59,8 +59,8 @@ des algorithmes de typage et de sous-typage ainsi qu'un langage de surface qui n
 permet d'écrire des programmes DOT.
 
 %Une preuve de la sûreté de ce calcul ainsi
-%qu'un interpréteur avec un algorithme de sous-typage et d'inférence de type est
-%fourni.
+%qu'un interpréteur avec un algorithme de sous-typage et d'inférence de type
+%sont fournis.
 
 Les chapitres sont organisés afin de comprendre la construction de DOT
 à partir du plus simple des calculs, le $\lambda$-calcul.
@@ -69,7 +69,7 @@ Dans le chapitre 1, nous présenterons \textit{le $\lambda$-calcul non typé}, u
 minimal qui contient des termes pour les variables, pour les abstractions (afin
 de représenter des fonctions) et des applications (afin de représenter
 l'application d'une fonction à un paramètre). Nous discuterons également de la
-sémantique que nous attribuons à ce calcul. 
+sémantique que nous attribuons à ce calcul.
 
 Dans le chapitre 2, nous introduirons la notion de type et nous l'appliquons au
 $\lambda$-calcul, ce qui nous donnera \textit{le $\lambda$-calcul simplement typé}. Nous
@@ -93,7 +93,7 @@ les calculs définis dans les chapitres 3 et 4.
 
 Ensuite, dans le chapitre 6, nous étudierons le calcul DOT en complétant les
 enregistrements définis dans le chapitre 3 avec les \textit{types chemins
-dépendants} qui offre la possibilité d'ajouter des types dans les
+dépendants} qui offrent la possibilité d'ajouter des types dans les
 enregistrements, la syntaxe manquante pour une
 convergence entre enregistrements et modules. Ce dernier chapitre comportera en
 plus des types chemins dépendants, chaque notion étudiée précédemment,

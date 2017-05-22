@@ -48,7 +48,7 @@ utilisées pour définir ces ensembles. La dernière syntaxe sera celle que nous
 utiliserons tout le long de ce document car elle permet une visualisation simple
 de la syntaxe des termes et permet de nommer chaque forme facilement.
 
-Des exemples de $\lambda$-termes sont
+Des exemples de $\lambda$-termes sont :
 \begin{itemize}
   \item la fonction identité : $\lambdaExpr{x}{x}$
   \item la fonction constante en $y$: $\lambdaExpr{x}{y}$
@@ -74,7 +74,7 @@ Comme dans une formule mathématique, il est important de différencier les
 variables libres et les variables liées d'un $\lambda$-terme. Par exemple, dans
 le $\lambda$-terme $\lambdaExpr{x}{x}$ la variable $x$ est liée par un
 $\lambda$\footnote{on dit aussi qu'elle est \og sous \fg \, un $\lambda$.}
-tandis que dans l'expression $\lambdaExpr{x}{y}$ la variable $y$ est libre.
+tandis que dans l'expression $\lambdaExpr{x}{y}$, la variable $y$ est libre.
 Nous définissons récursivement l'ensemble des variables libres et l'ensemble des
 variables liées à partir des variables, des abstractions et des applications.
 
@@ -100,7 +100,7 @@ variables liées à partir des variables, des abstractions et des applications.
 
 Un terme qui ne comporte pas de variable libre est dit \textit{clos}.
 
-Il existe également des termes qui sont syntaxiquement différents, mais que nous
+Il existe également des termes qui sont syntaxiquement différents mais dont nous
 voudrions naturellement qu'ils soient les mêmes. Par exemple, nous voudrions que
 la fonction identité $\lambdaExpr{x}{x}$ ne dépende pas de la variable liée $x$,
 c'est-à-dire que les termes $\lambdaExpr{x}{x}$ et $\lambdaExpr{y}{y}$ soient un seul et
@@ -112,7 +112,7 @@ substitution n'est pas une action triviale si nous ne voulons pas changer le
 sens des termes. Si nous effectuons une
 substitution purement syntaxique, nous pouvons alors obtenir des termes qui ne sont
 plus dans la syntaxe des éléments de $\Lambda$. Par exemple, si nous
-substituons toutes les occurences de $x$ par un terme $u$ dans la fonction constante
+substituons toutes les occurrences de $x$ par un terme $u$ dans la fonction constante
 $\lambda x . y$, nous aurions $\lambda u . y$, qui n'a pas de sens car $u$ n'est
 pas obligatoirement une variable.
 
@@ -125,7 +125,7 @@ liée dans le terme où se passe la substitution (ici $\lambda x . y$).
 
 Un autre exemple où la substitution n'est pas évidente est la substitution de la
 variable $z$ du terme $\lambda x . z$ (la fonction constante en $z$) par le terme
-$\lambda y . x$ (la fonction constante en $x$). Après subtitution, nous nous
+$\lambda y . x$ (la fonction constante en $x$). Après substitution, nous nous
 retrouvons avec le terme $\lambda x . \lambda y . x$, c'est-à-dire la fonction
 qui renvoie la fonction constante pour le paramètre donné. Ce dernier exemple
 nous montre que nous devons également faire attention aux variables libres du
@@ -170,7 +170,7 @@ notre volonté d'égalité à renommage de variables près.
 
 Nous allons étendre cette relation à tous les termes, c'est-à-dire sur tout l'ensemble $\Lambda$.
 
-Nous notons $=_{\alpha}$ la plus petite relation comprenant $\alpha$ et telle que
+Nous notons $=_{\alpha}$ la plus petite relation comprenant $\alpha$ telle que :
 \begin{itemize}
   \item[$\bullet$] $=_{\alpha}$ est réflexive, symétrique et transitive
   \item[$\bullet$] $=_{\alpha}$ passe au contexte: si $u_{1} =_{\alpha} v_{1}$
@@ -187,7 +187,7 @@ Nous notons $=_{\alpha}$ la plus petite relation comprenant $\alpha$ et telle qu
       effet, on montre que $\lambda x . \lambda y . x y =_{\alpha} \lambda z .
       \lambda w. z
       w$ et $\lambda y . \lambda x . y x =_{\alpha} \lambda z . \lambda w . z w$ en appliquant
-      deux fois la subtitution (par $z$ et par $w$). Par symétrie
+      deux fois la substitution (par $z$ et par $w$). Par symétrie
       et transitivité de $=_{\alpha}$, on obtient l'égalité.
   \end{enumerate}
 \end{exemple}
@@ -195,7 +195,7 @@ Nous notons $=_{\alpha}$ la plus petite relation comprenant $\alpha$ et telle qu
 Par définition, la relation $=_{\alpha}$ est une relation d'équivalence. Nous
 construisons alors le quotient $\Lambda \backslash =_{\alpha}$. Dans ce
 quotient, les termes égaux à renommage de variables près se retrouvent dans la
-même classe d'équivalence. A partir de maintenant, nous considérons $\Lambda
+même classe d'équivalence. À partir de maintenant, nous considérons $\Lambda
 \backslash =_{\alpha}$, c'est-à-dire que nous parlons des termes à $\alpha$-renommage près.
 
 \section{Sémantique}
@@ -219,11 +219,11 @@ $\beta$, et nous l'étendons au contexte.
 
 \begin{definition} [Relation de $\beta$-réduction]
   Soit $\beta$ la relation sur $\Lambda$ telle que $(\lambda x . u) v \; \; \beta 
-  \; \; [x := v]u$.\footnote{Ne pas oublier que nous travaillons à
+  \; \; [x := v]u$.\footnote{N'oublions pas que nous travaillons à
     $\alpha$-renommage près.}
   La relation de $\beta$-réduction, noté $\rightarrow_{\beta}$, ou simplement
   $\rightarrow$, est la plus petite relation contenant $\beta$ qui passe au
-  contexte. Nous notons $\rightarrow^{*}_{\beta}$ sa fermeture réfléxive
+  contexte. Nous notons $\rightarrow^{*}_{\beta}$ sa fermeture réflexive
   transitive et $\rightarrow^{+}_{\beta}$ sa fermeture transitive.
 \end{definition}
 
@@ -318,7 +318,7 @@ La chaine de réduction de notre exemple est alors:
   & \lambda z . z
 \end{align*}
 
-\subsubsection*{Call by name}
+\subsubsection*{Call-by-name}
 
 La stratégie appelée \textit{call-by-name} consiste à réduire les redex les plus
 à gauche en premier, comme l'ordre normale. La différence est que le
@@ -333,7 +333,7 @@ call-by-name ne permet pas de réduire les redex qui sont dans le corps d'un lam
 La dernière étape de réduction de l'ordre normal n'est pas effectuée car celle-ci est
 sous le lambda $\lambda z$.
 
-\subsubsection*{Call by value}
+\subsubsection*{Call-by-value}
 
 La réduction dite \textit{call-by-value} consiste à réduire en premier les
 redexes les plus à l'extérieur et réduire les arguments jusqu'à obtenir une valeur, et ensuite le corps de la fonction.
@@ -434,7 +434,7 @@ $f'$. En effet,
 Un même raisonnement se fait pour $test \, false \, v \, w$, qui donne $w$.
 
 Les fonctions $and$ et $or$ peuvent aussi être codées en
-$\lambda$-calcul.
+$\lambda$-calcul :
 
 \begin{itemize}
   \item $and = \lambdaExpr{b}{\lambdaExpr{b'}{b \, b' \, false}}$

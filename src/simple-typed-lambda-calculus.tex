@@ -1,4 +1,4 @@
-\chapter{$\lambda$-calcul simplement typé.}
+\chapter{$\lambda$-calcul simplement typé}
 
 Dans le chapitre 1, nous avons défini la syntaxe et la sémantique d'un calcul
 appelé le $\lambda$-calcul non typé. Nous allons maintenant ajouter une notion de types à
@@ -27,7 +27,7 @@ type flèche dont le type de son paramètre est le type de $v$.
   On définit une relation binaire $R$, appelée \textbf{relation de typage}, entre les
   termes et les éléments de $\tau$.
   
-  On dit que \textbf{le terme $t \in \Lambda$ a le type $T \in \tau$} si $(t, T)
+  On dit que \textbf{le terme $t \in \Lambda$ est de type $T \in \tau$} si $(t, T)
   \in R$, noté le plus souvent $t : T$. Si un terme $t$ est en relation avec au
   moins un type $T$, on dit que $t$ est \textbf{bien typé}.
 \end{definition}
@@ -35,16 +35,16 @@ type flèche dont le type de son paramètre est le type de $v$.
 Cette définition de la relation de typage est générale car il suffit de se
 donner un ensemble de termes et un ensemble de types. Dans ce chapitre, nous
 allons nous focaliser sur les termes du $\lambda$-calcul non typé. Dans les
-prochains chapitres, nous ajouterons des autres termes comme les enregistrements
-et nous devrons en conséquence donner un type à ces nouveaux termes.
+prochains chapitres, nous ajouterons d'autres termes comme les enregistrements
+et nous devrons en conséquence leur donner un type.
 
-Dans ce chapitre, nous allons travailler avec l'ensemble des types dit
+Dans ce chapitre, nous allons travailler avec l'ensemble des types dits
 \textit{simples}.
 
 \begin{definition}
   \label{def:simply-typed-lambda-calculus-types}
-  Soit $B$ un ensemble de types appelés de \textbf{types de base}.
-  L'ensemble des \textbf{types simples} est défini par la grammaire suivante:
+  Soit $B$ un ensemble de types appelés \textbf{types de base}.
+  L'ensemble des \textbf{types simples} est défini par la grammaire suivante :
   \begin{align*}
     T ::= & \, & \text{types} \\
           & \; B & \text{base} \\
@@ -53,10 +53,10 @@ Dans ce chapitre, nous allons travailler avec l'ensemble des types dit
 \end{definition}
 
 L'ensemble de base $B$ est assez naturel : il existe souvent dans les langages
-des types dit de bases ou primitifs.
+des types dits de base ou primitifs.
 
 %Le typage est donc un moyen de spécifier l'appartenance de certains
-%$\lambda$-termes à un ensemble précis de type et ainsi réduire les opérations
+%$\lambda$-termes à un ensemble précis de types et ainsi réduire les opérations
 %possibles sur ces $\lambda$-termes.
 
 %Dans le chapitre 1 sur le $\lambda$-calcul non typé, nous avons défini une
@@ -65,15 +65,15 @@ des types dit de bases ou primitifs.
 
 \subsection*{Contexte et jugement de typage}
 
-Nous avons déjà mentionné que, naturellement, les abstraction $\lambdaExpr{x}{t}$ ont le type
-flèche, par exemple $T_{1} \rightarrow T_{2}$. Cependant, comment pouvons nous
+Nous avons déjà mentionné que, naturellement, les abstractions $\lambdaExpr{x}{t}$ ont le type
+flèche, par exemple $T_{1} \rightarrow T_{2}$. Cependant, comment pouvons-nous
 connaître le type des arguments, c'est-à-dire le type du paramètre que la
 fonction attend ? Deux solutions sont couramment utilisées : soit annoter la
-variable avec un type soit étudier le type du corps de la fonction et
+variable avec un type, soit étudier le type du corps de la fonction et
 en déduire le type que le paramètre devrait avoir.
 Dans la suite, nous utiliserons la première solution. Le terme de l'abstraction
 se voit alors ajouter un type à son argument et devient $\lambdaExpr{x : T}{t}$.
-La syntaxe des termes devient alors:
+La syntaxe des termes devient alors :
 
 \begin{align*}
   \label{def:simply-typed-lambda-calculus-terms}
@@ -93,9 +93,9 @@ amène à la notion de \textit{contexte de typage}.
   \label{def:simply-typed-lambda-calculus-context}
   Un \textbf{contexte de typage}, noté $\Gamma$, est une suite finie de couples $(x_{i},
   T_{i})$ où $x_{i}$ est une variable et $T_{i}$ est un type. Chaque $x_{i}$ est différent.
-  
-  L'union d'un contexte de typage $\Gamma$ avec un couple $(x, T)$ est noté
-  $\Gamma, x : T$ et l'union de $\Gamma$ avec $\Delta$ est noté $\Gamma, \Delta$.
+
+  L'union d'un contexte de typage $\Gamma$ avec un couple $(x, T)$ est notée
+  $\Gamma, x : T$ et l'union de $\Gamma$ avec $\Delta$ est notée $\Gamma, \Delta$.
   Le contexte vide est noté $\emptyset$.
 
   Le domaine de $\Gamma$, noté $dom(\Gamma)$, est l'ensemble des $x_{i}$.
@@ -109,7 +109,8 @@ contexte, le terme et le type. Nous parlons alors de \textit{jugement de typage}
   \textbf{Un jugement de typage} est un triplet $(\Gamma, t, T)$ où $\Gamma$ est un
   contexte de typage, $t$ un terme et $T$ un type. Nous le notons le plus
   souvent $\Gamma \vdash t : T$ et nous disons \og $t$ à le type $T$ sous les
-  hypothèses $\Gamma$\footnote{ou encore dans le contexte $\Gamma$}. Si $\Gamma$
+  hypothèses $\Gamma$\footnote{ou encore dans le contexte $\Gamma$} \fg.
+  Si $\Gamma$
   est vide, nous omettons $\emptyset$ et le jugement devient $\vdash t : T$.
 \end{definition}
 
@@ -143,7 +144,7 @@ $\lambdaExpr{x : T_{1}}{t}$ est de type $T_{2}$, alors l'abstraction est de type
 $T_{1} \rightarrow T_{2}$.
 Pour finir, (T-APP) type les applications : dans le terme $u \, v$, $u$ doit
 être une fonction de type $T_{1} \rightarrow T_{2}$, et $v$ doit être du même
-type que $u$ attend, c'est-à-dire $T_{1}$, l'application ayant le type $T_{2}$.
+type que celui que $u$ attend, c'est-à-dire $T_{1}$, l'application ayant le type $T_{2}$.
 
 Le typage d'un terme produit des \textit{arbres de dérivation de typage} (ou tout simplement
 \textit{une dérivation de typage}). Un arbre de dérivation de typage
@@ -196,7 +197,7 @@ $
 
 \section{Sûreté du typage}
 
-Dans cette partie, nous allons aborder deux théorèmes importantes : les
+Dans cette partie, nous allons aborder deux théorèmes importants : les
 théorèmes de progression et de préservation du typage. En assemblant ces deux
 théorèmes, nous en déduisons le principe \og les
 programmes\footnote{Un programme est synonyme de terme.}
@@ -227,7 +228,7 @@ remarquer certains faits qui découlent immédiatement des règles de typage.
       tel que $t_{1} : T_{1} \rightarrow T$ et $t_{2} : T_{1}$.
   \end{enumerate}
 \end{lemma}
-  
+
 \begin{proof}
   \label{proof:simply-typed-lambda-calculus-inversion}
   Ces propositions découlent des règles de typage. En effet, pour la deuxième
@@ -236,11 +237,11 @@ remarquer certains faits qui découlent immédiatement des règles de typage.
 \end{proof}
 
 Le lemme d'inversion des règles de typage dit également quelque chose de
-fondamentale sur les arbres de typage et qui a une énorme importance lorsque
+fondamental sur les arbres de typage et qui a une énorme importance lorsque
 nous souhaitons implémenter un algorithme de typage\footnote{Nous verrons par la
 suite que ce n'est pas tout le temps évident de passer des règles de typage à un
 algorithme de typage.}. En effet, les 3 points du
-lemmes nous donnent quels sont les possibles fils de la conclusion. Par
+lemme nous donnent quels sont les possibles fils de la conclusion. Par
 exemple, si nous devons montrer que $\Gamma \vdash \lambdaExpr{x : T}{t} : T'$,
 nous sommes convaincus, par le lemme d'inversion, que le noeud précédent
 provient de la règle (T-ABS). Cela implique que pour un jugement de typage
@@ -298,7 +299,7 @@ proposition n'est pas vraie dans tous les calculs.
   Nous procédons par induction sur la structure des termes.
   \begin{itemize}
     \item Le cas d'une variable, par exemple $x$, n'est pas possible car par
-      hypothèse le terme $t$ est clos. Or, $x$ est libre dans $x$.
+      hypothèse, le terme $t$ est clos. Or, $x$ est libre dans $x$.
     \item $t$ est une abstraction. Le résultat est direct car $t$ est une valeur.
     \item $t$ est de la forme $u \, v$. $t$ étant
       bien typé, nous avons le jugement de typage $\vdash u \, v : T$. Par le lemme

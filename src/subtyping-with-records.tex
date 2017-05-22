@@ -95,7 +95,7 @@ La règle (E-RCD) nous dit comment les termes à l'intérieur d'un enregistremen
 évalués. Quant à (E-PROJ-RCD)\footnote{Nous supposons que $j \in \GSset{1, ...,
 n}$.}, elle nous dit que nous pouvons évaluer une projection uniquement si les
 termes de l'enregistrement ont tous été réduits à des valeurs. Pour finir,
-(E-PROJ) nous dit comment nous simplifions le terme dans une projection.
+(E-PROJ) nous dit comment simplifier le terme dans une projection.
 
 \section*{Règles de typage}
 
@@ -156,7 +156,7 @@ relation entre les types qui permet d'affiner les règles de typage. Nous dirons
 \textbf{$S$ est un sous-type de $T$} ou encore \textbf{$T$ est un supertype de $S$}, noté $S <: T$.
 
 Pour lier la relation de typage à la relation de sous-typage, nous ajoutons une
-nouvelle règle de typage
+nouvelle règle de typage :
 
 \begin{mathpar}
   \inferrule
@@ -450,7 +450,7 @@ aux enregistrements de manière naturelle.
       \end{mathpar}
       En utilisant le lemme d'inversion des règles de sous-typage, nous obtenons
       $S = S_{1} \rightarrow S_{2}$ avec $T_{1} <: S_{1}$ et $S_{2} <: T_{2}$.
-      
+
       En utilisant l'hypothèse de récurrence sur $\vdash v : S_{1} \rightarrow
       S_{2}$, nous avons $v$ qui est une abstraction.
     \end{itemize}
@@ -461,9 +461,7 @@ aux enregistrements de manière naturelle.
   \end{itemize}
 \end{proof}
 
-Et nous concluons avec le théorème de progression.
-
-\begin{theorem} [de progression] 
+\begin{theorem} [de progression]
   Si $t$ est un terme bien typé sans variable libre, alors soit $t$ est une
   valeur, soit il existe $t'$ tel que $t \rightarrow t'$.
 \end{theorem}
@@ -512,7 +510,7 @@ est courant d'ajouter dans les types un type qui est super-type de tous les
 autres types, souvent appelé \verb|Top| ainsi qu'un type qui est sous-type de
 tous les autres types, souvent appelé \verb|Bottom|.
 
-La syntaxe des types est donc finalement
+La syntaxe des types est donc finalement :
 
 \begin{align*}
   T ::= & \, & \text{type} \\
@@ -523,7 +521,7 @@ La syntaxe des types est donc finalement
         & \; Bottom & \text{Bottom} \\
 \end{align*}
 
-et nous ajoutons les règles de typage suivantes.
+Nous ajoutons les règles de typage suivantes :
 
 \begin{mathpar}
   \inferrule* [Left=(S-TOP)] {T <: Top}{}
