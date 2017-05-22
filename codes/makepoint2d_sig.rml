@@ -1,16 +1,16 @@
 (* Signature de MakePoint2D
-forall(typ : self => sig
+forall(typ : sig(self)
   type t = Nothing .. Any
   val plus : self.t -> self.t -> self.t
-end) point => sig
-  type t = 'self => sig
+end) sig(point)
+  type t = sig('self)
     val x : typ.t
     val y : typ.t
-  end .. 'self => sig
+  end .. sig('self)
     val x : typ.t
     val y : typ.t
   end
-  val add : forall(p1 : point.t) forall(p2 : point.t) 'self => sig
+  val add : forall(p1 : point.t) forall(p2 : point.t) sig('self)
     val x : typ.t
     val y : typ.t
   end

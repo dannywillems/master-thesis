@@ -8,15 +8,15 @@ end;;
 Sortie de l'algorithme et signature.
 
 Point2D :
-point => sig
-  type t = 'self => sig
+sig(point)
+  type t = sig('self)
     val x : Int.t
     val y : Int.t
-  end .. 'self => sig
+  end .. sig('self)
     val x : Int.t
     val y : Int.t
   end
-  val add : forall(p : point.t) forall(p : point.t) 'self => sig
+  val add : forall(p : point.t) forall(p : point.t) sig('self)
     val x : Int.t
     val y : Int.t
   end
