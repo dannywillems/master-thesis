@@ -24,8 +24,8 @@ du but du langage ainsi que des exemples.
 La structure du projet, la méthode de compilation et l'exécution des
 algorithmes sont clairement expliquées sur la page du projet. Pour ces raisons,
 ces détails ne seront pas dupliqués dans ce document.
-Il est fortement conseillé au lecteur de lire la page principale pour avoir une
-idée générale avant de continuer.
+%Il est fortement conseillé au lecteur de lire la page principale pour avoir une
+%idée générale avant de continuer.
 
 \section{Langage de surface}
 
@@ -57,13 +57,13 @@ $\arraycolsep=1.0pt\def\arraystretch{1.5}
   \mu(x : T) & \text{sig(x) T end} \\
   \mu(self : T) & \text{sig T end} \\
   \hline
-  \forall(x : S) T & S \rightarrow T \text{ (si $x \notin T$)}\\
+  \forall(x : S) T & S \rightarrow T \text{ (si $x \notin FV(T)$)}\\
   \forall(x : S) T & \text{forall(x : S) T} \\
   \hline
   T_{1} \wedge T_{2} & T_{1} \text{ \& } T_{2} \\
   T \wedge \left\{ \text{A : L .. U } \right\} & \text{T with type a = L .. U} \\
-  T \wedge \left\{ \text{A : S .. T } \right\} \wedge \left\{ \text{A' : S' ..
-  T' } \right\} & \text{T with type a = S .. T and a' = S' .. T'} \\
+  T \wedge \left\{ \text{A : L .. U } \right\} \wedge \left\{ \text{A' : L' ..
+  U' } \right\} & \text{T with type a = L .. U and a' = L' .. U'} \\
   \hline
 \end{array}
 $
@@ -83,6 +83,8 @@ $\arraycolsep=1.0pt\def\arraystretch{1.5}
   \hline
   \nu(x : T) d & \text{sig(x) T end : struct(x) d end } \\
   \nu(self : T) d & \text{sig T end : struct d end } \\
+  \hline
+  \text{let m = } \nu(x : T) d \text{ in t} & \text{let module M = ... in t } \\
   \hline
 \end{array}
 $
@@ -626,7 +628,7 @@ dans le langage de surface de RML.
 Dans RML, il est possible de définir des fonctions à plusieurs variables en les
 séparant par une virgule.
 Par exemple, \verb|fun(x : Int.t, y : Int.t) -> t| est équivalent à
-\verb|fun(x : Int.t) -> fun(y : Int.t)|. Le parseur se charge de créer l'arbre de
+\verb|fun(x : Int.t) -> fun(y : Int.t) -> t|. Le parseur se charge de créer l'arbre de
 syntaxe correspondant.
 
 \subsection*{Variable interne par défaut}
@@ -669,12 +671,12 @@ rencontrons alors la variable $x$, nous utilisons le type de $y$. Cette méthode
 est utilisée dans le langage Mezzo\cite{} avec le type singleton.
 
 \begin{listing}
-  \label{code:implementation-grammar-terms-examples}
   \inputminted{OCaml}{codes/terms_binding_variable.rml}
   \caption{Exemple où un binding local d'une variable ne doit pas être généré
     afin de ne pas provoquer un problème d'échappement. Si des bindings locaux
     sont réalisés pour chaque terme, une liaison locale du module $M$ est
     créée avec la variable $n$ par exemple et le type de l'expression est $n.t$.}
+  \label{code:implementation-grammar-terms-examples}
 \end{listing}
 
 \subsection*{Applications de fonctions à plusieurs paramètres}
@@ -741,7 +743,7 @@ des entiers peut être défini de la manière suivante :
 \end{listing}
 
 Nous pouvons définir le foncteur \verb|MakePoint2D| avec le terme \verb|fun|
-comme une autre fonction :
+comme une autre fonction comme la figure \ref{code:rml-point2d} le montre. 
 
 \begin{listing}
   \inputminted{OCaml}{codes/makepoint2d.rml}
@@ -750,8 +752,8 @@ comme une autre fonction :
   \label{code:rml-point2d}
 \end{listing}
 
-Le type du foncteur est le même que celui d'une fonction qui prend un module
-en paramètre et retourne un module :
+La figure \ref{code:rml-makepoint2d} montre que le type du foncteur est le même
+que celui d'une fonction qui prend un module en paramètre et retourne un module.
 
 \begin{listing}
   \inputminted{OCaml}{codes/makepoint2d_sig.rml}
@@ -761,7 +763,7 @@ en paramètre et retourne un module :
 
 Nous pouvons également définir des listes paramétrées par un type en utilisant un foncteur
 comme le montre la figure \ref{code:rml-list-functor} et créer une liste d'entier en
-utilisant \verb|List Int| :
+utilisant \verb|List Int|.
 
 \begin{listing}
   \inputminted{OCaml}{codes/list_functor.rml}
