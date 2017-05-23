@@ -1,5 +1,10 @@
 \chapter{DOT}
 
+%%% TODO: x peut apparaitre dans son type.
+%%% TODO: best_bound peut boucler quand on a x.A. On peut régler le problème est en se
+%%% souvenant des questions déjà posées. Si le label n'est pas le même, on
+%%% renvoit None. Sinon, on renvoie le type de x.
+
 Dans ce chapitre, nous présentons DOT, un calcul développé récemment pour le
 langage Scala. Ce calcul ajoute les types, alors
 appelés types chemin dépendants, dans les enregistrements. Des types
@@ -61,11 +66,12 @@ abstractions.
 termes mais de deux variables\footnote{Nous pouvons cependant utiliser (let)
   pour retrouver des applications entre termes.}. Nous retrouvons la projection d'un champ avec
 (champ proj). Comme pour les applications, seule une variable peut être
-utilisée\footnote{Même remarque que pour les applications.}
+utilisée\footnote{Même remarque que pour les applications.}.
 
 (let) permet de créer des variables locales comme il est possible de le faire en OCaml.
 (let) est utilisé pour lier un terme à une variable et pouvoir utiliser cette
-dernière dans un autre terme\footnote{On dit aussi que $x$ est est un binding local.}.
+dernière dans un autre terme\footnote{On dit aussi que $x$ est est un binding
+  local.}.
 
 Enfin, (rec) est l'équivalent des enregistrements à la différence qu'il permet
 de définir des termes récursifs, c'est-à-dire des termes
@@ -353,7 +359,7 @@ Système $F_{<:}$ associe un terme (resp. type) de DOT.
 Quant aux contextes, la fonction ${}^{*}$ est définie naturellement
 inductivement par :
 \begin{align*}
-  (X <: Top)^{*} & = x_{X} : \mu(z : \left\{ A : Bottom .. Top \right\}) \\
+  (X <: Top)^{*} & = x_{X} : \left\{ A : Bottom .. Top \right\} \\
   (x : T)^{*} & = x : T^{*}
 \end{align*}
 
@@ -375,11 +381,9 @@ sur les arbres de dérivation.
 \begin{proof}
   \begin{itemize}
   \item (S-TVAR). Utilisation de (<: SEL).
-  \item (S-ALL). Pour le membre de gauche, nous utilisons (VAR-UNPACK) suivi de
-    (TYP<:TYP).
+  \item (S-ALL). Pour le membre de gauche, nous utilisons (TYP<:TYP).
   \item Les cas (S-REFL), (S-TRANS), (S-TOP) et (S-ARROW) sont directs
-    en utilisant l'encodage, l'hypothèse de récurrence et (VAR-UNPACK)
-    si besoin.
+    en utilisant l'encodage et l'hypothèse de récurrence.
     %Nous avons
     %\begin{mathpar}
     %  \inferrule
@@ -407,6 +411,14 @@ substitution des types dépendants.
 
 Cette propriété de DOT implique que la question du sous-typage de DOT est
 indécidable.
+
+%% TODO: En fait, il faudrait montrer que si pour le codage c'est vrai, alors
+%% c'est vrai dans F-SUB. Cependant, on n'est pas sûr que pour la transitivité
+%% ce soit bon. On devrait montrer que la transitivité peut-être push back dans
+%% la preuve.
+%% Historique : https://en.wikipedia.org/wiki/CLU_(programming_language)
+% Algorithme : finit toujours.
+%% Semi algorithme : finit pas toujours. Donc ici c'est semi algo.
 
 %\section{Notion bonne formation}
 

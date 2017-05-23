@@ -1,5 +1,11 @@
 \chapter{RML}
 \label{chapter:rml}
+\renewcommand\listingscaption{Code RML}
+
+% Pas d'algo dans la littérature.
+% Pas décidable.
+% Question déjà posée.
+% best_bound: pas présent dans les autres langages car on n'a pas de types dépendant.
 
 Dans ce chapitre, nous proposons un algorithme de typage et de sous-typage ainsi
 qu'un langage de surface pour DOT. Une implémentation en OCaml du langage et des
@@ -91,8 +97,6 @@ $
 \captionof{table}{Correspondance entre DOT et RML pour la syntaxe des termes}
 \end{center}
 
-% TODO Ajouter un tableau
-
 Le langage de surface est entièrement décrit sur la page du
 projet\cite{rml-github}. Dans la suite, nous
 utiliserons aussi bien la syntaxe du langage de surface que la syntaxe de DOT
@@ -117,7 +121,6 @@ cette tâche n'est pas très intéressante au niveau algorithmique, implique tr�
 souvent des erreurs d'inattention et il existe diverses méthodes pour
 représenter et gérer les variables.
 
-% TODO Préciser que j'ai tenté d'implémenter la gestion ?
 AlphaLib\cite{alphalib} est une librairie basée sur
 visitors\cite{visitors} qui fournit des macros\footnote{en utilisant
   cppo, d'où l'extension cppo.ml pour le fichier définissant la grammaire.}
@@ -164,21 +167,8 @@ Plus d'informations et d'explications sur AlphaLib et son fonctionnement peuvent
 Un contexte est implémenté comme un dictionnaire dont les clefs sont des atomes
 et les valeurs sont les types nominatifs de ces atomes. Cette implémentation se
 trouve dans le fichier \verb|typing/contextType.ml| et contient également
-des fonctions pour afficher un contexte donné.
-
-%TODO Gestion d'un environnement non vide, avec une librairie standard. On regarde
-%alors maintenant les termes top level qui sont composés soit d'un let top level
-%(sans in), soit d'un terme. Les termes top level sont là pour étendre
-%l'environnement tandis que les termes usuels non. Dans l'implémentation, cela se
-%traduit par un type somme Grammar.TopLevelTerm. Lorsque nous rencontrons un
-%terme top level qui est un let, nous appelons la fonction \verb|$read_top_level_term|
-%qui se charge de...
-
-%\section{Complexité des algorithmes}
-%
-%\begin{itemize}
-%  \item Donner un détail sur la complexité des algorithmes de sous-typages et de
-%  typages. %\end{itemize}
+des fonctions pour afficher un contexte donné. Une fonction \verb|find| est utilisée
+pour trouver le type d'une variable.
 
 \section{Meilleures bornes d'un type dépendant}
 
@@ -202,7 +192,6 @@ description ci-dessous.
 Cet algorithme n'est jamais discuté ni décrit dans les différents
 documents au sujet de DOT. Comprendre son utilité et son importance ainsi que
 son écriture n'a pas été facile.
-
 L'algorithme prend comme
 paramètres, en plus de la variable $x$, du type $T$ et du label $A$, un contexte
 $\Gamma$ et une direction. La direction est soit \verb|Lower| pour la
@@ -216,8 +205,10 @@ supérieure. L'algorithme travaille sur la structure de $T$ :
   $None$ pour la borne supérieure.
 \item Si $T = \forall(x : S_{1}) S_{2}$, nous renvoyons $None$ car nous
   ne pouvons pas comparer un enregistrement avec une fonction.
-\item Si $T = \mu(x : S^{x})$, nous appelons récursivement l'algorithme sur
-  $S^{x}$ et renvoyons ce résultat.
+\item Si $T = \mu(y : S^{y})$, nous appelons récursivement l'algorithme sur
+  $S^{x}$ après avoir substitué $y$ par $x$ dans $S$.\footnote{Notons que la
+    variable est importante dans ce cas, ce qui n'a pas été directement
+    évident.}
 \item Si $T = T_{1} \wedge T_{2}$, nous
   appliquons l'algorithme récursivement sur $T_{1}$ et sur $T_{2}$. Notons
   $T'_{1}$ et $T'_{2}$ les résultats. Plusieurs cas possibles :
@@ -230,7 +221,8 @@ supérieure. L'algorithme travaille sur la structure de $T$ :
   \end{itemize}
 \item Si $T = \left\{ A : L .. U \right\}$, nous renvoyons $U$ pour la borne
   supérieure et $L$ pour la borne inférieure.
-\item Si $T = \left\{ a : U \right\}$, nous renvoyons $U$.
+\item Si $T = \left\{ a : U \right\}$, nous renvoyons $U$\footnote{Ceci afin de
+    supporter de manière générale la projection.}.
 \item Si $T = y.A'$, nous appelons récursivement l'algorithme avec les paramètres
   $y$, le type de $y$, le label $A'$, le contexte $\Gamma$ et la direction et
   nous notons $S$ la réponse.
@@ -245,17 +237,36 @@ supérieure. L'algorithme travaille sur la structure de $T$ :
   \end{itemize}
 \end{itemize}
 
+%Nous remarquons que l'algorithme est nécessaire surtout en présence de types
+%chemin dépenedants, d'intersection et de types récursifs, types non présents 
+
 L'algorithme actuel est satisfaisant sur différents exemples. Cependant, nous
 remarquons que le cas où $T = y.A'$ n'est pas entièrement satisfaisant. Il serait nécessaire de
-montrer que la réponse pour $T$ est la même que pour $S$.\footnote{Plusieurs
+montrer que la réponse pour $T$ est la même que pour sa plus petite borne
+supérieure $S$.\footnote{Plusieurs
 tentatives de démonstrations ont échoué, et la possibilité que la complétude soit
 fausse a été envisagée.
 Cependant, vu les bons résultats, nous acceptons l'algorithme actuel.} Nous
 pouvons seulement dire que la réponse actuelle est un candidat, mais non le
-meilleur. Concernant la terminaison de l'algorithme, les appels récursifs
-éliminent les types dépendants, les intersections et les types récursifs,
-c'est-à-dire les cas impliquant un appel récursif pour se ramener aux cas de
-base. Nous pouvons donc affirmer que l'algorithme se termine toujours.
+meilleur.
+De plus, l'algorithme ne termine pas toujours
+%\footnote{Nous devrions donc
+%utiliser le terme \textit{semi-algorithme} mais nous acceptons cet abus de
+%langage.}.
+En effet, prenons le cas où $T_{x} = y.A$ et $T_{y} = \mu(z : \left\{ A :
+z.A .. z.A \right\})$ et le label $A'$. Supposons que nous voulons la plus
+petite borne supérieure. Voici comment l'algorithme procède.
+\begin{enumerate}
+\item Comme $T_{x} = y.A$, nous devons appeler récursivement l'algorithme sur $y$
+  avec le type $T_{y}$ et le label $A$.
+\item Comme $T_{y}$ est un type récursif, nous appelons l'algorithme avec \\
+  $\left\{ A : y.A .. y.A \right\}$ (substitution de $z$ par $y$).
+\item Comme le type en paramètre est une déclaration de type, nous renvoyons la
+  borne supérieure, c'est-à-dire $y.A$.
+\item Maintenant que nous avons calculé la borne supérieure de $y.A$, nous
+  remplaçons à la première étape $T_{x}$ avec cette valeur, qui est $y.A$. Or,
+  c'est exactement la question initiale. L'algorithme va donc boucler.
+\end{enumerate}
 
 L'implémentation OCaml est la fonction \verb|best_bound_of_recursive_type|.
 \verb|least_upper_bound_of_recursive_type| est l'algorithme pour la direction \\
@@ -271,21 +282,27 @@ L'implémentation OCaml est la fonction \verb|least_upper_bound_of_dependent_fun
 \section{Algorithme de typage}
 
 L'algorithme de typage se trouve dans le fichier \verb|typer.ml| du dossier \verb|typing|.
-L'implémentation est relativement fidèle aux règles de typage.
+L'implémentation utilise les règles (ALL-I), (ALL-E), (LET), ($\left\{
+\right\}$-I) et (FIELD-E) pour typer les termes correspondants. La règle (T-VAR)
+est remplacée par une recherche dans le contexte grâce à la fonction \verb|find|
+discutée plus haut.
+Quant à (VAR-PACK)\footnote{Son utilité dans l'algorithme est encore floue.} et
+(VAR-UNPACK), celles-ci sont utilisées dans l'algorithme de sous-typage.
+La règle (T-SUB) est intégrée à l'algorithme de sous-typage comme
+l'implémentation de (<: SEL) le montre ci-dessous.
+
 La fonction principale est \verb|typ_of_internal| qui prend en paramètre un
 contexte et un terme. 
 
-Cette fonction contient essentiellement un pattern matching sur la structure des
+Cette fonction réalise un pattern matching sur la structure des
 termes et applique la règle de typage appropriée selon la forme. Le problème
 d'échappement est traité dans le cas de la règle (LET) à travers la
-fonction \verb|check_avoidance_problem| du module \verb|CheckUtils|. Les
-fonctions \verb|least_upper_bound_of_dependent_function| et \\
+fonction \\ \verb|check_avoidance_problem| du module \verb|CheckUtils|. Les
+fonctions \\ \verb|least_upper_bound_of_dependent_function| et \\
 \verb|least_upper_bound_of_recursive_type|, expliquées précédemment, sont
-utilisées respectivement dans les règles (ALL-E) et (FLD-E). La règle (SUB) est
+utilisées respectivement dans les règles (ALL-E) et (FLD-E). La règle (T-SUB) est
 utilisée dans (ALL-E) pour vérifier que l'argument est un sous-type que la
 fonction attend.
-
-% TODO Décrire l'algorithme comme il a été fait pour best\_bound ??
 
 \subsection*{Typage des enregistrements récursifs}
 
@@ -337,7 +354,6 @@ d'écrire de programmes DOT moins verbeux.
   de la fonction plus, qui ne sera inféré que par après.}
   \label{code:rml-typing-recursive-records-fail}
 \end{listing}
-
 
 \section{Algorithme de sous-typage}
 
@@ -398,8 +414,9 @@ où (<:-AND) est utilisé en premier suivi de (AND-1-<:) et (AND-2-<:) sur chaqu
 branche. Cependant, si nous utilisions (AND-1-<:) (ou (AND-2-<:)) en premier,
 nous serions incapables d'arriver au résultat voulu.
 
-L'algorithme actuel a été implémenté de façon pragmatique, l'implémentation des
-règles théoriques n'étant pas simple comme peuvent le montrer
+Aucun document sur DOT ne décrit actuellement l'implémentation d'un algorithme
+de sous-typage pour DOT, l'implémentation d'un tel algorithme à partir de règles
+théoriques n'étant pas simple comme peuvent le montrer
 \cite{tapl-metatheory-subtyping} et
 \cite{tapl-bounded-quantification-metatheory} pour d'autres calculs.
 
@@ -409,12 +426,6 @@ courant d'avoir les règles de typage qui dépendent du sous-typage à travers
 (T-SUB), mais non l'inverse. Dans DOT, les règles de sous-typage dépendent du
 typage des variables à travers (SEL <:) ainsi que (<: SEL) et demandent
 d'implémenter des algorithmes supplémentaires comme \verb|best_bound|.
-
-%Par exemple, pour répondre à la question
-%$x.A <: y.A$, nous pouvons soit utilisé (<: SEL) en premier et ensuite utilisé
-%(SEL <:) ou l'inverse. De plus, il est possible qu'appliquer (<: SEL) en premier
-%donne une réponse fausse alors que (SEL <:) donne une réponse vraie. TODO exemple.
-%Le même problème se pose avec les règles (AND), (AND-1) et (AND-2).
 
 Voici, dans l'ordre,
 comment l'algorithme gère les différents cas en fonction de la structure de $S$
@@ -446,7 +457,8 @@ avec le type $S_{2}$ dans le contexte comme la règle (ALL <: ALL) le mentionne.
 \subsection*{$x.A <: y.A'$}
 
 Les premiers cas posant des difficultés sont ceux des types dépendants, par exemple
-$x.A$ et $y.A'$\footnote{Les cas $x.A <: U$ et $U <: x.A$ sont traités ci-dessous.}. En effet, les règles (REFL), (SEL <:) et (<: SEL) peuvent être
+$x.A$ et $y.A'$\footnote{Les cas $x.A <: U$ et $U <: x.A$ sont traités
+ci-dessous.}. En effet, les règles (REFL), (SEL <:) et (<: SEL) peuvent être
 employées.
 
 L'algorithme procède par cas :
@@ -711,7 +723,8 @@ et de type \verb|Bottom|.
 Comme dans la plupart des langages, RML autorise l'ascription de termes,
 c'est-à-dire forcer le type d'un terme. En particulier, cela permet de donner le
 type voulu au terme \verb|Unimplemented|. La syntaxe est $t : T$. Dans
-l'implémentation, nous vérifions que le type de $t$ est sous-type de $T$.
+l'implémentation, nous inférons le type de $t$ grâce à l'algorithme de typage et
+vérifions que ce dernier est sous-type de $T$.
 
 \subsection*{TermRecursiveRecordUntyped}
 
@@ -796,7 +809,25 @@ boucle.\footnote{Une solution est en cours de développement pour supporter les
   \label{code:rml-list-with}
 \end{listing}
 
-Plus d'exemples peuvent être trouvés sur la page du projet.
+Plus d'exemples peuvent être trouvés sur la page du projet. Des exemples plus
+simples comme plus compliqués sont disponibles dans les dossiers \verb|test| et
+dans la librairie standard \verb|stdlib|.
+
+\subsection*{Gestion des questions déjà posées}
+
+Une solution au problème du stack overflow dans l'algorithme de sous-typage est
+de se souvenir des types $(S, T)$ des questions qui ont déjà été posées. Nous
+ajoutons comme paramètre à l'algorithme la liste des questions déjà posées.
+
+Initialement, cette liste est vide. Ensuite, à chaque appel de la forme $\Gamma
+\vdash S <: T$, nous regardons si le couple $(S, T)$ est dans la liste. Si c'est
+le cas, nous retournons oui, sinon nous ajoutons le couple $(S, T)$ et
+appliquons l'algorithme de sous-typage défini précédemment.
+
+Cependant, bien que l'idée semble simple à implémenter, l'implémentation pose
+problème à cause de la gestion des variables internes.
+Plus d'informations et un début d'implémentation sont disponibles dans la
+branche \verb|already_asked_2| du dépot du projet.
 
 \section{Travail futur}
 
@@ -831,3 +862,4 @@ projet\cite{rml-github-issues}. En voici quelques exemples :
     qui associe la déclaration à un label. Cette solution n'a pas été
     implémentée directement pour rester fidèle à la grammaire de DOT.
 \end{itemize}
+
