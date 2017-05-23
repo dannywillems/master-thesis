@@ -245,7 +245,7 @@ Voici quelques exemples de réductions:
 
 Un élément de la forme $(\lambda x . u) v$ est appelé \textit{redex}. En
 analysant les termes que $\beta$ met en relation, la
-$\beta$-réduction consiste donc à réécrire les redex.
+$\beta$-réduction consiste donc à réécrire les redexes.
 
 Nous définissons aussi les \textit{valeurs} qui sont les termes finaux
 possibles d'une $\beta$-réduction. Dans le cas du $\lambda$-calcul, les valeurs
@@ -297,7 +297,7 @@ Nous présentons les stratégies les plus utilisées. Le terme
 \end{math}
 
 où $id = \lambda x . x$ sera utilisé pour interpréter chaque stratégie de réduction.
-Les redex de ce terme sont:
+Les redexes de ce terme sont:
 \begin{itemize}
 \item $id (id (\lambda z . id \, z))$
 \item $id (\lambda z . id \, z)$.
@@ -308,7 +308,7 @@ Dans les exemples ci-dessous, le redex qui est réduit est souligné.
 
 \subsubsection*{Ordre normal}
 
-Cette méthode réduit d'abord les redex à l'extérieur, les plus à gauche.
+Cette méthode réduit d'abord les redexes à l'extérieur, les plus à gauche.
 La chaine de réduction de notre exemple est alors:
 
 \begin{align*}
@@ -320,9 +320,9 @@ La chaine de réduction de notre exemple est alors:
 
 \subsubsection*{Call-by-name}
 
-La stratégie appelée \textit{call-by-name} consiste à réduire les redex les plus
+La stratégie appelée \textit{call-by-name} consiste à réduire les redexes les plus
 à gauche en premier, comme l'ordre normale. La différence est que le
-call-by-name ne permet pas de réduire les redex qui sont dans le corps d'un lambda.
+call-by-name ne permet pas de réduire les redexes qui sont dans le corps d'un lambda.
 
 \begin{align*}
   & \underline{id \, (id \, (\lambda z . (id \, z)))} \rightarrow_{\beta}\\
