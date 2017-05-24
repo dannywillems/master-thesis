@@ -8,8 +8,8 @@ let module List = struct(sci)
   let nil : sci.list with type t = Nothing = struct
     type t = Nothing
     let is_empty = Bool.true
-    let head = Unimplemented
-    let tail = Unimplemented
+    let head = Unimplemented (* Must fail *)
+    let tail = Unimplemented (* Must fail *)
   end
   let cons = fun(elem : sig
       type t
