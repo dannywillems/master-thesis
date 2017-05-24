@@ -9,7 +9,7 @@
 
 Dans ce chapitre, nous proposons un algorithme de typage et de sous-typage ainsi
 qu'un langage de surface pour DOT. Une implémentation en OCaml du langage et des
-algorithmes sont disponibles sur Github\cite{rml-github} sous le nom de RML.
+algorithmes sont disponibles sur GitHub\cite{rml-github} sous le nom de RML.
 
 Nous parlerons également des difficultés rencontrées lors de l'implémentation
 d'un calcul théorique et nous remarquerons que DOT nécessite des règles et des termes
@@ -168,7 +168,7 @@ Un contexte est implémenté comme un dictionnaire dont les clefs sont des atome
 et les valeurs sont les types nominatifs de ces atomes. Cette implémentation se
 trouve dans le fichier \verb|typing/contextType.ml| et contient également
 des fonctions pour afficher un contexte donné. Une fonction \verb|find| est utilisée
-pour trouver le type d'une variable.
+pour récupérer le type d'une variable depuis un contexte donné.
 
 \section{Meilleures bornes d'un type dépendant}
 
@@ -614,16 +614,39 @@ possible, ou du moins compliqué. Pour contourner ce problème, il est
 nécessaire de reformuler les règles de sous-typage et d'y introduire
 explicitement (S-TRANS).
 
+%\section{Algorithme de bonne formation}
+%
+%Nous avons discuté dans le chapitre précédent des types mal formés.
+%Nous pouvons écrire un algorithme, appelé \verb|well_formed|, prenant un type
+%$T$ et
+%un contexte et renvoyant vrai si le type donné est bien formé et sinon non.
+%
+%L'algorithme procède sur la forme de $T$ et est relativement simple.
+%
+%\begin{itemize}
+%\item Si $T = To$ ou $T = Bottom$, nous renvoyons vrai.
+%\item Si $T = \forall(x : S') T'$, nous appelons récursivement l'algorithme sur
+%  $S'$ et $T'$.
+%\item Si $T = \forall$
+%\end{itemize}
+%
+%L'implémentation OCaml est disponible dans le fichier \verb|wellFormed.ml| du
+%dossier \verb|typeUtils|.
+
 \section{Arbre de dérivation}
 
-Les algorithmes de typage et de sous-typage nécessitent un paramètre
-supplémentaire \verb|history| qui permet de se souvenir des règles
+L'implémentation OCaml des algorithmes de typage et de sous-typage nécessitent
+un paramètre supplémentaire \verb|history| qui permet de se souvenir des règles
 utilisées et de pouvoir ainsi reconstruire l'arbre de dérivation. Cet arbre de
 dérivation peut être affiché pour une expression en utilisant l'annotation
 \verb|[@show_derivation_tree]| à la fin des expressions. Par défaut, l'arbre
 affiche également le contexte. Comme celui-ci peut être grand pour les
 longs programmes, l'annotation \\ \verb|[@show_derivation_tree, no_context]|
 affiche l'arbre de dérivation sans le contexte.
+
+L'affichage d'un tel arbre de dérivation étant souvent grand, nous ne donnons pas
+d'exemples dans ce document. Cependant, le lecteur intéressé est invité à tester
+en ajoutant les annotations correspondantes. 
 
 \section{Sucres syntaxiques}
 
@@ -653,22 +676,29 @@ si le nom de la variable interne n'est pas importante.
 \subsection*{Enregistrement}
 
 Les enregistrements ont la même représentation interne que les modules,
-\verb|TermRecursiveRecord|. Dans le langage de surface, les enregistrements
-ainsi que le type enregistrement sont définis de la même manière qu'en OCaml.
-Afin d'éviter des références internes entre champs, la variable interne utilisée
-est \verb|'self|. Les noms de variables commençant par des simples guillemets
-n'étant pas acceptés dans le lexeur, cela implique qu'il n'est pas possible
-d'avoir des champs mutuellement dépendants.
+\verb|TermRecursiveRecord|, le terme DOT correspondant étant $\nu(x : T) d$.
+Dans le langage de surface, les enregistrements ainsi que le type enregistrement
+sont définis de la même manière qu'en OCaml. Afin d'éviter des références
+internes entre champs, la variable interne utilisée est \verb|'self|. Les noms
+de variables commençant par des simples guillemets n'étant pas acceptés dans le
+lexeur, cela implique qu'il n'est pas possible d'avoir des champs mutuellement
+dépendants.
+
+Comme les champs ne sont pas mutuellement dépendants et que les enregistrements
+ne peuvent pas contenir de types, l'algorithme de typage pour les modules
+présentés ci-dessus est utile pour utiliser une syntaxe proche d'OCaml sans
+devoir mentionner de types.
 
 \subsection*{Termes comme paramètres et fonctions}
 
 Une fonctionnalité intéressante et pratique est l'utilisation de
 termes pour les paramètres ainsi que pour les fonctions. Ceci
 est géré dans le parseur et ce dernier génère des bindings locaux. Cela se
-résume par la règle suivante :
+résume par les règles suivantes :
 
 \begin{center}
-  x t $\rightarrow$ let y = t in x y
+  x t $\rightarrow$ let y = t in x y \\
+  t y $\rightarrow$ let x = t in x y
 \end{center}
 
 Un point important\footnote{Ce n'est pas mentionné dans les documents sur
@@ -680,7 +710,7 @@ par la figure \ref{code:implementation-grammar-terms-examples}.
 Pour résoudre ce problème, nous pourrions, dans le cas d'un binding local
 \verb|let x = y in u|, donner le type (= y) à la variable $x$. Lorsque nous
 rencontrons alors la variable $x$, nous utilisons le type de $y$. Cette méthode
-est utilisée dans le langage Mezzo\cite{} avec le type singleton.
+est utilisée dans le langage Mezzo\cite{mezzo} avec le type singleton.
 
 \begin{listing}
   \inputminted{OCaml}{codes/terms_binding_variable.rml}
@@ -693,7 +723,8 @@ est utilisée dans le langage Mezzo\cite{} avec le type singleton.
 
 \subsection*{Applications de fonctions à plusieurs paramètres}
 
-Une autre fonctionnalité importante est la possibilité d'appliquer une fonction plusieurs
+Une autre fonctionnalité importante est la possibilité d'appliquer une fonction
+à plusieurs
 paramètres. C'est aussi le parseur qui s'en occupe en générant
 des bindings locaux. Voici quelques exemples :
 
@@ -747,35 +778,51 @@ typer le terme.
 
 \section{Exemples}
 
+Plus d'exemples peuvent être trouvés sur la page du projet. Des exemples plus
+simples comme plus compliqués sont disponibles dans les dossiers \verb|test| et
+dans la librairie standard \verb|stdlib| qui comporte des booléens, des options,
+des types sommes ou encore des conditions (en utilisant le codage à la Church).
+Nous ne présentons ici que certains exemples montrant que les modules sont des
+citoyens de première classe grâce à l'unification des enregistrements et des modules.
+
 Reprenons l'exemple donné en introduction. En RML, le module \verb|Point2D| avec
-des entiers peut être défini de la manière suivante :
+des entiers peut être défini comme sur la figure
+\ref{code:rml-point2d}. Il est important de noter que dans la plupart des
+exemples, les algorithmes de typage et de sous-typage sont appelés plusieurs
+fois, autant que l'algorithme de typage des modules ou encore les différentes variantes
+de \verb|best_bound|. Les différents sucres syntaxiques sont également utilisés
+implicitement.
 
 \begin{listing}
   \inputminted{OCaml}{codes/point2d.rml}
-  \caption{Point2D en RML.}
+  \caption{Point2D en RML. Nous voyons également comment des enregistrements
+    peuvent être définis. Nous remarquons aussi que le type des enregistrements
+    est le même que celui d'un module.
+  }
+  \label{code:rml-point2d}
 \end{listing}
 
 Nous pouvons définir le foncteur \verb|MakePoint2D| avec le terme \verb|fun|
-comme une autre fonction comme la figure \ref{code:rml-point2d} le montre. 
+comme une autre fonction comme le montre la figure \ref{code:rml-makepoint2d}. 
 
 \begin{listing}
   \inputminted{OCaml}{codes/makepoint2d.rml}
   \caption{MakePoint2D en RML. Le paramètre de la fonction est un module qui
-    contient au moins un champ t et une fonction add.}
-  \label{code:rml-point2d}
+    contient au moins un champ t et une fonction plus.}
+  \label{code:rml-makepoint2d}
 \end{listing}
 
-La figure \ref{code:rml-makepoint2d} montre que le type du foncteur est le même
+La figure \ref{code:rml-type-makepoint2d} montre que le type du foncteur est le même
 que celui d'une fonction qui prend un module en paramètre et retourne un module.
 
 \begin{listing}
   \inputminted{OCaml}{codes/makepoint2d_sig.rml}
   \caption{Signature de MakePoint2D en RML.}
-  \label{code:rml-makepoint2d}
+  \label{code:rml-type-makepoint2d}
 \end{listing}
 
 Nous pouvons également définir des listes paramétrées par un type en utilisant un foncteur
-comme le montre la figure \ref{code:rml-list-functor} et créer une liste d'entier en
+comme le montre la figure \ref{code:rml-list-functor} et créer une liste d'entiers en
 utilisant \verb|List Int|.
 
 \begin{listing}
@@ -809,31 +856,11 @@ boucle.\footnote{Une solution est en cours de développement pour supporter les
   \label{code:rml-list-with}
 \end{listing}
 
-Plus d'exemples peuvent être trouvés sur la page du projet. Des exemples plus
-simples comme plus compliqués sont disponibles dans les dossiers \verb|test| et
-dans la librairie standard \verb|stdlib|.
-
-\subsection*{Gestion des questions déjà posées}
-
-Une solution au problème du stack overflow dans l'algorithme de sous-typage est
-de se souvenir des types $(S, T)$ des questions qui ont déjà été posées. Nous
-ajoutons comme paramètre à l'algorithme la liste des questions déjà posées.
-
-Initialement, cette liste est vide. Ensuite, à chaque appel de la forme $\Gamma
-\vdash S <: T$, nous regardons si le couple $(S, T)$ est dans la liste. Si c'est
-le cas, nous retournons oui, sinon nous ajoutons le couple $(S, T)$ et
-appliquons l'algorithme de sous-typage défini précédemment.
-
-Cependant, bien que l'idée semble simple à implémenter, l'implémentation pose
-problème à cause de la gestion des variables internes.
-Plus d'informations et un début d'implémentation sont disponibles dans la
-branche \verb|already_asked_2| du dépot du projet.
-
 \section{Travail futur}
 
 Bien que l'implémentation actuelle donne des résultats satisfaisants sur
-différents cas, diverses améliorations peuvent être effectuées. Une liste \\
-non exhaustive peut être trouvée, en anglais, sur la page du
+différents cas, diverses améliorations peuvent être effectuées. Une liste
+peut être trouvée, en anglais, sur la page du
 projet\cite{rml-github-issues}. En voici quelques exemples :
 
 \begin{itemize}
@@ -862,4 +889,21 @@ projet\cite{rml-github-issues}. En voici quelques exemples :
     qui associe la déclaration à un label. Cette solution n'a pas été
     implémentée directement pour rester fidèle à la grammaire de DOT.
 \end{itemize}
+
+
+\subsection*{Gestion des questions déjà posées}
+
+Une solution au problème du stack overflow dans l'algorithme de sous-typage est
+de se souvenir des types $(S, T)$ des questions qui ont déjà été posées. Nous
+ajoutons comme paramètre à l'algorithme la liste des questions déjà posées.
+
+Initialement, cette liste est vide. Ensuite, à chaque appel de la forme $\Gamma
+\vdash S <: T$, nous regardons si le couple $(S, T)$ est dans la liste. Si c'est
+le cas, nous retournons oui, sinon nous ajoutons le couple $(S, T)$ et
+appliquons l'algorithme de sous-typage défini précédemment.
+
+Cependant, bien que l'idée semble simple à implémenter, l'implémentation pose
+problème à cause de la gestion des variables internes.
+Plus d'informations et un début d'implémentation sont disponibles dans la
+branche \verb|already_asked_2| du dépot du projet.
 

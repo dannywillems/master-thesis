@@ -335,7 +335,7 @@ sous-typage de DOT à travers cet encodage.
 Notons $\mathcal{V}_{DOT}$ l'ensemble des variables de DOT et $\mathcal{V}_{T,
   F}$ l'ensemble des variables de type de Système $F_{<:}$. Ces ensembles 
 étant infinis dénombrables, il existe une fonction injective $f$ entre
-$\mathcal{V}_{T, F}$ et $\mathcal{V}_{OT}$. Nous notons $x_{X} \in
+$\mathcal{V}_{T, F}$ et $\mathcal{V}_{DOT}$. Nous notons $x_{X} \in
 \mathcal{V}_{DOT}$ l'image de $X \in \mathcal{V}_{T, F}$ par la fonction $f$.
 
 Nous définissons alors la fonction ${}^{*}$ qui à chaque terme (resp. type) de
@@ -409,8 +409,17 @@ Nous acceptons ce théorème. Une preuve peut être trouvée dans
 t : T$. Celle-ci repose sur deux lemmes intermédiaires pour la
 substitution des types dépendants.
 
+% TODO ajouter références d'articles qui disent que le sous-typage de DOT est indécidable.
 Cette propriété de DOT implique que la question du sous-typage de DOT est
-indécidable.
+indécidable\cite{WF-DOT-2016, nada-amin-thesis}.
+\footnote{Plus précisément, il est nécessaire de démontrer
+$\Gamma^{*} \vdash_{D} S^{*} <: T^{*} \Rightarrow \Gamma \vdash_{F} S <: T$.
+Montrer ce dernier lemme n'est pas évident à cause de (S-TRANS) qui
+peut faire apparaître un type qui ne provient pas obligatoirement d'un type de
+Système $F_{<:}$. Néanmoins, d'après certains articles, (S-TRANS) peut être
+poussé plus haut dans l'arbre de dérivation si celui-ci est utilisé comme
+dernière règle. Cette question n'a pas été plus étudiée en profondeur mais nous
+accepterons ces faits pour la suite.}
 
 %% TODO: En fait, il faudrait montrer que si pour le codage c'est vrai, alors
 %% c'est vrai dans F-SUB. Cependant, on n'est pas sûr que pour la transitivité
@@ -425,7 +434,7 @@ indécidable.
 \section{Sûreté}
 
 Les théorèmes de préservation et de progression
-restent vrais. Cependant, nous les démontrerons pas dans ce document car ils
+restent vrais. Cependant, nous ne les démontrerons pas dans ce document car ils
 nécessitent plusieurs lemmes techniques. Différentes preuves de la sûreté de DOT
 existent, en utilisant des techniques et des sémantiques différentes. Nous
 redirigeons le lecteur aux références données au début de ce chapitre pour plus d'informations.
