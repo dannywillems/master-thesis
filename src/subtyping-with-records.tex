@@ -92,7 +92,7 @@ d'évaluation définies dans les chapitres précédents.
 \label{semantics:lambda-calculus-with-records}
 
 La règle (E-RCD) nous dit comment les termes à l'intérieur d'un enregistrement sont
-évalués. Quant à (E-PROJ-RCD)\footnote{Nous supposons que $j \in \GSset{1, ...,
+évalués de gauche à droite. Quant à (E-PROJ-RCD)\footnote{Nous supposons que $j \in \GSset{1, ...,
 n}$.}, elle nous dit que nous pouvons évaluer une projection uniquement si les
 termes de l'enregistrement ont tous été réduits à des valeurs. Pour finir,
 (E-PROJ) nous dit comment simplifier le terme dans une projection.
@@ -123,7 +123,7 @@ La règle (T-RCD) nous dit comment introduire un type enregistrement tandis que
 
 Maintenant que nous avons défini la syntaxe, la sémantique et les règles de
 typage de notre langage comprenant les enregistrements, nous allons définir la
-notion de sous-typage ainsi que les règles pour ce langage.
+notion de sous-typage ainsi que les règles de sous-typage pour ce langage.
 
 Le sous-typage est une forme de polymorphisme, c'est-à-dire une possibilité
 d'attribuer plusieurs types à un terme. Le polymorphisme est très courant dans
@@ -153,7 +153,7 @@ avec au moins un champ $x$, les autres champs étant inutiles.
 
 C'est dans ce cas que le sous-typage intervient : nous allons définir une
 relation entre les types qui permet d'affiner les règles de typage. Nous dirons que
-\textbf{$S$ est un sous-type de $T$} ou encore \textbf{$T$ est un supertype de $S$}, noté $S <: T$.
+\textbf{$S$ est un sous-type de $T$} ou encore \textbf{$T$ est un supertype de $S$}, notée $S <: T$.
 
 Pour lier la relation de typage à la relation de sous-typage, nous ajoutons une
 nouvelle règle de typage :
@@ -202,7 +202,7 @@ $y$. Nous résumons cela par les deux règles suivantes:
   \quad (\textsc{S-RCD-PERM})
 \end{mathpar}
 
-(S-RCD-WIDTH) nous permet de \og laisser de coté \fg \, certain champ tandis que
+(S-RCD-WIDTH) nous permet de \og laisser de coté \fg \, certains champs tandis que
 (S-RCD-PERM) nous dit que l'ordre des champs dans un enregistrement n'a pas d'importance.
 
 Nous souhaitons également prendre en
@@ -277,7 +277,7 @@ les preuves seront moins détaillées.
       \rightarrow S_{2}$ avec $T_{1} <: S_{1}$ et $S_{2} <: T_{2}$.
     \item Si $S <: \left\{ l_{i} : T_{i} \right\}^{1 \leq i \leq n}$, alors $S$
       est de la forme $\left\{ k_{i} : S_{i} \right\}^{1 \leq i \leq m}$ tel que
-      $(k_{i})_{1 \leq i \leq m} \subseteq (l_{i})_{1 \leq i \leq n}$ et $S_{i}
+      $(l_{i})_{1 \leq i \leq n} \subseteq (k_{i})_{1 \leq i \leq m}$ et $S_{i}
       <: T_{i}$ pour chaque $i$ tel que $l_{i} = k_{i}$.
   \end{enumerate}
 \end{lemma}
@@ -290,9 +290,9 @@ les preuves seront moins détaillées.
   seules les règles (S-REFL), (S-ARROW) et (S-TRANS) sont possibles.
 
   \begin{itemize}
-  \item (S-REFL). Le résultat est direct car $S = T_{1} \rightarrow T_{2}$.
-  \item (S-ARROW). Le résultat est également direct.
-  \item (S-TRANS). Nous avons donc l'arbre de dérivation suivant:
+  \item[$\bullet$] (S-REFL). Le résultat est direct car $S = T_{1} \rightarrow T_{2}$.
+  \item[$\bullet$] (S-ARROW). Le résultat est également direct.
+  \item[$\bullet$] (S-TRANS). Nous avons donc l'arbre de dérivation suivant:
     \begin{mathpar}
       \inferrule
       {S <: T \\ T <: T_{1} \rightarrow T_{2}}
@@ -305,7 +305,7 @@ les preuves seront moins détaillées.
 \end{proof}
 
 Nous montrons également un lemme d'inversion des règles de typage comme il a été
-démontré pour le $\lambda$-calcul simplementé typé.
+démontré pour le $\lambda$-calcul simplement typé.
 
 \begin{lemma} [d'inversion des règles de typage]
   \label{lemma:subtyping-record-inversion-typing-rules}
@@ -324,12 +324,12 @@ démontré pour le $\lambda$-calcul simplementé typé.
   Encore une fois, nous ne montrons que pour le premier cas, les arguments étant
   sensiblement les mêmes pour le second.
 
-  Les seuls règles possibles sont (T-SUB) ou (T-ABS).
+  Les seules règles possibles sont (T-SUB) ou (T-ABS).
 
-  \begin{enumerate}
-    \item (T-SUB). Nous avons donc l'arbre de dérivation suivant:
+  \begin{itemize}
+    \item[$\bullet$] (T-SUB). Nous avons donc l'arbre de dérivation suivant:
       \begin{mathpar}
-        \inferrule* [Left=(T-SUB)]
+        \inferrule* [Left=(T--SUB)]
         {\Gamma \vdash \lambdaExpr{x : S_{1}}{s_{2}} : T \\ T <: T_{1}
           \rightarrow T_{2}}
         {\Gamma \vdash \lambdaExpr{x : S_{1}}{s_{2}} : T_{1} \rightarrow T_{2}}
@@ -351,8 +351,8 @@ démontré pour le $\lambda$-calcul simplementé typé.
       S_{1}$, nous concluons avec $T_{1} <: S_{1}$. Pour finir, en utilisant (T-SUB)
       avec $\Gamma, x : S_{1} \vdash s_{2} : \tilde{S_{2}}$ et $\tilde{S_{2}} <:
       T_{2}$, nous obtenons $\Gamma, x : S_{1} \vdash s_{2} : T_{2}$.
-      \item (T-ABS). Le résultat est direct et $T_{1} = S_{1}$.
-  \end{enumerate}
+    \item[$\bullet$] (T-ABS). Le résultat est direct et $T_{1} = S_{1}$.
+  \end{itemize}
 \end{proof}
 
 Nous pouvons maintenant démontrer le même lemme de substitution défini dans le
@@ -363,7 +363,7 @@ aux enregistrements de manière naturelle.
   \label{lemma:subtyping-record-substitution}
   Soit $\Gamma, x : S \vdash t : T$ et $\Gamma \vdash s : S$.
 
-  Alors $\Gamma \vdash [x \rightarrow s] t : T$
+  Alors $\Gamma \vdash [x := s] t : T$
 \end{lemma}
 
 \begin{proof}
@@ -382,32 +382,32 @@ aux enregistrements de manière naturelle.
 \begin{proof}
   Nous procédons de la même manière que pour le cas du $\lambda$-calcul
   simplement typé, c'est-à-dire sur le jugement $\Gamma \vdash t : T$.
-  \begin{enumerate}
+  \begin{itemize}
     \item (T-VAR). Nous avons alors $t = x$ : pas possible car il n'y a pas de
       réduction pour les variables.
-      \item (T-ABS). $t = \lambdaExpr{x : T_{1}}{t_{12}}$ : déjà une valeur.
-      \item (T-APP). $t = t_{1} \, t_{2}$. Nous avons
+      \item[$\bullet$] (T-ABS). $t = \lambdaExpr{x : T_{1}}{t_{12}}$ : déjà une valeur.
+      \item[$\bullet$] (T-APP). $t = t_{1} \, t_{2}$. Nous avons
           $\Gamma \vdash t_{1} : T_{1} \rightarrow T$, $\Gamma \vdash t_{2}
           : T_{1}$.
           Les possibles règles d'évaluation
           sont (E-APP1), (E-APP2) et (E-APPABS). Pour (E-APP1) et (E-APP2), même
           raisonnement que pour le $\lambda$-calcul simplement typé.
 
-          Quant à (E-APPABS), posons $t_{1} = \lambdaExpr{x : S_{1}}{t_{12}}$
-          et $t_{2} = v$. En utilisant
-          \ref{lemma:subtyping-record-substitution}, nous déduisons $T_{1} <:
-          S_{1}$ et $\Gamma, x : S \vdash t_{12} : T$. Nous concluons avec le lemme de
-          substitution qui donne $\Gamma, x : S \vdash [x \rightarrow v]t_{12} :
+          Quant à (E-APPABS), posons $t_{1} = \lambdaExpr{x : S_{1}}{t_{12}}$. En utilisant
+          \ref{lemma:subtyping-record-inversion-typing-rules}, nous déduisons $T_{1} <:
+          S_{1}$ et $\Gamma, x : S_{1} \vdash t_{12} : T$. Par (T-SUB), nous
+          avons $\Gamma \vdash t_{2} : S_{1}$. Nous concluons avec le lemme de
+          substitution qui donne $\Gamma, x : S_{1} \vdash [x := t_{2}]t_{12} :
           T$.
 
-       \item (T-RCD). La seule règle d'évaluation est (E-RCD) qui réduit un des
+       \item[$\bullet$] (T-RCD). La seule règle d'évaluation est (E-RCD) qui réduit un des
          termes de l'enregistrement. Il suffit d'appliquer l'hypothèse de
          récurrence sur ce terme et d'utiliser (T-RCD) pour conclure.
 
-       \item (T-PROJ). Nous obtenons $t = t_{1}.l_{j}$, $\Gamma \vdash t_{1}
+       \item[$\bullet$] (T-PROJ). Nous obtenons $t = t_{1}.l_{j}$, $\Gamma \vdash t_{1}
          : \left\{ l_{i} : T_{i} \right\}^{1 \leq i \leq n}$ et $T = T_{j}$.
          Deux règles d'évaluation sont possibles : (E-PROJ) ou (E-PROJ-RCD). Si
-         c'est (E-PROJ), nous appliquons l'hypothèse de récurrence. Sinon,
+         c'est (E-PROJ), nous appliquons l'hypothèse de récurrence suivi de (E-PROJ). Sinon,
          (E-PROJ-RCD) nous dit que $t_{1} = \left\{ k_{i} = v_{i} \right\}^{1
            \leq i \leq m}$ et par le lemme
          \ref{lemma:record-subtyping-inversion-subtyping-rules}, nous avons
@@ -415,8 +415,8 @@ aux enregistrements de manière naturelle.
          $\Gamma \vdash v_{i} : T_{i}$ pour $k_{i} = l_{i}$. Nous concluons
          que $\Gamma \vdash v_{j} : T_{j}$.
 
-       \item (T-SUB). Par hypothèse de récurrence et en utilisant (T-SUB).
-  \end{enumerate}
+       \item[$\bullet$] (T-SUB). Par hypothèse de récurrence et en utilisant (T-SUB).
+  \end{itemize}
 \end{proof}
 
 \subsection*{Progression}
@@ -436,12 +436,12 @@ aux enregistrements de manière naturelle.
   Une valeur ne peut être que de deux formes : $\lambdaExpr{x : S_{1}}t_{1}$ ou
   $\left\{ k_{i} = v_{i} \right\}^{1 \leq i \leq m}$.
   \begin{itemize}
-  \item $v$ est de type $T_{1} \rightarrow T_{2}$. Les seules règles permettant
+  \item[$\bullet$] $v$ est de type $T_{1} \rightarrow T_{2}$. Les seules règles permettant
     de montrer $\vdash v : T_{1} \rightarrow T_{2}$ sont (T-SUB) et (T-ARROW).
 
     \begin{itemize}
-    \item (T-ARROW). Le résultat est direct.
-    \item (T-SUB). Nous avons alors :
+    \item[$\bullet$] (T-ARROW). Le résultat est direct.
+    \item[$\bullet$] (T-SUB). Nous avons alors :
 
       \begin{mathpar}
         \inferrule
@@ -454,7 +454,7 @@ aux enregistrements de manière naturelle.
       En utilisant l'hypothèse de récurrence sur $\vdash v : S_{1} \rightarrow
       S_{2}$, nous avons $v$ qui est une abstraction.
     \end{itemize}
-  \item $v$ est de type $\left\{ l_{i} : T_{i} \right\}^{1 \leq i \leq n}$. Les
+  \item[$\bullet$] $v$ est de type $\left\{ l_{i} : T_{i} \right\}^{1 \leq i \leq n}$. Les
     seules règles possibles sont (T-SUB) et (T-RCD). Le résultat est direct pour
     (T-RCD). Quant à (T-SUB), nous utilisons les mêmes arguments que 
     précédemment.
@@ -471,25 +471,26 @@ aux enregistrements de manière naturelle.
   $t$ ne peut pas être une variable car $t$ est clos et si $t = \lambdaExpr{x :
     S_{1}}{t_{1}}$, le résultat est direct car les abstractions sont des valeurs.
   \begin{itemize}
-  \item (T-APP). Alors $t = t_{1}t_{2}$, $\vdash : t_{1} : T_{1} \rightarrow
-    t_{2}$ et $\vdash t_{2} : T_{1}$. Plusieurs cas sont possibles.
+  \item[$\bullet$] (T-APP). Alors $t = t_{1}t_{2}$, $\vdash t_{1} : T_{1} \rightarrow
+    T_{2}$ et $\vdash t_{2} : T_{1}$. Nous utilisons l'hypothèse de récurrence
+    et plusieurs cas sont possibles.
     \begin{itemize}
-    \item Si $t_{1}$ n'est pas une valeur, (E-APP1) peut s'appliquer.
-    \item Si $t_{1}$ est une valeur et $t_{2}$ non, (E-APP2) s'applique.
-    \item Si $t_{1}$ et $t_{2}$ sont des valeurs, par le lemme des formes
+    \item[$\bullet$] Si $t_{1}$ se réduit en $t'_{1}$, (E-APP1) peut s'appliquer.
+    \item[$\bullet$] Si $t_{1}$ est une valeur et $t_{2}$ se réduit en $t'_{2}$, (E-APP2) s'applique.
+    \item[$\bullet$] Sinon, par le lemme des formes
       canoniques, comme $\vdash t_{1} : T_{1} \rightarrow T_{2}$ et $t_{1}$ n'a
       pas de variable libre, $t_{1} = \lambdaExpr{x : S_{1}}{t_{12}}$ et (E-APPABS) s'applique.
     \end{itemize}
-  \item (T-RCD). Alors $t = \left\{ l_{i} = t_{i} \right\}^{1 \leq i \leq n}$ et
+  \item[$\bullet$] (T-RCD). Alors $t = \left\{ l_{i} = t_{i} \right\}^{1 \leq i \leq n}$ et
     $\vdash t : \left\{ l_{i} : T_{i} \right\}^{1 \leq i \leq n}$. Plusieurs cas
     sont possibles :
     \begin{itemize}
-    \item si chaque $t_{i}$ est une valeur, alors le résultat est direct car $t$
+    \item[$\bullet$] Si chaque $t_{i}$ est une valeur, alors le résultat est direct car $t$
       est une valeur.
-    \item s'il existe $i$ tel que $t_{i}$ n'est pas une valeur, alors nous
+    \item[$\bullet$] Sinon, il existe $i$ tel que $t_{i}$ n'est pas une valeur, alors nous
       utilisons l'hypothèse de récurrence sur $t_{i}$ et (E-RCD) s'applique.
     \end{itemize}
-  \item (T-PROJ). Nous avons alors
+  \item[$\bullet$] (T-PROJ). Nous avons alors
     $t = t_{1}.l_{j}$ et $\vdash t_{1} : T$ où $T = \left\{ l_{i} : T_{i}
     \right\}^{1 \leq i \leq n}$.
 
@@ -498,7 +499,7 @@ aux enregistrements de manière naturelle.
   est une valeur, nous utilisons le lemme
   des formes canoniques
   et (E-PROJ-RCD) s'applique. Sinon, (E-PROJ) s'applique.
-  \item (T-SUB). Il suffit d'appliquer l'hypothèse de récurrence.
+  \item[$\bullet$] (T-SUB). Il suffit d'appliquer l'hypothèse de récurrence.
   \end{itemize}
 \end{proof}
 
@@ -514,9 +515,8 @@ La syntaxe des types est donc finalement :
 
 \begin{align*}
   T ::= & \, & \text{type} \\
-        & \; b & \text{type de base} \\
-        & \; t \rightarrow t & \text{fonction} \\
-        & \; \left\{ l_{i} : t_{i} \right\}^{1 \leq i \leq n} & \text{enreg} \\
+        & \; T \rightarrow T & \text{fonction} \\
+        & \; \left\{ l_{i} : T_{i} \right\}^{1 \leq i \leq n} & \text{enreg} \\
         & \; Top & \text{Top} \\
         & \; Bottom & \text{Bottom} \\
 \end{align*}

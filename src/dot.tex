@@ -1,13 +1,10 @@
 \chapter{DOT}
 
 %%% TODO: x peut apparaitre dans son type.
-%%% TODO: best_bound peut boucler quand on a x.A. On peut régler le problème est en se
-%%% souvenant des questions déjà posées. Si le label n'est pas le même, on
-%%% renvoit None. Sinon, on renvoie le type de x.
 
 Dans ce chapitre, nous présentons DOT, un calcul développé récemment pour le
 langage Scala. Ce calcul ajoute les types, alors
-appelés types chemin dépendants, dans les enregistrements. Des types
+appelés types dépendants, dans les enregistrements. Des types
 récursifs, c'est-à-dire des types qui peuvent faire référence à eux-mêmes, sont
 également définis\footnote{Les types récursifs et leurs règles présents dans DOT ne sont pas
   définis de manière habituelle. Plusieurs chapitres y sont consacrés dans
@@ -89,7 +86,8 @@ labels.
 Quant aux types, nous retrouvons $Top$ et $Bottom$ comme décrits dans le
 chapitre \ref{chapter:lambda-calculus-with-records}. Le type fonction est
 également présent avec une syntaxe différente et il devient dépendant,
-c'est-à-dire que le type de retour peut dépendre du paramètre. (champ decl) est le type d'un
+c'est-à-dire que le type de retour peut dépendre du paramètre\footnote{La
+  notation $T^{x}$ signifie que $x$ peut être libre dans $T$.}. (champ decl) est le type d'un
 champ d'un enregistrement. (type decl) est le type d'une déclaration d'un type
 dans un enregistrement et possède une borne inférieure $S$ et une borne
 supérieure $T$. (inter) permet de typer le corps d'un enregistrement contenant
@@ -100,7 +98,9 @@ $x$ du type récursif.
 Enfin, les types dépendants (type proj), en parallèle de (champ proj),
 permettent d'accéder à un type interne d'un enregistrement.
 
-Des exemples concrets seront donnés dans le chapitre \ref{chapter:rml}.
+L'écriture de programmes est lourde et fastidieuse. Des exemples concrets et
+écrits dans un langage plus lisible et proche d'OCaml seront donnés dans le
+chapitre \ref{chapter:rml}.
 
 \section{Sémantique}
 
@@ -160,8 +160,8 @@ Les règles de typage pour les définitions sont :
 
 \begin{mathpar}
   \inferrule
-  {\Gamma \vdash \left\{ A = T \right\}} 
-  {\Gamma \vdash \left\{ A : T  .. T \right\}} \quad (\textsc{TYP-I})
+  {}
+  {\Gamma \vdash \left\{ A = T \right\} : \left\{ A : T  .. T \right\}} \quad (\textsc{TYP-I})
   \and
   \inferrule
   {\Gamma \vdash d_{1} : T_{1} \\ \Gamma \vdash d_{2} : T_{2} \\ dom(d_{1})
@@ -175,6 +175,10 @@ Les règles de typage pour les définitions sont :
 
 Nous retrouvons les règles (T-VAR) et (T-SUB) comme dans les précédents calculs.
 (ALL-I) est l'équivalent de (T-ABS) et (ALL-E) est l'équivalent de (T-APP).
+Remarquons que comme $T$ peut dépendre de $z$, il est nécessaire d'effectuer une
+substitution de $z$ par $y$ dans le type de $x y$ car $z$ n'existe pas en
+dehors du type fonction.
+
 (LET) nous dit que le terme $t$ et la variable $x$ à laquelle nous lions ce
 terme doivent avoir le même type, le type du terme en entier est celui de $u$.
 (AND-I) nous dit que si une variable a deux types $T$ et $U$, alors elle a
@@ -191,24 +195,6 @@ Quant aux définitions, (TYP-I) donne le même type à la borne inférieure et �
 borne supérieure d'une déclaration de type. (FLD-I) ressemble à (T-RCD)
 restreint à un enregistrement avec un champ. (ANDDEF-I) type l'union de deux
 déclarations dont les champs ont obligatoirement des noms différents.
-
-\subsection*{Problème d'échappement}
-
-Supposons que nous ayons un type $\real$ et les nombres et prenons l'exemple suivant :
-\begin{align*}
-  & let \; y = \\
-  &\; \; \; \nu(x : \mu(z : \left\{ A : Bottom .. Top \right\} \wedge \left\{ a : z.A \right\})) \left\{ A = \real \right\} \wedge \left\{ a = 5 \right\} \\
-  & in \; y.a
-\end{align*}
-Le type de l'expression est $y.A$. Cependant, la variable $y$ n'existe pas en
-dehors du let car c'est une variable locale. C'est un exemple du
-\textit{problème d'échappement}\footnote{\og Avoidance problem \fg \; en
-anglais.}. C'est pour éviter cela que dans la règle (LET) la condition $x \notin
-FV(U)$ est présente.
-
-Nous verrons dans le chapitre \ref{chapter:rml} qu'il est nécessaire d'y faire
-attention lors de l'implémentation, en particulier lorsque nous faisons des
-bindings locaux de variables.
 
 \section{Règles de sous-typage}
 
@@ -305,6 +291,25 @@ $let \; y = \lambdaExpr{x : T}{t} \; in \; y.A$. Bien que ça n'ait pas de sens,
 syntaxe le permet.
 La difficulté de DOT réside dans cette expressivité.
 
+\section{Problème d'échappement}
+
+Supposons que nous ayons un type $\real$ et les nombres et prenons l'exemple suivant :
+\begin{align*}
+  & let \; y = \\
+  &\; \; \; \nu(x : \mu(z : \left\{ A : Bottom .. Top \right\} \wedge \left\{ a : z.A \right\})) \left\{ A = \real \right\} \wedge \left\{ a = 5 \right\} \\
+  & in \; y.a
+\end{align*}
+Le type de l'expression est $y.A$. Cependant, la variable $y$ n'existe pas en
+dehors du let car c'est une variable locale. C'est un exemple du
+\textit{problème d'échappement}\footnote{\og Avoidance problem \fg \; en
+anglais.}. C'est pour éviter cela que la condition $x \notin
+FV(U)$ est présente dans la règle (LET).
+
+Nous verrons dans le chapitre \ref{chapter:rml} qu'il est nécessaire d'y faire
+attention lors de l'implémentation, en particulier lorsque nous faisons des
+bindings locaux de variables.
+
+
 \section{Problème de mauvaises bornes}
 
 DOT permet de définir des déclarations de types avec une borne inférieure et une
@@ -328,7 +333,7 @@ sont bien formés. Sinon, le contexte est dit \textit{mal formé}.
 
 Bien que la syntaxe soit différente de Système $F_{<:}$ et que DOT ne comporte
 pas de variables de type, nous allons montrer que DOT permet d'encoder Système
-$F_{<:}$. De plus, les jugements de typage vrais pour le système de typage et de
+$F_{<:}$. De plus, les jugements vrais pour le système de typage et de
 sous-typage de Système $F_{<:}$ restent vrais pour le système de typage et de
 sous-typage de DOT à travers cet encodage.
 
@@ -348,7 +353,7 @@ Système $F_{<:}$ associe un terme (resp. type) de DOT.
   (\forall X <: S . \, T)^{*} & = && \forall(x_{X} : \left\{ A : Bottom .. S^{*} \right\}) T^{*} \\ \\
   x^{*} & = && x \\
   (\lambdaExpr{x : T}{t})^{*} & = && \lambdaExpr{x : T^{*}}{t^{*}} \\
-  (\lambdaExprType{X <: S}t)^{*} & = && \lambdaExpr{x : \left\{ A : Bottom .. S^{*} \right\}}{t^{*}} \\
+  (\lambdaExprType{X <: S}t)^{*} & = && \lambdaExpr{x_{X} : \left\{ A : Bottom .. S^{*} \right\}}{t^{*}} \\
   (t \; u)^{*} & = && let \; x \; = \; t^{*} \; in \\
               &  && let \; y \; = \; u^{*} \; in \\
               &  && x \; y \\
@@ -372,17 +377,16 @@ Notons $\Gamma \vdash_{F} t : T$ (resp. $\Gamma \vdash_{D} t : T$) un jugement
 de typage pour le système de typage de Système $F_{<:}$ (resp. DOT). Nous faisons
 de même pour $\Gamma \vdash_{F} S <: T$.
 
-Nous utilisons la même technique que précédemment, c'est-à-dire l'induction
-sur les arbres de dérivation.
 \begin{theorem}
   Si $\Gamma \vdash_{F} S <: T$, alors $\Gamma^{*} \vdash_{D} S^{*} <: T^{*}$.
 \end{theorem}
 
 \begin{proof}
+  Par induction sur le jugement de sous-typage $\Gamma \vdash_{F} S <: T$.
   \begin{itemize}
-  \item (S-TVAR). Utilisation de (<: SEL).
-  \item (S-ALL). Pour le membre de gauche, nous utilisons (TYP<:TYP).
-  \item Les cas (S-REFL), (S-TRANS), (S-TOP) et (S-ARROW) sont directs
+  \item[$\bullet$] (S-TVAR). Utilisation de (<: SEL).
+  \item[$\bullet$] (S-ALL). Pour le membre de gauche, nous utilisons (TYP<:TYP).
+  \item[$\bullet$] Les cas (S-REFL), (S-TRANS), (S-TOP) et (S-ARROW) sont directs
     en utilisant l'encodage et l'hypothèse de récurrence.
     %Nous avons
     %\begin{mathpar}
@@ -416,20 +420,12 @@ indécidable\cite{WF-DOT-2016, nada-amin-thesis}.
 $\Gamma^{*} \vdash_{D} S^{*} <: T^{*} \Rightarrow \Gamma \vdash_{F} S <: T$.
 Montrer ce dernier lemme n'est pas évident à cause de (S-TRANS) qui
 peut faire apparaître un type qui ne provient pas obligatoirement d'un type de
-Système $F_{<:}$. Néanmoins, d'après certains articles, (S-TRANS) peut être
-poussé plus haut dans l'arbre de dérivation si celui-ci est utilisé comme
-dernière règle. Cette question n'a pas été plus étudiée en profondeur mais nous
+Système $F_{<:}$. Néanmoins, d'après certains articles\cite{OOPSLA-DOT-2016, nada-amin-thesis}, la règle (S--TRANS) peut être
+poussée plus haut dans l'arbre de dérivation si celle-ci est utilisée comme
+dernière règle. Cette question n'a pas été plus étudiée mais nous
 accepterons ces faits pour la suite.}
 
-%% TODO: En fait, il faudrait montrer que si pour le codage c'est vrai, alors
-%% c'est vrai dans F-SUB. Cependant, on n'est pas sûr que pour la transitivité
-%% ce soit bon. On devrait montrer que la transitivité peut-être push back dans
-%% la preuve.
 %% Historique : https://en.wikipedia.org/wiki/CLU_(programming_language)
-% Algorithme : finit toujours.
-%% Semi algorithme : finit pas toujours. Donc ici c'est semi algo.
-
-%\section{Notion bonne formation}
 
 \section{Sûreté}
 

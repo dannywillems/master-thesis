@@ -1,5 +1,5 @@
 let module MakePoint2D =
-  fun(typ : sig
+  fun(typ : sig(self)
     type t
     val plus : self.t -> self.t -> self.t
   end) ->

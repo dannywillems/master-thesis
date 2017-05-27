@@ -131,7 +131,7 @@ exemple :
   \item de définir plusieurs représentations des variables. Dans RML, nous utilisons deux
   représentations : \textit{brute} (types \verb|raw_term|,
   \verb|raw_typ| et \verb|raw_decl|) et \textit{nominative}
-  (types \verb|nominal_term|, \verb|nominal_typ| et \verb|nominal_decl|). Dans la
+  (types \verb|nominal_term|, \verb|nominal_typ| et \verb|nominal_decl|). \\Dans la
   représentation dite brute, les variables sont représentées par des chaînes de
   caractères tandis que dans la représentation nominative, les variables sont
   des atomes représentés par un type \verb|AlphaLib.Atom.t|, fourni par
@@ -156,8 +156,8 @@ exemple :
   \label{lst:implementation-grammar-terms-examples}
 \end{listing}
 
-La figure \ref{lst:implementation-grammar-terms-examples} montre l'implémentation
-de la syntaxe abstraite des termes.
+La figure \ref{lst:implementation-grammar-terms-examples} montre (une partie de)
+l'implémentation de la syntaxe abstraite des termes.
 
 Plus d'informations et d'explications sur AlphaLib et son fonctionnement peuvent
 être trouvées dans \cite{alphalib-paper}.
@@ -192,6 +192,7 @@ description ci-dessous.
 Cet algorithme n'est jamais discuté ni décrit dans les différents
 documents au sujet de DOT. Comprendre son utilité et son importance ainsi que
 son écriture n'a pas été facile.
+
 L'algorithme prend comme
 paramètres, en plus de la variable $x$, du type $T$ et du label $A$, un contexte
 $\Gamma$ et une direction. La direction est soit \verb|Lower| pour la
@@ -199,37 +200,37 @@ plus grande borne inférieure soit \verb|Upper| pour la plus petite borne
 supérieure. L'algorithme travaille sur la structure de $T$ :
 
 \begin{itemize}
-\item Si $T = Bottom$, nous renvoyons $Bottom$ pour la borne supérieure et
+\item[$\bullet$] Si $T = Bottom$, nous renvoyons $Bottom$ pour la borne supérieure et
   $None$ pour la borne inférieure.
-\item Si $T = Top$, nous renvoyons $Top$ pour la borne inférieure et
+\item[$\bullet$] Si $T = Top$, nous renvoyons $Top$ pour la borne inférieure et
   $None$ pour la borne supérieure.
-\item Si $T = \forall(x : S_{1}) S_{2}$, nous renvoyons $None$ car nous
+\item[$\bullet$] Si $T = \forall(x : S_{1}) S_{2}$, nous renvoyons $None$ car nous
   ne pouvons pas comparer un enregistrement avec une fonction.
-\item Si $T = \mu(y : S^{y})$, nous appelons récursivement l'algorithme sur
+\item[$\bullet$] Si $T = \mu(y : S^{y})$, nous appelons récursivement l'algorithme sur
   $S^{x}$ après avoir substitué $y$ par $x$ dans $S$.\footnote{Notons que la
     variable est importante dans ce cas, ce qui n'a pas été directement
     évident.}
-\item Si $T = T_{1} \wedge T_{2}$, nous
+\item[$\bullet$] Si $T = T_{1} \wedge T_{2}$, nous
   appliquons l'algorithme récursivement sur $T_{1}$ et sur $T_{2}$. Notons
   $T'_{1}$ et $T'_{2}$ les résultats. Plusieurs cas possibles :
   \begin{itemize}
-  \item Si $T'_{1} = T'_{2} = None$\footnote{Cela peut se
+  \item[$\bullet$] Si $T'_{1} = T'_{2} = None$\footnote{Cela peut se
     passer si $T'_{1}$ et $T'_{2}$ sont des fonctions.}, nous renvoyons $None$.
-  \item Si $T'_{1} = None$ et $T'_{2} \neq None$, nous renvoyons $T'_{2}$.
-  \item Si $T'_{2} = None$ et $T'_{1} \neq None$, nous renvoyons $T'_{1}$.
-  \item Sinon, nous renvoyons $T'_{1} \wedge T'_{2}$.
+  \item[$\bullet$] Si $T'_{1} = None$ et $T'_{2} \neq None$, nous renvoyons $T'_{2}$.
+  \item[$\bullet$] Si $T'_{2} = None$ et $T'_{1} \neq None$, nous renvoyons $T'_{1}$.
+  \item[$\bullet$] Sinon, nous renvoyons $T'_{1} \wedge T'_{2}$.
   \end{itemize}
-\item Si $T = \left\{ A : L .. U \right\}$, nous renvoyons $U$ pour la borne
+\item[$\bullet$] Si $T = \left\{ A : L .. U \right\}$, nous renvoyons $U$ pour la borne
   supérieure et $L$ pour la borne inférieure.
-\item Si $T = \left\{ a : U \right\}$, nous renvoyons $U$\footnote{Ceci afin de
+\item[$\bullet$] Si $T = \left\{ a : U \right\}$, nous renvoyons $U$\footnote{Ceci afin de
     supporter de manière générale la projection.}.
-\item Si $T = y.A'$, nous appelons récursivement l'algorithme avec les paramètres
+\item[$\bullet$] Si $T = y.A'$, nous appelons récursivement l'algorithme avec les paramètres
   $y$, le type de $y$, le label $A'$, le contexte $\Gamma$ et la direction et
   nous notons $S$ la réponse.
   \begin{itemize}
-  \item Si $S = None$, nous renvoyons $None$. Cela signifie qu'il n'y avait déjà
+  \item[$\bullet$] Si $S = None$, nous renvoyons $None$. Cela signifie qu'il n'y avait déjà
   pas de réponse pour $y$ (par exemple, si $y$ est de type fonction).
-  \item Sinon, nous savons que $S$ est le plus petit $U$ tel que $T_{y} <:
+  \item[$\bullet$] Sinon, nous savons que $S$ est le plus petit $U$ tel que $T_{y} <:
     \left\{ A' 
     : L .. U \right\}$ où $T_{y}$ est le type de $y$. Nous savons alors que $S$
   est la plus petite borne supérieure de $T$, c'est-à-dire le plus petit super-type de $T$. Nous
@@ -244,8 +245,9 @@ L'algorithme actuel est satisfaisant sur différents exemples. Cependant, nous
 remarquons que le cas où $T = y.A'$ n'est pas entièrement satisfaisant. Il serait nécessaire de
 montrer que la réponse pour $T$ est la même que pour sa plus petite borne
 supérieure $S$.\footnote{Plusieurs
-tentatives de démonstrations ont échoué, et la possibilité que la complétude soit
-fausse a été envisagée.
+tentatives de démonstrations ont échoué (en particulier à cause du problème des
+mauvaises bornes et du fait que la question n'a pas toujours de réponse), et la
+possibilité que la complétude soit fausse a été envisagée.
 Cependant, vu les bons résultats, nous acceptons l'algorithme actuel.} Nous
 pouvons seulement dire que la réponse actuelle est un candidat, mais non le
 meilleur.
@@ -486,8 +488,7 @@ L'algorithme procède par cas :
   donc non. L'utilisation de \verb|best_bound| et (T-SUB) pour (SEL<:) nous donne
   \begin{mathpar}
     \inferrule
-    {\Gamma \vdash x : T \\ \Gamma \vdash \left\{ A : L' .. U\right\} <: T \\ \Gamma \vdash L
-      <: L'}
+    {\Gamma \vdash L <: L' \\ \Gamma \vdash x : T \\ \Gamma \vdash \left\{ A : L' .. U\right\} <: T}
     {\Gamma \vdash L <: x.A}
   \end{mathpar}
 
@@ -503,12 +504,14 @@ Du coté de l'implémentation, nous ajoutons, dans l'ordre, les deux cas
 particuliers suivants.
 
 \begin{itemize}
-\item Si nous avons deux types récursifs $\nu(x_{1} : S')$ et $\nu(x_{2} : T')$,
+\item[$\bullet$] Si nous avons deux types récursifs $\nu(x_{1} : S')$ et $\nu(x_{2} : T')$,
 nous créons un nouvel atome $x$ et renommons les variables internes $x_{1}$ et
 $x_{2}$ par celui-ci dans $S'$ et $T'$. Un appel récursif est alors effectué
 avec $S'$ et $T'$ après avoir étendu le contexte avec $x : S'$. Nous appelons
-cette règle (UN-REC).
-\item Si $S = \nu(x : S')$ et $T$ quelconque (resp. $T = \nu(x : T')$ et $S$
+cette règle (UN-REC). La figure
+\ref{example:rml-implementation-recursive-type-variable} montre un exemple pour lequel
+cette règle est nécessaire.
+\item[$\bullet$] Si $S = \nu(x : S')$ et $T$ quelconque (resp. $T = \nu(x : T')$ et $S$
   quelconque), nous ajoutons $x$ dans le contexte avec le type $S'$ (resp. $T'$) et
   nous effectuons un appel récursif avec $S'$ et $T$ (resp. $S$ et $T'$). Étendre
   le contexte est nécessaire si $S'$ contient des champs mutuellement dépendants.
@@ -555,14 +558,14 @@ utilisions directement (<: AND), nous n'arriverions pas à montrer que c'est vra
 
 De manière générale, si nous avons $\mu(x : S_{1}) \wedge \mu(x : S_{2}) <: T$,
 une solution est de montrer $\mu(x : S_{1} \wedge S_{2}) <: T$. En effet,
-en utilisant successivement (<: AND), (VAR-UNPACK), (AND-1-<:), (AND-2-<:) et
-(VAR-PACK), nous montrons que $\mu(x : S_{1} \wedge S_{2}) <: T$ implique $\mu(x
+en utilisant successivement (<: AND), (VAR-PACK), (AND-1-<:), (AND-2-<:) et
+(VAR-UNPACK), nous montrons que $\mu(x : S_{1} \wedge S_{2}) <: T$ implique $\mu(x
 : S_{1}) \wedge \mu(x : S_{2}) <: T$.
 
 \begin{mathpar}
   \inferrule*[Left=(<: AND)]
   {
-    \inferrule*[Left=(VAR-PACK)]
+    \inferrule*[Left=(VAR-UNPACK)]
     {
       \Gamma \vdash \mu(x : S_{1} \wedge S_{2}) <: T
     }
@@ -570,11 +573,11 @@ en utilisant successivement (<: AND), (VAR-UNPACK), (AND-1-<:), (AND-2-<:) et
       \inferrule*[Left=(AND-1-<: et AND-2-<:)]
       {\Gamma \vdash S_{1} \wedge S_{2} <: T}
       {
-        \inferrule*[Left=(VAR-UNPACK)]
+        \inferrule*[Left=(VAR-PACK)]
         {\Gamma \vdash S_{1} <: T}
         {\Gamma \vdash \mu(x : S_{1}) <: T}
         \\
-        \inferrule*[Right=(VAR-UNPACK)]
+        \inferrule*[Right=(VAR-PACK)]
         {\Gamma \vdash S_{2} <: T}
         {\Gamma \vdash \mu(x : S_{2}) <: T}
       }
@@ -595,15 +598,15 @@ La régle de réflexivité (REFL) n'est pas implémentée directement. En effet,
 cette règle peut être dérivée d'autres règles.
 
 \begin{itemize}
-  \item Si $S$ est de la forme $x.A$, (UN-REFL-TYP) est utilisée.
-  \item Si $S$ est de la forme $\forall(x : S') T'$, nous pouvons utiliser (ALL
+  \item[$\bullet$] Si $S$ est de la forme $x.A$, (UN-REFL-TYP) est utilisée.
+  \item[$\bullet$] Si $S$ est de la forme $\forall(x : S') T'$, nous pouvons utiliser (ALL
     <: ALL).
-  \item Si $S$ est de la forme $\nu(x : S')$, (UN-REC) est utilisée.
-  \item Si $S$ est une intersection, nous pouvons utiliser (<: AND), puis
+  \item[$\bullet$] Si $S$ est de la forme $\nu(x : S')$, (UN-REC) est utilisée.
+  \item[$\bullet$] Si $S$ est une intersection, nous pouvons utiliser (<: AND), puis
     (AND-1-<:) sur le membre de gauche et (AND-2-<:) sur le membre de droite
     comme nous l'avons montré plus haut.
-  \item Si $S$ est de la forme $\left\{ A : L .. U \right\}$, (TYP <: TYP) est utilisée.
-  \item Si $S$ est de la forme $\left\{ a : T \right\}$, (FLD <: FLD) est utilisée.
+  \item[$\bullet$] Si $S$ est de la forme $\left\{ A : L .. U \right\}$, (TYP <: TYP) est utilisée.
+  \item[$\bullet$] Si $S$ est de la forme $\left\{ a : T \right\}$, (FLD <: FLD) est utilisée.
 \end{itemize}
 
 \subsection*{Transitivité}
@@ -655,8 +658,8 @@ En effet, il n'est par exemple pas possible de définir des fonctions à plusieu
 variables, de passer des termes en paramètre d'une fonction ou encore d'utiliser
 un terme dans une sélection.
 
-Pour ces raisons, des sucres syntaxiques au niveau des parseurs sont implémentés
-dans le langage de surface de RML.
+Pour ces raisons, des sucres syntaxiques au niveau du parseur sont implémentés
+dans RML.
 
 \subsection*{Curryfication des fonctions}
 
@@ -671,13 +674,15 @@ syntaxe correspondant.
 DOT nécessite une variable interne lors de la définition d'un module afin de
 pouvoir faire référence aux champs et types. Une variable par défaut,
 \verb|self|, est utilisée dans le parseur afin d'alléger l'écriture de programme
-si le nom de la variable interne n'est pas importante.
+si le nom de la variable interne n'est pas importante\footnote{Ce sucre
+  syntaxique ne faisant pas l'unanimité, il sera supprimé prochainement.}.
 
 \subsection*{Enregistrement}
 
-Les enregistrements ont la même représentation interne que les modules,
-\verb|TermRecursiveRecord|, le terme DOT correspondant étant $\nu(x : T) d$.
-Dans le langage de surface, les enregistrements ainsi que le type enregistrement
+Les enregistrements ont la même représentation interne que les modules sans types,
+\verb|TermRecursiveRecordUntyped|\footnote{Voir ci-dessous}, le terme DOT
+correspondant étant $\nu(x) d$. Dans le langage de surface, les enregistrements
+ainsi que le type enregistrement
 sont définis de la même manière qu'en OCaml. Afin d'éviter des références
 internes entre champs, la variable interne utilisée est \verb|'self|. Les noms
 de variables commençant par des simples guillemets n'étant pas acceptés dans le
@@ -802,8 +807,10 @@ implicitement.
   \label{code:rml-point2d}
 \end{listing}
 
-Nous pouvons définir le foncteur \verb|MakePoint2D| avec le terme \verb|fun|
-comme une autre fonction comme le montre la figure \ref{code:rml-makepoint2d}. 
+A la différence d'OCaml, les fonctions et les foncteurs ne sont pas deux notions
+disjointes, les deux étant définis par la même construction \verb|fun|. La
+figure \ref{code:rml-makepoint2d} montre une implémentation du foncteur
+\verb|MakePoint2D|.
 
 \begin{listing}
   \inputminted{OCaml}{codes/makepoint2d.rml}
@@ -822,8 +829,8 @@ que celui d'une fonction qui prend un module en paramètre et retourne un module
 \end{listing}
 
 Nous pouvons également définir des listes paramétrées par un type en utilisant un foncteur
-comme le montre la figure \ref{code:rml-list-functor} et créer une liste d'entiers en
-utilisant \verb|List Int|.
+comme le montre la figure \ref{code:rml-list-functor} et créer le type d'une
+liste d'entiers en utilisant \verb|List Int|.
 
 \begin{listing}
   \inputminted{OCaml}{codes/list_functor.rml}
@@ -831,7 +838,11 @@ utilisant \verb|List Int|.
     foncteur. Le type t représente le type liste. Le module elem
     est le type des éléments de la liste. Remarquons que dans cette
     implémentation, une liste ne peut contenir que des éléments du même type, ce
-    dernier étant fixé par le paramètre du foncteur.}
+    dernier étant fixé par le paramètre du foncteur. Nous voyons également
+    comment nous pouvons utiliser des ascriptions. Pour les champs empty et
+    tail, l'algorithme d'inférence sur les modules est appelé suivi de
+    l'algorithme de sous-typage pour vérifier que le type inféré est bien
+    sous-type du type demandé.}
   \label{code:rml-list-functor}
 \end{listing}
 
@@ -864,28 +875,28 @@ peut être trouvée, en anglais, sur la page du
 projet\cite{rml-github-issues}. En voici quelques exemples :
 
 \begin{itemize}
-  \item L'algorithme de sous-typage provoque sur certains cas des stack
+  \item[$\bullet$] L'algorithme de sous-typage provoque sur certains cas des stack
     overflow. Ceci n'est pas très surprenant. En effet, à cause
     du type récursif, un arbre de dérivation n'est pas nécessairement de taille finie car
     il est possible que l'algorithme doive répondre à la même question dans un
     sous-arbre. De plus, comme le problème du sous-typage est indécidable, il
     existe des questions qui ne disposent pas de réponse.
-  \item Nous nous sommes focalisés essentiellement sur l'implémentation des
+  \item[$\bullet$] Nous nous sommes focalisés essentiellement sur l'implémentation des
     algorithmes de typage et de sous-typage, et non sur l'évaluation des termes.
     Un évaluateur pourrait être implémenté en se basant sur \cite{WF-DOT-2016}.
-  \item Un interpréteur interactif.
-  \item Améliorer l'algorithme d'inférence de type pour les modules. En effet,
+  \item[$\bullet$] Un interpréteur interactif.
+  \item[$\bullet$] Améliorer l'algorithme d'inférence de type pour les modules. En effet,
       comme nous l'avons vu, celui-ci est relativement naïf et ne permet pas par
       exemple de gérer un module contenant des champs mutuellement dépendants.
-  \item Améliorer et prouver ensuite que les algorithmes de sous-typage et de
+  \item[$\bullet$] Améliorer et prouver ensuite que les algorithmes de sous-typage et de
       typage définissent bien les relations de typage et de sous-typage.
-  \item Pour l'instant, il est nécessaire de donner un type lorsque nous
+  \item[$\bullet$] Pour l'instant, il est nécessaire de donner un type lorsque nous
     utilisons un match sur une option (voir fichier \verb|stdlib/option_church.rml|), ce qui
     n'est pas courant en OCaml car le type est inféré. Cette inférence de type
     passe par la résolution d'équations et nécessite de travailler avec deux
     arbres différents.
-  \item Un enregistrement récursif peut posséder plusieurs déclarations grâce à
-    l'intersection. Il serait plus efficace d'implémenter cela grâce à une map
+  \item[$\bullet$] Un enregistrement récursif peut posséder plusieurs déclarations grâce à
+    l'intersection. Il serait plus efficace d'implémenter cela grâce à un dictionnaire
     qui associe la déclaration à un label. Cette solution n'a pas été
     implémentée directement pour rester fidèle à la grammaire de DOT.
 \end{itemize}

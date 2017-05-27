@@ -105,10 +105,10 @@ Au niveau de la sémantique, les règles restent les mêmes que pour Système F 
 \section{Contexte de typage}
 
 Au niveau du contexte de typage, à la place d'avoir uniquement la variable de
-type, nous allons également ajouter la borne supérieure.
+type, nous allons également ajouter sa borne supérieure.
 
 Il est nécessaire de faire attention à l'ordre d'apparition des variables. Par
-exemple, nous dirons que $X <: Y, Y <: Top$ est mal formé car $Y$
+exemple, nous dirons que le contexte $X <: Y, Y <: Top$ est mal formé car $Y$
 apparaît comme borne avant sa définition ($Y <: Top$). Bien que ça soit une
 définition informelle, nous considérerons uniquement les contextes de typage
 tels qu'une variable $Y$ n'apparaît jamais comme borne supérieure à gauche de sa
@@ -128,7 +128,7 @@ Comme le contexte comporte des hypothèses de sous-typage, nous ajoutons un
 contexte $\Gamma$ dans les règles de sous-typage. Une affirmation $S <: T$
 devient $\Gamma \vdash S <: T$.
 
-Les règles de typage deviennent :
+Les règles de typage sont :
 
 \begin{mathpar}
   \inferrule
@@ -138,7 +138,7 @@ Les règles de typage deviennent :
   \and
   \inferrule
   {\Gamma, x : T_{1} \vdash t : T_{2}}
-  {\Gamma \vdash \lambda (x : T_{1}) t : T_{1} \rightarrow T_{2}}
+  {\Gamma \vdash \lambda x : T_{1} t : T_{1} \rightarrow T_{2}}
   \quad (\textsc{T-ABS})
   \and
   \inferrule
@@ -197,7 +197,7 @@ Quant aux règles de sous-typage, nous avons :
   \quad (\textsc{S-ALL})
 \end{mathpar}
 
-Remarquons que dans (S-ALL), la borne supérieur de la variable $X$ peut être
+Remarquons que dans (S-ALL), la borne supérieure de la variable $X$ peut être
 différente.\footnote{Une variante, appelée Kernel $F_{<:}$, oblige la borne
   supérieure à être la même. Nous ne discuterons pas de celle-ci dans ce document.}
 

@@ -1,5 +1,5 @@
 let module List = struct(sci)
-  type list = sig
+  type list = sig(self)
     type t
     val is_empty : Bool.t
     val head : self.t

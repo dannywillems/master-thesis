@@ -5,12 +5,12 @@ programmation fonctionnelle en parlant du $\lambda$-calcul non typé.
 Nous discutons de la syntaxe de ce langage (les termes) pour ensuite discuter de
 la réduction de ceux-ci à travers la $\beta$-réduction.
 
-
 \section{Syntaxe}
 
 \begin{definition} [Syntaxe du $\lambda$-calcul]
-  Soit $V$ un ensemble infini dénombrable dont les éléments sont appelés \textbf{variables}. On note $\Lambda$, appelé \textbf{l'ensemble des $\lambda$-termes}, le plus petit
-  ensemble tel que:
+  Soit $V$ un ensemble infini dénombrable dont les éléments sont appelés
+  \textbf{variables}. On note $\Lambda$, appelé \textbf{l'ensemble des
+    $\lambda$-termes}, le plus petit ensemble tel que:
   \begin{enumerate}
     \item $V \subseteq \Lambda$
     \item $\forall u, v \in \Lambda, uv \in \Lambda$
@@ -45,16 +45,16 @@ ou encore
 
 où $x$ parcourt l'ensemble des variables $V$ et $t$ l'ensemble des termes, sont
 utilisées pour définir ces ensembles. La dernière syntaxe sera celle que nous
-utiliserons tout le long de ce document car elle permet une visualisation simple
+utiliserons tout au long de ce document car elle permet une visualisation simple
 de la syntaxe des termes et permet de nommer chaque forme facilement.
 
 Des exemples de $\lambda$-termes sont :
 \begin{itemize}
-  \item la fonction identité : $\lambdaExpr{x}{x}$
-  \item la fonction constante en $y$: $\lambdaExpr{x}{y}$
-  \item la fonction qui renvoie la fonction constante pour n'importe quelle
+  \item[$\bullet$] la fonction identité : $\lambdaExpr{x}{x}$
+  \item[$\bullet$] la fonction constante en $y$: $\lambdaExpr{x}{y}$
+  \item[$\bullet$] la fonction qui renvoie la fonction constante pour n'importe quelle
     variable: $\lambdaExpr{y}{\lambdaExpr{x}{y}}$.
-  \item l'application identité appliquée à la fonction identité:
+  \item[$\bullet$] l'application identité appliquée à la fonction identité:
     $(\lambdaExpr{x}{x}) (\lambdaExpr{y}{y})$
 \end{itemize}
 
@@ -70,8 +70,8 @@ mais elle peut aussi être interprétée comme une fonction à deux paramètres 
 %Le terme $\lambda x . \lambda y . xy$ $\lambda x . \lambda y . (x y)$ et $(\lambda x
 %. \lambda y . x) y$ sont différents selon la positionnement des parenthèses.
 
-Comme dans une formule mathématique, il est important de différencier les
-variables libres et les variables liées d'un $\lambda$-terme. Par exemple, dans
+Comme dans une formule mathématique, il est important de distinguer les
+variables libres des variables liées d'un $\lambda$-terme. Par exemple, dans
 le $\lambda$-terme $\lambdaExpr{x}{x}$ la variable $x$ est liée par un
 $\lambda$\footnote{on dit aussi qu'elle est \og sous \fg \, un $\lambda$.}
 tandis que dans l'expression $\lambdaExpr{x}{y}$, la variable $y$ est libre.
@@ -79,7 +79,7 @@ Nous définissons récursivement l'ensemble des variables libres et l'ensemble d
 variables liées à partir des variables, des abstractions et des applications.
 
 \begin{definition} [Ensemble de variables libres]
-  L'ensemble des variables \textbf{libres} d'un terme $t$, noté $FV(t)$ est défini
+  L'ensemble des variables \textbf{libres} d'un terme $t$, noté $FV(t)$, est défini
   récursivement sur la structure des termes de $\Lambda$ par:
   \begin{itemize}
   \item[$\bullet$] $FV(x) = \GSset{x}$
@@ -89,7 +89,7 @@ variables liées à partir des variables, des abstractions et des applications.
 \end{definition}
 
 \begin{definition} [Ensemble de variables liées]
-  L'ensemble des variables \textbf{liées} d'un terme $t$, noté $BV(t)$ est défini
+  L'ensemble des variables \textbf{liées} d'un terme $t$, noté $BV(t)$, est défini
   récursivement sur la structure des termes de $\Lambda$ par:
   \begin{itemize}
   \item[$\bullet$] $BV(x) = \emptyset$
@@ -149,7 +149,7 @@ terme $v$ dans un terme $u$.
   \item[$\bullet$] $[x := v](u_{1} u_{2}) = ([x := v]u_{1})([x := v]u_{2})$
   \item[$\bullet$] $[x := v](\lambda y . u) = \lambda y . ([x := v]u)$
   \end{itemize}
-  $u[x := v]$ se lit \textit{x est substitué par v dans u}.
+  $[x := v]u$ se lit \og x est substitué par v dans u \fg.
 \end{definition}
 
 Nous définissons maintenant une relation sur les abstractions, appelée relation d'
@@ -161,7 +161,7 @@ notre volonté d'égalité à renommage de variables près.
   La relation d'$\alpha$-renommage, notée $\alpha$, est définie par
 
   \begin{math}
-    \lambda x . u \;\; \alpha \;\; \lambda y . (u[x := y])
+    \lambda x . u \;\; \alpha \;\; \lambda y . ([x := y]u)
   \end{math}
 
   si $x = y$ ou si $x$ est substituable par $y$ dans $u$ et $y$ n'est pas libre
@@ -263,9 +263,8 @@ dans les deux premiers exemples. Dans le premier exemple, le terme
 irréductible n'est pas une valeur tandis que dans le second, nous obtenons
 une valeur.
 
-Le troisième et quatrième exemples montrent qu'il existe plusieurs manières,
-appelées aussi \textit{stratégie de réduction}, de
-réduire un terme.
+Le troisième et quatrième exemples montrent qu'il existe plusieurs manières de
+réduire un terme. Nous parlons de \textit{stratégies de réduction}.
 
 Lorsque toute réduction commençant par $t$ possède une forme normale, on dit que
 le terme $t$ est \textit{fortement normalisant}, ou tout simplement
@@ -299,9 +298,9 @@ Nous présentons les stratégies les plus utilisées. Le terme
 où $id = \lambda x . x$ sera utilisé pour interpréter chaque stratégie de réduction.
 Les redexes de ce terme sont:
 \begin{itemize}
-\item $id (id (\lambda z . id \, z))$
-\item $id (\lambda z . id \, z)$.
-\item $id z$
+\item[$\bullet$] $id \; (id \; (\lambda z . (id \; z)))$
+\item[$\bullet$] $id \; (\lambda z . (id \; z))$.
+\item[$\bullet$] $id \; z$
 \end{itemize}
 
 Dans les exemples ci-dessous, le redex qui est réduit est souligné.
@@ -321,8 +320,8 @@ La chaine de réduction de notre exemple est alors:
 \subsubsection*{Call-by-name}
 
 La stratégie appelée \textit{call-by-name} consiste à réduire les redexes les plus
-à gauche en premier, comme l'ordre normale. La différence est que le
-call-by-name ne permet pas de réduire les redexes qui sont dans le corps d'un lambda.
+à gauche en premier, comme l'ordre normale. La différence est que cette stratégie
+ne permet pas de réduire les redexes qui sont dans le corps d'un lambda.
 
 \begin{align*}
   & \underline{id \, (id \, (\lambda z . (id \, z)))} \rightarrow_{\beta}\\
@@ -335,7 +334,7 @@ sous le lambda $\lambda z$.
 
 \subsubsection*{Call-by-value}
 
-La réduction dite \textit{call-by-value} consiste à réduire en premier les
+La stratégie dite \textit{call-by-value} consiste à réduire en premier les
 redexes les plus à l'extérieur et réduire les arguments jusqu'à obtenir une valeur, et ensuite le corps de la fonction.
 Cette méthode de réduction est la plus courante dans les langages de
 programmation.
@@ -343,7 +342,7 @@ programmation.
 \begin{listing}
   \inputminted{OCaml}{codes/untyped-call-by-value-example.ml}
   \caption{Exemple qui montre que la stratégie de réduction utilisée par défaut
-    dans OCaml est le call-by-value.}
+    dans OCaml est la stratégie call-by-value.}
 \end{listing}
 
 Cette stratégie appliquée à l'exemple donne:

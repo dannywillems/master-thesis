@@ -16,7 +16,7 @@ sig(point)
     val x : Int.t
     val y : Int.t
   end
-  val add : forall(p : point.t) forall(p : point.t) sig('self)
+  val add : forall(p1 : point.t) forall(p2 : point.t) sig('self)
     val x : Int.t
     val y : Int.t
   end

@@ -1,13 +1,13 @@
 \chapter{Système F}
 \label{chapter:system-f}
 
-Dans ce chapitre, nous allons introduire une autre de notion de polymorphisme
-appelée le \textit{polymorphisme paramétré}\footnote{Plus d'informations peuvent
+Dans ce chapitre, nous allons introduire une autre notion de polymorphisme
+appelée le \textit{polymorphisme paramétré}.\footnote{Plus d'informations peuvent
 être trouvées dans \cite{tapl-system-f}}
 
 Nous avons vu dans le chapitre précédent que le polymorphisme par sous-typage
 nous permet de rendre notre relation de typage plus flexible en donnant la
-possibilité d'attribuer plusieurs types à un terme grâce à la règle T-SUB. Cette
+possibilité d'attribuer plusieurs types à un terme grâce à la règle (T-SUB). Cette
 méthode nous permet alors d'éviter
 d'écrire plusieurs fonctions qui ont le même corps mais qui différent uniquement
 par le type du paramètre.
@@ -37,7 +37,7 @@ nouvelle fonction pour l'identité:
 Et nous pouvons continuer de la sorte avec les enregistrements qui ont
 uniquement le champ $y$ ou le champ $z$ et ainsi de suite.
 
-Le polymorphisme paramétré résout ce problème en définissant de nouveaux termes
+Le polymorphisme paramétré résout ce problème en ajoutant de nouveaux termes
 et de nouvelles règles de typage et d'évaluation au $\lambda$-calcul simplement
 typé. Le calcul qui en résulte est appelé \textit{Système F}.
 
@@ -101,7 +101,7 @@ ces deux ensembles.
 
 \begin{definition}
   Soit $X$ une variable de type et $S$ un type. On définit la fonction de
-  substitution de $X$ par $S$, noté $[X \rightarrow S]$, sur les termes et types
+  substitution de $X$ par $S$ sur les termes et types, notée $[X \rightarrow S]$,
   de la manière suivante :
 
   \begin{align*}
@@ -162,7 +162,7 @@ de type $X$.
 
 Nous supposons que si une variable $X$ est dans le contexte, alors elle ne peut
 pas apparaître à la gauche de sa définition. Par exemple, le contexte $x : X, X$
-n'est pas valable, mais $X, x : X$ l'est.
+n'est pas bien formé, mais $X, x : X$ l'est.
 
 \section{Règles de typage}
 
@@ -288,15 +288,12 @@ pour le $\lambda$-calcul avec sous-typage.
   La preuve se réalise par récurrence sur l'arbre de dérivation. Nous ne
   démontrons que le cas (T-ABS) où $\Delta$ est nécessaire.
 
-%  \begin{itemize}
-   (T-ABS). Nous avons
-   \begin{equation*}
-     \Gamma, X, \Delta \vdash \lambdaExpr{x : T_{1}}t_{2} : T_{1} \rightarrow T_{2}
-   \end{equation*}
-   Par le lemme d'inversion, nous obtenons
-   \begin{equation*}
-     \Gamma, X, \Delta, x : T_{1} \vdash t_{2} : T_{2}
-   \end{equation*}
+   Nous avons
+   \begin{mathpar}
+     \inferrule*[Left=(T--ABS)]
+     {\Gamma, X, \Delta, x : T_{1} \vdash t_{2} : T_{2}}
+     {\Gamma, X, \Delta \vdash \lambdaExpr{x : T_{1}}t_{2} : T_{1} \rightarrow T_{2}}
+   \end{mathpar}
    Par hypothèse de récurrence,
    \begin{equation*}
      \Gamma, [X \rightarrow S]\Delta, x : [X \rightarrow S]T_{1} \vdash [X
@@ -347,14 +344,13 @@ pour le $\lambda$-calcul avec sous-typage.
   suffit d'ajouter des cas pour (T-T-ABS) et (T-T-APP).
 
   \begin{itemize}
-  \item (T-T-ABS). Ce cas n'est pas possible car il n'existe pas de règle d'évaluation.
-  \item (T-T-APP). Nous avons $t = t_{1}[T_{1}]$. Par le lemme d'inversion, nous
-    avons $\Gamma \vdash t_{1} : \forall X . \, T_{12}$ et $T = [X \rightarrow
-  T_{1}] T_{12}$. Les deux règles d'évaluation possibles sont (E-T-ABS) et
-  (E-T-APP).
+  \item[$\bullet$] (T-T-ABS). Ce cas n'est pas possible car il n'existe pas de règle d'évaluation.
+  \item[$\bullet$] (T-T-APP). Nous avons $t = t_{1}[T_{1}]$, $\Gamma \vdash
+    t_{1} : \forall X . \, T_{12}$ et $T = [X \rightarrow T_{1}] T_{12}$. Les deux
+    règles d'évaluation possibles sont (E-T-ABS) et (E-T-APP).
     \begin{itemize}
-    \item (E-T-APP). Nous utilisons l'hypothèse de récurrence et (E-T-APP).
-    \item (E-T-ABS). Alors, $t_{1} = \lambdaExprType{X}{t_{12}}$ avec $\Gamma, X
+    \item[$\bullet$] (E-T-APP). Nous utilisons l'hypothèse de récurrence et (E-T-APP).
+    \item[$\bullet$] (E-T-ABS). Alors, $t_{1} = \lambdaExprType{X}{t_{12}}$ avec $\Gamma, X
       \vdash t_{12} : T_{12}$ et $t'_{1} = [X \rightarrow T_{1}] t_{12}$. Par
      \ref{thm:system-f-preservation-substitution-type}, nous avons $\Gamma \vdash
      [X \rightarrow T_{1}] t_{12} : [X \rightarrow T_{1}] T_{12}$. Nous concluons

@@ -11,8 +11,8 @@ de considérer les modules comme des citoyens de première classe. Nous
 avons également montré comment DOT pouvait être interprété comme une extension
 de Système $F_{<:}$.
 
-Dans le dernier chapitre, nous avons présenté une implémentation en OCaml basée
-sur DOT. Nous avons pu remarquer qu'implémenter un langage à partir de règles
+Dans le dernier chapitre, nous avons proposé une implémentation en OCaml de
+DOT, appelée RML. Nous avons pu remarquer qu'implémenter un langage à partir de règles
 théoriques n'est pas évident et cela à cause des différents arbres de
 dérivations possibles pour une même question ou encore en raison des arbres de
 tailles infinies.
@@ -20,7 +20,7 @@ Nous avons également remarqué qu'il était nécessaire de changer certaines r�
 d'inférence pour écrire un algorithme, comme pour le cas de la réflexivité,
 l'inclusion de (T-SUB) dans les règles d'inférence ou encore l'introduction de
 (UN-REC) pour pouvoir comparer des types récursifs.
-De plus, nous avons remarqué qu'introduire des types chemins dépendants dans le
+De plus, nous avons remarqué qu'introduire des types dépendants dans le
 langage ne facilite pas l'implémentation. Pour finir, il nous a été nécessaire
 d'écrire des algorithmes secondaires comme \verb|best_bound|, non décrits dans
 les différents articles discutant de DOT.
