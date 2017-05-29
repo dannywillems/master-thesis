@@ -58,21 +58,21 @@ Des exemples de $\lambda$-termes sont :
     $(\lambdaExpr{x}{x}) (\lambdaExpr{y}{y})$
 \end{itemize}
 
-Comme le montrent le dernier exemple, des parenthèses sont utilisées pour
+Comme le montre le dernier exemple, des parenthèses sont utilisées pour
 délimiter les termes.
 
 Il est également possible de définir des fonctions à plusieurs paramètres à
 travers la curryfication : une fonction prenant 2 paramètres sera représentée
 par une fonction qui renvoie une fonction. Par exemple,
 $\lambdaExpr{x}{\lambdaExpr{y}{x y}}$ est une fonction qui attend un paramètre
-$x$ retournant une fonction qui attend un paramètre $y$,
+$x$ renvoyant une fonction qui attend un paramètre $y$,
 mais elle peut aussi être interprétée comme une fonction à deux paramètres $x$, $y$.
 %Le terme $\lambda x . \lambda y . xy$ $\lambda x . \lambda y . (x y)$ et $(\lambda x
 %. \lambda y . x) y$ sont différents selon la positionnement des parenthèses.
 
 Comme dans une formule mathématique, il est important de distinguer les
 variables libres des variables liées d'un $\lambda$-terme. Par exemple, dans
-le $\lambda$-terme $\lambdaExpr{x}{x}$ la variable $x$ est liée par un
+le $\lambda$-terme $\lambdaExpr{x}{x}$, la variable $x$ est liée par un
 $\lambda$\footnote{on dit aussi qu'elle est \og sous \fg \, un $\lambda$.}
 tandis que dans l'expression $\lambdaExpr{x}{y}$, la variable $y$ est libre.
 Nous définissons récursivement l'ensemble des variables libres et l'ensemble des
@@ -113,7 +113,7 @@ sens des termes. Si nous effectuons une
 substitution purement syntaxique, nous pouvons alors obtenir des termes qui ne sont
 plus dans la syntaxe des éléments de $\Lambda$. Par exemple, si nous
 substituons toutes les occurrences de $x$ par un terme $u$ dans la fonction constante
-$\lambda x . y$, nous aurions $\lambda u . y$, qui n'a pas de sens car $u$ n'est
+$\lambda x . y$, nous aurions $\lambda u . y$, ce qui n'a pas de sens car $u$ n'est
 pas obligatoirement une variable.
 
 La définition doit aussi prendre en compte les notions de variables liées et libres. En effet, si nous

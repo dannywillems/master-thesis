@@ -157,7 +157,7 @@ variables de type sont également définies et peuvent être également libres d
 termes comme dans $\lambdaExpr{z : \left\{ x : X ; y : X \right\}}{z}$.
 Cela nous amène à ajouter les variables dans le contexte afin de garder une
 trace de leur définition. Le contexte de typage
-est donc défini comme une liste contenant des couples $(x : T)$ et des variables
+est donc défini comme une liste contenant des couples $(x, T)$ et des variables
 de type $X$.
 
 Nous supposons que si une variable $X$ est dans le contexte, alors elle ne peut
@@ -243,9 +243,9 @@ pour le $\lambda$-calcul avec sous-typage.
   une valeur, soit il existe $t'_{1}$ tel que $t_{1} \rightarrow t'_{1}$.
 
   \begin{itemize}
-  \item Si $t_{1}$ est une valeur, par le lemme des formes canoniques, $t_{1} =
+  \item[$\bullet$] Si $t_{1}$ est une valeur, par le lemme des formes canoniques, $t_{1} =
     \lambdaExprType{X}{t}$ et (E-T-ABS) s'applique.
-  \item Si $t_{1}$ se réduit en $t'_{1}$, alors (E-T-APP) s'applique.
+  \item[$\bullet$] Si $t_{1}$ se réduit en $t'_{1}$, alors (E-T-APP) s'applique.
   \end{itemize}
 \end{proof}
 

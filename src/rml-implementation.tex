@@ -172,10 +172,13 @@ pour récupérer le type d'une variable depuis un contexte donné.
 
 \section{Meilleures bornes d'un type dépendant}
 
-Un problème qui se pose lors de l'écriture des algorithmes, est : étant donnés une variable
-$x$ et un contexte, quelle est la borne inférieure ou la borne supérieure du
-type dépendant $x.A$ ? La question se pose, par exemple, quand nous devons
-comparer deux types dépendants $x.A$ et $y.A'$.
+Avant de discuter des algorithmes de sous-typage, nous allons discuter d'un
+autre algorithme important qui sera utilisé à plusieurs reprises.
+
+Un problème qui se pose lors de l'écriture des algorithmes de sous-typage et de
+typage, est : étant donnés une variable $x$ et un contexte, quelle est la borne
+inférieure ou la borne supérieure du type dépendant $x.A$ ? La question se pose,
+par exemple, quand nous devons comparer deux types dépendants $x.A$ et $y.A'$.
 
 En d'autres termes, pour la borne supérieure, pour une variable $x$ de type $T$ et
 un champ $A$, quel est le plus petit type $U$ tel que $T <: \left\{ A : L .. U
@@ -207,12 +210,12 @@ supérieure. L'algorithme travaille sur la structure de $T$ :
 \item[$\bullet$] Si $T = \forall(x : S_{1}) S_{2}$, nous renvoyons $None$ car nous
   ne pouvons pas comparer un enregistrement avec une fonction.
 \item[$\bullet$] Si $T = \mu(y : S^{y})$, nous appelons récursivement l'algorithme sur
-  $S^{x}$ après avoir substitué $y$ par $x$ dans $S$.\footnote{Notons que la
-    variable est importante dans ce cas, ce qui n'a pas été directement
-    évident.}
+  $S^{x}$ après avoir substitué $y$ par $x$ dans $S$ grâce à la règle
+  (VAR-PACK).\footnote{Notons que la variable est importante dans ce cas, ce qui
+  n'a pas été directement évident.}
 \item[$\bullet$] Si $T = T_{1} \wedge T_{2}$, nous
   appliquons l'algorithme récursivement sur $T_{1}$ et sur $T_{2}$. Notons
-  $T'_{1}$ et $T'_{2}$ les résultats. Plusieurs cas possibles :
+  $T'_{1}$ et $T'_{2}$ les résultats. Plusieurs cas sont possibles :
   \begin{itemize}
   \item[$\bullet$] Si $T'_{1} = T'_{2} = None$\footnote{Cela peut se
     passer si $T'_{1}$ et $T'_{2}$ sont des fonctions.}, nous renvoyons $None$.
@@ -321,12 +324,12 @@ nous commençons par ajouter dans le contexte $x$ avec le type \verb|Top|.
 Ensuite, nous allons parcourir la déclaration $d$ et affiner le type de $x$ en
 fonction de la forme de $d$.
 \begin{itemize}
-\item Si $d = \left\{ A = S \right\}$ et $x : T$, nous renvoyons $T \wedge
+\item[$\bullet$] Si $d = \left\{ A = S \right\}$ et $x : T$, nous renvoyons $T \wedge
   \left\{ A : S .. S \right\}$.
-\item Si $d = \left\{ a = t \right\}$ et $x : T$, nous utilisons l'algorithme de
+\item[$\bullet$] Si $d = \left\{ a = t \right\}$ et $x : T$, nous utilisons l'algorithme de
   typage sur $t$ et le contexte $\Gamma, x : T$ et notons $S$ le résultat. Nous
   renvoyons $T \wedge \left\{ a : S \right\}$.
-\item Si $d = d_{1} \wedge d_{2}$ et $x : T$, nous appelons récursivement
+\item[$\bullet$] Si $d = d_{1} \wedge d_{2}$ et $x : T$, nous appelons récursivement
   l'algorithme sur $d_{1}$ avec $\Gamma, x : T$, et notons $T_{1}$ le résultat. Nous
   effectuons alors un second appel sur $d_{2}$ avec $\Gamma, x : T \wedge T_{1}$.
 \end{itemize}
@@ -412,15 +415,10 @@ suivant :
   }
 \end{mathpar}
 
-où (<:-AND) est utilisé en premier suivi de (AND-1-<:) et (AND-2-<:) sur chaque
+où la règle (<:-AND) est utilisée en premier suivie de (AND-1-<:) et (AND-2-<:) sur chaque
 branche. Cependant, si nous utilisions (AND-1-<:) (ou (AND-2-<:)) en premier,
-nous serions incapables d'arriver au résultat voulu.
-
-Aucun document sur DOT ne décrit actuellement l'implémentation d'un algorithme
-de sous-typage pour DOT, l'implémentation d'un tel algorithme à partir de règles
-théoriques n'étant pas simple comme peuvent le montrer
-\cite{tapl-metatheory-subtyping} et
-\cite{tapl-bounded-quantification-metatheory} pour d'autres calculs.
+nous serions incapables d'arriver au résultat voulu. Cet exemple montre qu'il
+est important d'envisager les différents arbres de dérivation possibles.
 
 Une difficulté supplémentaire de l'implémentation de DOT est que les règles de
 typage et de sous-typage sous mutuellement dépendantes. Il est naturel et
@@ -428,6 +426,17 @@ courant d'avoir les règles de typage qui dépendent du sous-typage à travers
 (T-SUB), mais non l'inverse. Dans DOT, les règles de sous-typage dépendent du
 typage des variables à travers (SEL <:) ainsi que (<: SEL) et demandent
 d'implémenter des algorithmes supplémentaires comme \verb|best_bound|.
+
+Aucun document sur DOT ne décrit actuellement un algorithme
+de sous-typage pour DOT, le développement d'un tel algorithme à partir de règles
+théoriques n'étant pas simple comme peuvent le montrer
+\cite{tapl-metatheory-subtyping} et
+\cite{tapl-bounded-quantification-metatheory} pour d'autres calculs.
+Il n'a pas été démontré que l'algorithme donné ci-dessous est complet et
+correct\footnote{Et il ne doit certainement pas l'être en raison de la
+  transitivité et de l'algorithme best\_bound qui n'est ni complet ni correct.}.
+L'algorithme est cependant satisfaisant sur des exemples concrets. Diverses
+améliorations et travaux en cours sont listés à la fin de ce chapitre.
 
 Voici, dans l'ordre,
 comment l'algorithme gère les différents cas en fonction de la structure de $S$
@@ -455,20 +464,25 @@ d'appeler l'algorithme avec la question $S' :< T'$.
 Même cas que précédemment en utilisant la règle (ALL <: ALL). Lors de l'appel
 récursif sur la question $T_{1} <: T_{2}$, nous devons ajouter la variable $x$
 avec le type $S_{2}$ dans le contexte comme la règle (ALL <: ALL) le mentionne.
+Dans l'implémentation OCaml, les variables $x$ sont deux atomes différents. Un
+nouvel atome $x'$ est généré et un renommage de $x$ par $x'$ est réalisé dans
+$T_{1}$ et $T_{2}$. La variable $x'$ est alors ajoutée avec le type $S_{2}$ dans
+le contexte. L'appel récursif est effectué avec les types $T_{1}$ et $T_{2}$
+dans lesquels la variable $x$ a été substituée par la variable $x'$.
 
 \subsection*{$x.A <: y.A'$}
 
 Les premiers cas posant des difficultés sont ceux des types dépendants, par exemple
 $x.A$ et $y.A'$\footnote{Les cas $x.A <: U$ et $U <: x.A$ sont traités
-ci-dessous.}. En effet, les règles (REFL), (SEL <:) et (<: SEL) peuvent être
+ci-dessous.}. En effet, les règles (S-REFL), (SEL <:) et (<: SEL) peuvent être
 employées.
 
 L'algorithme procède par cas :
 \begin{itemize}
-\item Dans le cas de la réflexivité, cela signifie que $x$ et $y$ sont les mêmes
+\item[$\bullet$] Dans le cas de la réflexivité, cela signifie que $x$ et $y$ sont les mêmes
   atomes. Nous utilisons donc les fonctions fournies par \verb|AlphaLib| pour le
   vérifier. Nous appelons cette règle (UN-REFL-TYP).
-\item Sinon, nous testons en premier (SEL <:). Nous ajoutons en plus (T-SUB) et
+\item[$\bullet$] Sinon, nous testons en premier (SEL <:). Nous ajoutons en plus (T-SUB) et
   nous utilisons \verb|best_bound| pour trouver le type de $x$ et de $y$. La règle
   \begin{mathpar}
     \inferrule
@@ -528,10 +542,6 @@ cette règle est nécessaire.
   \label{example:rml-implementation-recursive-type-variable}
 \end{listing}
 
-Le premier cas est nécessaire pour pouvoir comparer des types récursifs qui ne
-se différencient que par leur variable interne, voir la figure
-\ref{example:rml-implementation-recursive-type-variable}.
-
 \subsection*{$x.A <: T$ ou $T <: x.A$}
 
 Comme pour le cas $x.A <: y.A'$, nous modifions la règle de sous-typage en
@@ -550,7 +560,7 @@ Ensuite, comme pour (SEL <:) et (<: SEL), nous ne pouvons tester séparément
 Nous procédons donc de la même manière que pour (SEL <:) et (<: SEL) en testant
 successivement (AND-1-<:) et (AND-2-<:)
 
-De plus, dans le cas (<: AND), nous devons gérer les types récursifs à cause de
+De plus, dans le cas (<: AND), nous devons gérer séparément et en premier les types récursifs à cause de
 la règle (VAR-PACK). En effet, si nous avons la question $\mu(x : S_{1}) \wedge
 \mu(x : S_{2}) <: \mu(x : S_{1} \wedge S_{2})$, nous pouvons revenir à la
 question $\mu(x : S_{1} \wedge S_{2}) <: \mu(x : S_{1} \wedge S_{2})$. Si nous
@@ -594,7 +604,7 @@ T$ et $S_{1} \wedge \mu(x : S_{2}) <: T$.
 
 \subsection*{Réflexivité}
 
-La régle de réflexivité (REFL) n'est pas implémentée directement. En effet,
+La régle de réflexivité (S-REFL) n'est pas implémentée directement. En effet,
 cette règle peut être dérivée d'autres règles.
 
 \begin{itemize}
@@ -612,7 +622,7 @@ cette règle peut être dérivée d'autres règles.
 \subsection*{Transitivité}
 
 Actuellement, la transitivité n'est pas gérée. En effet, pour la gérer, il
-faudrait trouver un type $U$ tel que $S <: U$ et $T <: U$, ce qui n'est pas
+faudrait trouver un type $U$ tel que $S <: U$ et $U <: T$, ce qui n'est pas
 possible, ou du moins compliqué. Pour contourner ce problème, il est
 nécessaire de reformuler les règles de sous-typage et d'y introduire
 explicitement (S-TRANS).
@@ -680,8 +690,8 @@ si le nom de la variable interne n'est pas importante\footnote{Ce sucre
 \subsection*{Enregistrement}
 
 Les enregistrements ont la même représentation interne que les modules sans types,
-\verb|TermRecursiveRecordUntyped|\footnote{Voir ci-dessous}, le terme DOT
-correspondant étant $\nu(x) d$. Dans le langage de surface, les enregistrements
+\verb|TermRecursiveRecordUntyped|\footnote{Voir ci-dessous.}, le terme DOT
+correspondant étant $\nu(x) d$ défini précédemment. Dans le langage de surface, les enregistrements
 ainsi que le type enregistrement
 sont définis de la même manière qu'en OCaml. Afin d'éviter des références
 internes entre champs, la variable interne utilisée est \verb|'self|. Les noms

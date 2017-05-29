@@ -223,7 +223,7 @@ avec les mêmes labels,
 si les types des champs de $S$ sont tous sous-types des types des champs de $T$,
 alors $S$ est sous-type de $T$.
 
-Pour finir, nous ajoutons une règle pour comparer deux types flèches.
+Pour finir, nous ajoutons une règle pour comparer deux types flèche.
 Nous disons que le type flèche est \textit{contravariant} pour les paramètres et
 \textit{covariant} pour le type de retour.
 
@@ -310,11 +310,11 @@ démontré pour le $\lambda$-calcul simplement typé.
 \begin{lemma} [d'inversion des règles de typage]
   \label{lemma:subtyping-record-inversion-typing-rules}
   \begin{enumerate}
-    \item Si $\Gamma \vdash \lambdaExpr{x : S_{1}} s_{2} : T_{1} \rightarrow
+    \item Si \\ $\Gamma \vdash \lambdaExpr{x : S_{1}} s_{2} : T_{1} \rightarrow
     T_{2}$, alors $T_{1} <: S_{1}$ et $\Gamma, x : S_{1} \vdash s_{2} : T_{2}$.
     \item Si $\Gamma \vdash \left\{ k_{i} = s_{i} \right\}^{1 \leq i \leq n} :
-      \left\{ l_{i} : T_{i} \right\}^{1 \leq i \leq m}$, alors $(l_{i})^{1 \leq
-        i \leq m} \subseteq (k_{i})^{1 \leq i \leq n}$ et $\Gamma \vdash s_{i} :
+      \left\{ l_{i} : T_{i} \right\}^{1 \leq i \leq m}$, alors $(l_{i})_{1 \leq
+        i \leq m} \subseteq (k_{i})_{1 \leq i \leq n}$ et $\Gamma \vdash s_{i} :
       T_{i}$ pour $k_{i} = l_{i}$.
   \end{enumerate}
 \end{lemma}
@@ -383,7 +383,7 @@ aux enregistrements de manière naturelle.
   Nous procédons de la même manière que pour le cas du $\lambda$-calcul
   simplement typé, c'est-à-dire sur le jugement $\Gamma \vdash t : T$.
   \begin{itemize}
-    \item (T-VAR). Nous avons alors $t = x$ : pas possible car il n'y a pas de
+    \item[$\bullet$] (T-VAR). Nous avons alors $t = x$ : pas possible car il n'y a pas de
       réduction pour les variables.
       \item[$\bullet$] (T-ABS). $t = \lambdaExpr{x : T_{1}}{t_{12}}$ : déjà une valeur.
       \item[$\bullet$] (T-APP). $t = t_{1} \, t_{2}$. Nous avons

@@ -98,7 +98,7 @@ $x$ du type récursif.
 Enfin, les types dépendants (type proj), en parallèle de (champ proj),
 permettent d'accéder à un type interne d'un enregistrement.
 
-L'écriture de programmes est lourde et fastidieuse. Des exemples concrets et
+L'écriture de programmes DOT est lourde et fastidieuse. Des exemples \; concrets et
 écrits dans un langage plus lisible et proche d'OCaml seront donnés dans le
 chapitre \ref{chapter:rml}.
 
@@ -310,7 +310,7 @@ attention lors de l'implémentation, en particulier lorsque nous faisons des
 bindings locaux de variables.
 
 
-\section{Problème de mauvaises bornes}
+\section{Problème des mauvaises bornes}
 
 DOT permet de définir des déclarations de types avec une borne inférieure et une
 borne supérieure. Cette liberté dans les types, bien qu'intéressante à première
@@ -414,7 +414,7 @@ t : T$. Celle-ci repose sur deux lemmes intermédiaires pour la
 substitution des types dépendants.
 
 % TODO ajouter références d'articles qui disent que le sous-typage de DOT est indécidable.
-Cette propriété de DOT implique que la question du sous-typage de DOT est
+Ces propriétés de DOT impliquent que la question du sous-typage de DOT est
 indécidable\cite{WF-DOT-2016, nada-amin-thesis}.
 \footnote{Plus précisément, il est nécessaire de démontrer
 $\Gamma^{*} \vdash_{D} S^{*} <: T^{*} \Rightarrow \Gamma \vdash_{F} S <: T$.
