@@ -26,6 +26,10 @@ CC_WITH_OPTIONS = \
 ############################### Rules ##########################################
 all: $(NAME)
 
+abstract:
+	$(PDFLATEX) -output-directory=$(OUTPUT_DIR) $(SRC_DIR)/abstract.tex
+	cp $(OUTPUT_DIR)/abstract.pdf $(CURRENT_DIR)/abstract.pdf
+
 $(OUTPUT_DIR):
 	mkdir -p $@
 
@@ -54,6 +58,7 @@ clean-symlink:
 
 clean:
 	$(RM) $(OUTPUT_DIR)/$(NAME).{out,aux,toc,log,tex.backup,nav,snm,bbl,blg}
+	$(RM) $(OUTPUT_DIR)/abstract.{out,aux,toc,log,tex.backup,nav,snm,bbl,blg}
 	$(RM) $(OUTPUT_DIR)/texput.log
 
 # $(OUTPUT_DIR) is only removed when the directory is empty (never be the case
@@ -62,6 +67,7 @@ fclean: clean clean-symlink
 	$(RM) $(OUTPUT_DIR)/$(NAME).{pdf,zip,dvi}
 	-rmdir $(OUTPUT_DIR)
 	$(RM) $(CURRENT_DIR)/$(NAME).pdf
+	$(RM) $(OUTPUT_DIR)/abstract.pdf
 
 re: fclean $(NAME)
 ################################################################################
