@@ -1,5 +1,1 @@
-# Mémoire
-
-## Links
-
-[Dernière version compilée](https://git.danny-willems.be/danny/master-thesis/raw/master/memoire.pdf)
+# Mémoire/Master thesis on RML
