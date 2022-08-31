@@ -93,7 +93,10 @@ variables liées à partir des variables, des abstractions et des applications.
   récursivement sur la structure des termes de $\Lambda$ par:
   \begin{itemize}
   \item[$\bullet$] $BV(x) = \emptyset$
-  \item[$\bullet$] $BV(\lambdaExpr{x}{t}) = BV(t) \union \GSset{x}$
+  \item[$\bullet$] $BV(\lambdaExpr{x}{t}) = \begin{cases}
+      BV(t)                  & \text{si}\ x\ \text{est lié dans}\ t \\
+      BV(t) \union \GSset{x} & \text{si}\ x\ \text{est libre dans}\ t
+    \end{cases}$
   \item[$\bullet$] $BV(u v) = BV(u) \union BV(v)$
   \end{itemize}
 \end{definition}
